@@ -1,0 +1,13 @@
+name = "compeydev/pesde_bins"
+version = "0.1.0"
+private = true
+
+workspace_members = ["lune", "core"]
+
+[target]
+environment = "lune"
+
+[indices]
+default = "https://github.com/daimond113/pesde-index"
+
+
