@@ -1,4 +1,3 @@
--- !! FIXME: THIS IS BROKEN !!
 local function eq(this: any, that: any): boolean
 	if type(this) ~= type(that) then
 		return false
