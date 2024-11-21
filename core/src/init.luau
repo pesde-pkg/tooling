@@ -74,11 +74,17 @@ end
 local TOOL_INSTALL_DIR = (dirs.homeDir() or error("Couldn't get home dir :(")):join(".pesde"):join("bin")
 
 function installTool(tool: ToolId)
+	local toolStart = os.clock()
 	local toolAlias = tool.alias:unwrapOr(string.split(tool.repo, "/")[2])
-	local toolInstallPath = TOOL_INSTALL_DIR:join(toolAlias)
+	print("toolAlias defaulting took", os.clock() - toolStart)
 	
-	-- TODO: This is a bit too much overhead on startup and takes about 2s
-	-- We can improve this by following what rokit does, where we symlink
+	local installStart = os.clock()
+	local toolInstallPath = TOOL_INSTALL_DIR:join(toolAlias)
+	print("toolInstallPath joining took", os.clock() - installStart)
+
+	-- TODO: In order to eliminate fs read overhead on startup and to disallow
+	-- the use of the tool binary when outside a package where it is installed,
+	-- we can improve this by following what rokit does, where we symlink
 	-- the tool's path to this script, and check the file that we are being
 	-- invoked as, in order to figure out what tool to execute
 
@@ -169,6 +175,8 @@ function installTool(tool: ToolId)
 		end
 	end
 
+	-- TODO: Maintain multiple versions of a tool, and avoid downloading
+	-- the binary for a version again if it's already there 
 	pathfs.move(binaryPath, toolInstallPath)
 	runTool(toolInstallPath)
 end
