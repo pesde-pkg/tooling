@@ -1,0 +1,9 @@
+name = "compeydev/pesde_bins"
+version = "0.1.0"
+target = "lune"
+
+[workspace."compeydev/binlib"]
+lune = "core"
+
+[workspace."compeydev/lune"]
+lune = "lune"
