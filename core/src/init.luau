@@ -87,6 +87,9 @@ function installTool(tool: ToolId)
 	--[[
 		#!/bin/env -S lune run
 
+		-- First off, we check whether the tool is installed in pesde.toml
+		-- if we're being run as a symlink, and not a `pesde x` bin
+
 		local pathInfo = debug.info(1, "s")
 		local path = string.sub(pathInfo, 10, #pathInfo - 2))
 
