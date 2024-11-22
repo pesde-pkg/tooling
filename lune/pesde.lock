@@ -2,30 +2,30 @@ name = "compeydev/lune"
 version = "0.1.0"
 target = "lune"
 
-[graph."0x5eal/semver"."0.1.0 luau"]
-direct = ["semver", { name = "0x5eal/semver", version = "^0.1.0", target = "luau" }]
+[graph."0x5eal/semver"."0.1.1 luau"]
+direct = ["semver", { name = "0x5eal/semver", version = "^0.1.1", target = "luau" }]
 ty = "standard"
 
-[graph."0x5eal/semver"."0.1.0 luau".target]
+[graph."0x5eal/semver"."0.1.1 luau".target]
 environment = "luau"
 lib = "lib/init.luau"
 
-[graph."0x5eal/semver"."0.1.0 luau".dependencies]
+[graph."0x5eal/semver"."0.1.1 luau".dependencies]
 "lukadev_0/option" = ["1.2.0 luau", "option"]
 "lukadev_0/result" = ["1.2.0 luau", "result"]
 
-[graph."0x5eal/semver"."0.1.0 luau".pkg_ref]
+[graph."0x5eal/semver"."0.1.1 luau".pkg_ref]
 ref_ty = "pesde"
 name = "0x5eal/semver"
-version = "0.1.0"
+version = "0.1.1"
 index_url = "https://github.com/daimond113/pesde-index"
 
-[graph."0x5eal/semver"."0.1.0 luau".pkg_ref.dependencies]
+[graph."0x5eal/semver"."0.1.1 luau".pkg_ref.dependencies]
 frktest = [{ name = "itsfrank/frktest", version = "^0.0.2", index = "https://github.com/daimond113/pesde-index", target = "lune" }, "dev"]
 option = [{ name = "lukadev_0/option", version = "^1.2.0", index = "https://github.com/daimond113/pesde-index" }, "peer"]
 result = [{ name = "lukadev_0/result", version = "^1.2.0", index = "https://github.com/daimond113/pesde-index" }, "peer"]
 
-[graph."0x5eal/semver"."0.1.0 luau".pkg_ref.target]
+[graph."0x5eal/semver"."0.1.1 luau".pkg_ref.target]
 environment = "luau"
 lib = "lib/init.luau"
 
@@ -38,7 +38,7 @@ environment = "lune"
 lib = "src/init.luau"
 
 [graph."compeydev/binlib"."0.1.0 lune".dependencies]
-"0x5eal/semver" = ["0.1.0 luau", "semver"]
+"0x5eal/semver" = ["0.1.1 luau", "semver"]
 "jiwonz/dirs" = ["0.1.2 lune", "dirs"]
 "jiwonz/pathfs" = ["0.1.0 lune", "pathfs"]
 "lukadev_0/option" = ["1.2.0 lune", "option"]
@@ -53,7 +53,7 @@ dirs = [{ name = "jiwonz/dirs", version = "^0.1.1", index = "https://github.com/
 option = [{ name = "lukadev_0/option", version = "^1.2.0", index = "https://github.com/daimond113/pesde-index" }, "peer"]
 pathfs = [{ name = "jiwonz/pathfs", version = "^0.1.0", index = "https://github.com/daimond113/pesde-index" }, "standard"]
 result = [{ name = "lukadev_0/result", version = "^1.2.0", index = "https://github.com/daimond113/pesde-index" }, "peer"]
-semver = [{ name = "0x5eal/semver", version = "^0.1.0", index = "https://github.com/daimond113/pesde-index", target = "luau" }, "standard"]
+semver = [{ name = "0x5eal/semver", version = "^0.1.1", index = "https://github.com/daimond113/pesde-index", target = "luau" }, "standard"]
 
 [graph."compeydev/binlib"."0.1.0 lune".pkg_ref.target]
 environment = "lune"

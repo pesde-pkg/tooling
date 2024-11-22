@@ -10,9 +10,9 @@
 local net = require("@lune/net")
 local process = require("@lune/process")
 
+local Semver = require("../luau_packages/semver")
 local pathfs = require("../lune_packages/pathfs")
 local dirs = require("../lune_packages/dirs")
-local semver = require("../luau_packages/semver")
 
 local types = require("./utils/result_option_conv")
 local Option = types.Option
@@ -26,7 +26,7 @@ local eq = require("./utils/eq")
 export type ToolId = {
 	alias: Option<string>,
 	repo: string,
-	version: Option<semver.SemverImpl>,
+	version: Option<Semver.SemverImpl>,
 }
 
 export type GithubReleases = {
@@ -71,16 +71,20 @@ local function runTool(path: pathfs.Path)
 	})
 end
 
-local TOOL_INSTALL_DIR = (dirs.homeDir() or error("Couldn't get home dir :(")):join(".pesde"):join("bin")
+local TOOL_INSTALL_DIR = (dirs.homeDir() or error("Couldn't get home dir :("))
+	:join(".pesde")
+	:join("bin")
+	:join("tool_storage")
+
+-- if not pathfs.isDir(TOOL_INSTALL_DIR) then
+-- pathfs.writeDir(TOOL_INSTALL_DIR)
+-- end
 
 function installTool(tool: ToolId)
-	local toolStart = os.clock()
 	local toolAlias = tool.alias:unwrapOr(string.split(tool.repo, "/")[2])
-	print("toolAlias defaulting took", os.clock() - toolStart)
-	
-	local installStart = os.clock()
-	local toolInstallPath = TOOL_INSTALL_DIR:join(toolAlias)
-	print("toolInstallPath joining took", os.clock() - installStart)
+	local toolId = string.gsub(tool.repo, "/", "+")
+	local toolInstallPath = TOOL_INSTALL_DIR:join(toolId)
+		:join(`{toolAlias}-` .. tostring(tool.version:map(tostring):unwrapOr("latest")))
 
 	-- TODO: In order to eliminate fs read overhead on startup and to disallow
 	-- the use of the tool binary when outside a package where it is installed,
@@ -118,9 +122,9 @@ function installTool(tool: ToolId)
 
 	local releases = client:queueTransactions({ "FetchReleases" })[1]:unwrap() :: GithubReleases
 	local assets = tool.version:match({
-		Some = function(version: semver.SemverImpl)
+		Some = function(version: Semver.SemverImpl)
 			for _, release in releases do
-				if semver.parse(release.tag_name):unwrap() :: semver.SemverImpl == version then
+				if Semver.parse(release.tag_name):unwrap() :: Semver.SemverImpl == version then
 					return release.assets
 				end
 			end
@@ -175,13 +179,18 @@ function installTool(tool: ToolId)
 		end
 	end
 
-	-- TODO: Maintain multiple versions of a tool, and avoid downloading
-	-- the binary for a version again if it's already there 
+	-- Maintain multiple versions of a tool, and avoid downloading
+	-- the binary for a version again if it's already there
+	local toolDir = Option.from(toolInstallPath:parent()):unwrap()
+	if not pathfs.isFile(toolDir) then
+		pathfs.writeDir(toolDir)
+	end
+
 	pathfs.move(binaryPath, toolInstallPath)
 	runTool(toolInstallPath)
 end
 
 return {
 	installTool = installTool,
-	runTool = runTool
+	runTool = runTool,
 }
