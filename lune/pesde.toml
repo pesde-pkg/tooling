@@ -12,7 +12,7 @@ bin = "init.luau"
 [dependencies]
 result = { name = "lukadev_0/result", version = "^1.2.0" }
 option = { name = "lukadev_0/option", version = "^1.2.0" }
-semver = { name = "0x5eal/semver", version = "^0.1.0", target = "luau" }
+semver = { name = "0x5eal/semver", version = "^0.1.1", target = "luau" }
 core = { workspace = "compeydev/binlib", version = "^" }
 
 [indices]
