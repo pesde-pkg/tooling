@@ -1,13 +1,11 @@
-name = "compeydev/pesde_bins"
+name = "pesde/tooling"
 version = "0.1.0"
 private = true
 
-workspace_members = ["lune", "core"]
+workspace_members = ["toolchainlib", "bins/*"]
 
 [target]
 environment = "lune"
 
 [indices]
 default = "https://github.com/daimond113/pesde-index"
-
-
