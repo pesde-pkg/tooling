@@ -9,6 +9,8 @@
 
 local net = require("@lune/net")
 local process = require("@lune/process")
+local stdio = require("@lune/stdio")
+local serde = require("@lune/serde")
 
 local Semver = require("../luau_packages/semver")
 local pathfs = require("../lune_packages/pathfs")
@@ -254,10 +256,58 @@ function installTool(tool: ToolId)
 			toolInstallPath:toString()
 		)
 	)
+
 	chmod(linkPath, 0b111101101)
+	runTool(toolinstallPath)
 end
 
-return {
+return setmetatable({
 	runTool = runTool,
 	installTool = installTool,
-}
+}, {
+	__call = function(lib, tool: string, pesdeRoot: string?)
+		-- TODO: Progress bar maybe? :D
+
+		local ERROR_PREFIX = `{stdio.color("red")}{stdio.style("bold")}error{stdio.color("reset")}:`
+
+		local repo, version = string.match(tool, "([^@]+)@?(.*)")
+		if repo == nil then
+			stdio.ewrite(`{ERROR_PREFIX} Invalid tool provided\n`)
+			process.exit(1)
+		end
+
+		local function manifestVersion(): string
+			if pesdeRoot == nil then
+				stdio.ewrite(`{ERROR_PREFIX} Failed to discover pesde package root\n`)
+				process.exit(1)
+			end
+
+			-- Use _G.PESDE_ROOT to get the install directory, then decode the
+			-- pesde manifest to get the version of the tool dynamically
+			local manifestContents = pathfs.readFile(pathfs.Path.from(pesdeRoot):join("pesde.toml"))
+			-- TODO: Create a pesde manifest type in toolchainlib, and use that here
+			local ok, manifest = pcall(serde.decode, "toml", manifestContents)
+			if not ok then
+				stdio.ewrite(`{ERROR_PREFIX} Failed to decode bundled manifest. This is probably a bug.\n\n{manifest}`)
+				process.exit(1)
+			end
+
+			return manifest.version
+		end
+
+		local ok, err = pcall(
+			lib.installTool,
+			{
+				-- TODO: Use alias within pesde.toml in linker script
+				alias = Option.None,
+				repo = repo,
+				version = Option.Some(Semver.parse(if version ~= "" then version else manifestVersion()):unwrap()) :: Option<Semver.SemverImpl>,
+			} :: core.ToolId
+		)
+
+		if not ok then
+			stdio.ewrite(`{ERROR_PREFIX} Failed to install {tool}\n`)
+			stdio.ewrite(`	- {err}\n`)
+		end
+	end,
+})
