@@ -65,15 +65,6 @@ local function downloadAndDecompress(asset: {
 	return decompressedPath
 end
 
-local function chmod(path: pathfs.Path, mode: number)
-	if process.os ~= "windows" then
-		local child = process.spawn("chmod", { string.format("%o", mode), path:toString() })
-		if not child.ok then
-			error(`chmod failed: {path} - {child.stderr}`)
-		end
-	end
-end
-
 local function toolAliasOrDefault(tool: ToolId): string
 	return tool.alias:unwrapOr(string.split((tool :: ToolId).repo, "/")[2])
 end
@@ -202,62 +193,6 @@ function installTool(tool: ToolId)
 		-- Now we can use `path` to figure out the real tool to execute
 		-- ...
 	]]
-
-	local linkPath = LINK_INSTALL_DIR:join(toolAlias)
-	pathfs.writeFile(
-		linkPath,
-		string.format(
-			[[#!/bin/env -S lune run
-
-			local serde = require("@lune/serde")
-			local process = require("@lune/process")
-			local fs = require("@lune/fs")	
-			
-			local TOOL_NAME = "%s"
-			--TOOL_PATH_BEGIN--
-			local TOOL_PATH = "%s"
-			--TOOL_PATH_END--
-
-			local IS_DEV = process.env.PESDE_TOOLCHAIN_DEV ~= nil 
-			local PLATFORM_SEP = if process.platform == "windows" then "\\" else "/"
-
-			-- TODO: Check whether we are being run as `pesde x` and skip this check
-			-- That would involve getting the file path like this, probably:
-			local selfPathInfo = debug.info(1, "s")
-			local selfPath = string.sub(selfPathInfo, 10, #selfPathInfo - 2)
-
-			local manifestContents = fs.readFile(`{process.cwd}{PLATFORM_SEP}pesde.toml`)
-			local ok, manifest = pcall(serde.decode, "toml", manifestContents)
-			if not ok then
-				error(`Failed to parse pesde.toml: {tostring(manifest)}`)
-			end
-
-			local isInstalled = IS_DEV
-			if manifest.dev_dependencies ~= nil then
-				for package, _ in manifest.dev_dependencies do
-					if package == TOOL_NAME then
-						isInstalled = true
-						break
-					end
-				end
-			end
-
-			if not isInstalled then
-				error(`Tool {TOOL_NAME} in any pesde manifest file!`)
-			end
-
-			process.exit(process.spawn(TOOL_PATH, process.args, {
-				stdio = "forward",
-				cwd = process.cwd,
-				env = process.env,
-			}).code)]],
-			string.split(toolId, "+")[2],
-			toolInstallPath:toString()
-		)
-	)
-
-	chmod(linkPath, 0b111101101)
-	runTool(toolInstallPath)
 end
 
 return setmetatable({
