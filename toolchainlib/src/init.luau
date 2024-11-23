@@ -218,7 +218,7 @@ function installTool(tool: ToolId)
 			local TOOL_PATH = "%s"
 			--TOOL_PATH_END--
 
-			local IS_DEV = true
+			local IS_DEV = process.env.PESDE_TOOLCHAIN_DEV ~= nil 
 			local PLATFORM_SEP = if process.platform == "windows" then "\\" else "/"
 
 			-- TODO: Check whether we are being run as `pesde x` and skip this check
@@ -226,7 +226,6 @@ function installTool(tool: ToolId)
 			local selfPathInfo = debug.info(1, "s")
 			local selfPath = string.sub(selfPathInfo, 10, #selfPathInfo - 2)
 
-			-- FIXME: Does the CWD have a trailing slash on all platforms?
 			local manifestContents = fs.readFile(`{process.cwd}{PLATFORM_SEP}pesde.toml`)
 			local ok, manifest = pcall(serde.decode, "toml", manifestContents)
 			if not ok then
