@@ -1,10 +1,10 @@
 name = "compeydev/lune"
-version = "0.1.0"
+version = "0.8.9"
 target = "lune"
 
 [graph."0x5eal/semver"."0.1.1 luau"]
-direct = ["semver", { name = "0x5eal/semver", version = "^0.1.1", target = "luau" }]
-ty = "standard"
+direct = ["semver", { name = "0x5eal/semver", version = "^0.1.1", target = "luau" }, "standard"]
+resolved_ty = "standard"
 
 [graph."0x5eal/semver"."0.1.1 luau".target]
 environment = "luau"
@@ -30,8 +30,8 @@ environment = "luau"
 lib = "lib/init.luau"
 
 [graph."compeydev/binlib"."0.1.0 lune"]
-direct = ["core", { workspace = "compeydev/binlib", version = "^" }]
-ty = "standard"
+direct = ["core", { workspace = "compeydev/binlib", version = "^" }, "standard"]
+resolved_ty = "standard"
 
 [graph."compeydev/binlib"."0.1.0 lune".target]
 environment = "lune"
@@ -60,7 +60,7 @@ environment = "lune"
 lib = "src/init.luau"
 
 [graph."jiwonz/dirs"."0.1.2 lune"]
-ty = "standard"
+resolved_ty = "standard"
 
 [graph."jiwonz/dirs"."0.1.2 lune".target]
 environment = "lune"
@@ -83,7 +83,7 @@ environment = "lune"
 lib = "src/init.luau"
 
 [graph."jiwonz/pathfs"."0.1.0 lune"]
-ty = "standard"
+resolved_ty = "standard"
 
 [graph."jiwonz/pathfs"."0.1.0 lune".target]
 environment = "lune"
@@ -100,8 +100,8 @@ environment = "lune"
 lib = "init.luau"
 
 [graph."lukadev_0/option"."1.2.0 lune"]
-direct = ["option", { name = "lukadev_0/option", version = "^1.2.0" }]
-ty = "standard"
+direct = ["option", { name = "lukadev_0/option", version = "^1.2.0" }, "standard"]
+resolved_ty = "standard"
 
 [graph."lukadev_0/option"."1.2.0 lune".target]
 environment = "lune"
@@ -118,7 +118,7 @@ environment = "lune"
 lib = "lib/init.luau"
 
 [graph."lukadev_0/option"."1.2.0 luau"]
-ty = "peer"
+resolved_ty = "peer"
 
 [graph."lukadev_0/option"."1.2.0 luau".target]
 environment = "luau"
@@ -135,8 +135,8 @@ environment = "luau"
 lib = "lib/init.luau"
 
 [graph."lukadev_0/result"."1.2.0 lune"]
-direct = ["result", { name = "lukadev_0/result", version = "^1.2.0" }]
-ty = "standard"
+direct = ["result", { name = "lukadev_0/result", version = "^1.2.0" }, "standard"]
+resolved_ty = "standard"
 
 [graph."lukadev_0/result"."1.2.0 lune".target]
 environment = "lune"
@@ -153,7 +153,7 @@ environment = "lune"
 lib = "lib/init.luau"
 
 [graph."lukadev_0/result"."1.2.0 luau"]
-ty = "peer"
+resolved_ty = "peer"
 
 [graph."lukadev_0/result"."1.2.0 luau".target]
 environment = "luau"

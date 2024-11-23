@@ -1,7 +1,10 @@
 name = "compeydev/lune"
-version = "0.1.0"
+version = "0.8.9"
 description = "A standalone Luau runtime"
-authors = ["CompeyDev <hi@devcomp.xyz>", "Filip Tibell <filip.tibell@gmail.com>"]
+authors = [
+    "CompeyDev <hi@devcomp.xyz>",
+    "Filip Tibell <filip.tibell@gmail.com>",
+]
 repository = "https://github.com/CompeyDev/pesde-tooling/blob/main/lune"
 license = "MIT"
 
