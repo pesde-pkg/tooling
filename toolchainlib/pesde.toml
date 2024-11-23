@@ -1,4 +1,4 @@
-name = "compeydev/binlib"
+name = "pesde/toolchainlib"
 version = "0.1.0"
 includes = ["src/", "pesde.toml", "LICENSE", "README.md"]
 
@@ -9,11 +9,11 @@ lib = "src/init.luau"
 [dependencies]
 pathfs = { name = "jiwonz/pathfs", version = "^0.1.0" }
 dirs = { name = "jiwonz/dirs", version = "^0.1.1" }
-semver = { name = "0x5eal/semver", version = "^0.1.1", target = "luau" }
 
 [peer_dependencies]
 result = { name = "lukadev_0/result", version = "^1.2.0" }
 option = { name = "lukadev_0/option", version = "^1.2.0" }
+semver = { name = "0x5eal/semver", version = "^0.1.1", target = "luau" }
 
 [indices]
 default = "https://github.com/daimond113/pesde-index"

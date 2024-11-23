@@ -1,9 +1,9 @@
-name = "compeydev/binlib"
+name = "pesde/toolchainlib"
 version = "0.1.0"
 target = "lune"
 
 [graph."0x5eal/semver"."0.1.1 luau"]
-direct = ["semver", { name = "0x5eal/semver", version = "^0.1.1", target = "luau" }, "standard"]
+direct = ["semver", { name = "0x5eal/semver", version = "^0.1.1", target = "luau" }, "peer"]
 resolved_ty = "standard"
 
 [graph."0x5eal/semver"."0.1.1 luau".target]
