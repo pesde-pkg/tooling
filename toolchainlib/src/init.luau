@@ -257,7 +257,7 @@ function installTool(tool: ToolId)
 	)
 
 	chmod(linkPath, 0b111101101)
-	runTool(toolinstallPath)
+	runTool(toolInstallPath)
 end
 
 return setmetatable({
@@ -283,9 +283,9 @@ return setmetatable({
 
 			-- Use _G.PESDE_ROOT to get the install directory, then decode the
 			-- pesde manifest to get the version of the tool dynamically
-			local manifestContents = pathfs.readFile(pathfs.Path.from(pesdeRoot):join("pesde.toml"))
+			local manifestContents = pathfs.readFile(pathfs.Path.from(pesdeRoot :: string):join("pesde.toml"))
 			-- TODO: Create a pesde manifest type in toolchainlib, and use that here
-			local ok, manifest = pcall(serde.decode, "toml", manifestContents)
+			local ok, manifest = pcall(serde.decode, "toml" :: "toml", manifestContents)
 			if not ok then
 				stdio.ewrite(`{ERROR_PREFIX} Failed to decode bundled manifest. This is probably a bug.\n\n{manifest}`)
 				process.exit(1)
@@ -300,8 +300,10 @@ return setmetatable({
 				-- TODO: Use alias within pesde.toml in linker script
 				alias = Option.None,
 				repo = repo,
-				version = Option.Some(Semver.parse(if version ~= "" then version else manifestVersion()):unwrap()) :: Option<Semver.SemverImpl>,
-			} :: core.ToolId
+				version = Option.Some(
+					Semver.parse(if version ~= "" then version :: string else manifestVersion()):unwrap()
+				) :: Option<Semver.SemverImpl>,
+			} :: ToolId
 		)
 
 		if not ok then
