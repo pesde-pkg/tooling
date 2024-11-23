@@ -63,49 +63,41 @@ local function downloadAndDecompress(asset: {
 	return decompressedPath
 end
 
-local function runTool(path: pathfs.Path)
-	-- TODO: Fixup our wrapper and use that instead in the future
-	process.spawn(path:toString(), process.args, {
-		stdio = "forward",
-		shell = true,
-	})
+local function chmod(path: pathfs.Path, mode: number)
+	if process.os ~= "windows" then
+		local child = process.spawn("chmod", { string.format("%o", mode), path:toString() })
+		if not child.ok then
+			error(`chmod failed: {path} - {child.stderr}`)
+		end
+	end
 end
 
-local TOOL_INSTALL_DIR = (dirs.homeDir() or error("Couldn't get home dir :("))
-	:join(".pesde")
-	:join("bin")
-	:join("tool_storage")
+local function toolAliasOrDefault(tool: ToolId): string
+	return tool.alias:unwrapOr(string.split((tool :: ToolId).repo, "/")[2])
+end
 
--- if not pathfs.isDir(TOOL_INSTALL_DIR) then
--- pathfs.writeDir(TOOL_INSTALL_DIR)
--- end
+local LINK_INSTALL_DIR = (dirs.homeDir() or error("Couldn't get home dir :(")):join(".pesde"):join("bin")
+local TOOL_STORAGE_DIR = LINK_INSTALL_DIR:join("tool_storage")
+
+function runTool(tool: ToolId | pathfs.Path): number
+	-- FIXME: `process.spawn` has a bug where interactive features don't
+	-- forward properly
+	local toolId = tool :: ToolId
+	local path = if toolId.alias ~= nil then LINK_INSTALL_DIR:join(toolAliasOrDefault(toolId)) else tool :: pathfs.Path
+
+	return process.spawn(path:toString(), process.args, {
+		cwd = process.cwd,
+		env = process.env,
+		stdio = "forward",
+	}).code
+end
 
 function installTool(tool: ToolId)
-	local toolAlias = tool.alias:unwrapOr(string.split(tool.repo, "/")[2])
+	local toolAlias = toolAliasOrDefault(tool)
 	local toolId = string.gsub(tool.repo, "/", "+")
-	local toolInstallPath = TOOL_INSTALL_DIR:join(toolId)
+	local toolInstallPath = TOOL_STORAGE_DIR:join(toolId)
 		:join(`{toolAlias}-` .. tostring(tool.version:map(tostring):unwrapOr("latest")))
 
-	-- TODO: In order to eliminate fs read overhead on startup and to disallow
-	-- the use of the tool binary when outside a package where it is installed,
-	-- we can improve this by following what rokit does, where we symlink
-	-- the tool's path to this script, and check the file that we are being
-	-- invoked as, in order to figure out what tool to execute
-
-	-- We can create "linker" scripts for each tool at ~/.pesde/bins with
-	-- contents like so:
-	--[[
-		#!/bin/env -S lune run
-
-		-- First off, we check whether the tool is installed in pesde.toml
-		-- if we're being run as a symlink, and not a `pesde x` bin
-
-		local pathInfo = debug.info(1, "s")
-		local path = string.sub(pathInfo, 10, #pathInfo - 2))
-
-		-- Now we can use `path` to figure out the real tool to execute
-		-- ...
-	]]
 	if pathfs.isFile(toolInstallPath) then
 		runTool(toolInstallPath)
 		return
@@ -187,10 +179,85 @@ function installTool(tool: ToolId)
 	end
 
 	pathfs.move(binaryPath, toolInstallPath)
-	runTool(toolInstallPath)
+
+	-- In order to eliminate fs read overhead on startup and to disallow
+	-- the use of the tool binary when outside a package where it is installed,
+	-- we can improve this by following what rokit does, where we symlink
+	-- the tool's path to this script, and check the file that we are being
+	-- invoked as, in order to figure out what tool to execute
+
+	-- We can create "linker" scripts for each tool at ~/.pesde/bins with
+	-- contents like so:
+	--[[
+		#!/bin/env -S lune run
+
+		-- First off, we check whether the tool is installed in pesde.toml
+		-- if we're being run as a symlink, and not a `pesde x` bin
+
+		local pathInfo = debug.info(1, "s")
+		local path = string.sub(pathInfo, 10, #pathInfo - 2))
+
+		-- Now we can use `path` to figure out the real tool to execute
+		-- ...
+	]]
+
+	local linkPath = LINK_INSTALL_DIR:join(toolAlias)
+	pathfs.writeFile(
+		linkPath,
+		string.format(
+			[[#!/bin/env -S lune run
+
+			local serde = require("@lune/serde")
+			local process = require("@lune/process")
+			local fs = require("@lune/fs")	
+			
+			local TOOL_NAME = "%s"
+			--TOOL_PATH_BEGIN--
+			local TOOL_PATH = "%s"
+			--TOOL_PATH_END--
+
+			local IS_DEV = true
+			local PLATFORM_SEP = if process.platform == "windows" then "\\" else "/"
+
+			-- TODO: Check whether we are being run as `pesde x` and skip this check
+			-- That would involve getting the file path like this, probably:
+			local selfPathInfo = debug.info(1, "s")
+			local selfPath = string.sub(selfPathInfo, 10, #selfPathInfo - 2)
+
+			-- FIXME: Does the CWD have a trailing slash on all platforms?
+			local manifestContents = fs.readFile(`{process.cwd}{PLATFORM_SEP}pesde.toml`)
+			local ok, manifest = pcall(serde.decode, "toml", manifestContents)
+			if not ok then
+				error(`Failed to parse pesde.toml: {tostring(manifest)}`)
+			end
+
+			local isInstalled = IS_DEV
+			if manifest.dev_dependencies ~= nil then
+				for package, _ in manifest.dev_dependencies do
+					if package == TOOL_NAME then
+						isInstalled = true
+						break
+					end
+				end
+			end
+
+			if not isInstalled then
+				error(`Tool {TOOL_NAME} in any pesde manifest file!`)
+			end
+
+			process.exit(process.spawn(TOOL_PATH, process.args, {
+				stdio = "forward",
+				cwd = process.cwd,
+				env = process.env,
+			}).code)]],
+			string.split(toolId, "+")[2],
+			toolInstallPath:toString()
+		)
+	)
+	chmod(linkPath, 0b111101101)
 end
 
 return {
-	installTool = installTool,
 	runTool = runTool,
+	installTool = installTool,
 }
