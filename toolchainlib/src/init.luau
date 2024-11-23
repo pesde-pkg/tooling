@@ -85,16 +85,8 @@ function runTool(tool: ToolId | pathfs.Path): number
 	}).code
 end
 
-function installTool(tool: ToolId)
+function installTool(tool: ToolId, installPath: pathfs.Path)
 	local toolAlias = toolAliasOrDefault(tool)
-	local toolId = string.gsub(tool.repo, "/", "+")
-	local toolInstallPath = TOOL_STORAGE_DIR:join(toolId)
-		:join(`{toolAlias}-` .. tostring(tool.version:map(tostring):unwrapOr("latest")))
-
-	if pathfs.isFile(toolInstallPath) then
-		runTool(toolInstallPath)
-		return
-	end
 
 	local client = Github.new(
 		tool.repo,
@@ -166,12 +158,12 @@ function installTool(tool: ToolId)
 
 	-- Maintain multiple versions of a tool, and avoid downloading
 	-- the binary for a version again if it's already there
-	local toolDir = Option.from(toolInstallPath:parent()):unwrap()
+	local toolDir = Option.from(installPath:parent()):unwrap()
 	if not pathfs.isFile(toolDir) then
 		pathfs.writeDir(toolDir)
 	end
 
-	pathfs.move(binaryPath, toolInstallPath)
+	pathfs.move(binaryPath, installPath)
 
 	-- In order to eliminate fs read overhead on startup and to disallow
 	-- the use of the tool binary when outside a package where it is installed,
@@ -193,57 +185,83 @@ function installTool(tool: ToolId)
 		-- Now we can use `path` to figure out the real tool to execute
 		-- ...
 	]]
+	runTool(installPath)
 end
 
-return setmetatable({
-	runTool = runTool,
-	installTool = installTool,
-}, {
-	__call = function(lib, tool: string, pesdeRoot: string?)
-		-- TODO: Progress bar maybe? :D
+type LibExports = {
+	runTool: (pathfs.Path | ToolId) -> number,
+	installTool: (ToolId, pathfs.Path) -> never,
+}
+type LibExportsImpl = typeof(setmetatable(
+	{} :: LibExports,
+	{ __call = function(lib: LibExportsImpl, tool: string, pesdeRoot: string?) end }
+))
 
-		local ERROR_PREFIX = `{stdio.color("red")}{stdio.style("bold")}error{stdio.color("reset")}:`
+return setmetatable(
+	{
+		runTool = runTool,
+		installTool = installTool,
+	} :: LibExports,
+	{
+		__call = function(lib: LibExportsImpl, tool: string, pesdeRoot: string?)
+			-- TODO: Progress bar maybe? :D
 
-		local repo, version = string.match(tool, "([^@]+)@?(.*)")
-		if repo == nil then
-			stdio.ewrite(`{ERROR_PREFIX} Invalid tool provided\n`)
-			process.exit(1)
-		end
+			local ERROR_PREFIX = `{stdio.color("red")}{stdio.style("bold")}error{stdio.color("reset")}:`
 
-		local function manifestVersion(): string
-			if pesdeRoot == nil then
-				stdio.ewrite(`{ERROR_PREFIX} Failed to discover pesde package root\n`)
+			local repo, version = string.match(tool, "([^@]+)@?(.*)")
+			if repo == nil then
+				stdio.ewrite(`{ERROR_PREFIX} Invalid tool provided\n`)
 				process.exit(1)
 			end
 
-			-- Use _G.PESDE_ROOT to get the install directory, then decode the
-			-- pesde manifest to get the version of the tool dynamically
-			local manifestContents = pathfs.readFile(pathfs.Path.from(pesdeRoot :: string):join("pesde.toml"))
-			-- TODO: Create a pesde manifest type in toolchainlib, and use that here
-			local ok, manifest = pcall(serde.decode, "toml" :: "toml", manifestContents)
+			local function manifestVersion(): string
+				if pesdeRoot == nil then
+					stdio.ewrite(`{ERROR_PREFIX} Failed to discover pesde package root\n`)
+					process.exit(1)
+				end
+
+				-- Use _G.PESDE_ROOT to get the install directory, then decode the
+				-- pesde manifest to get the version of the tool dynamically
+				local manifestContents = pathfs.readFile(pathfs.Path.from(pesdeRoot :: string):join("pesde.toml"))
+				-- TODO: Create a pesde manifest type in toolchainlib, and use that here
+				local ok, manifest = pcall(serde.decode, "toml" :: "toml", manifestContents)
+				if not ok then
+					stdio.ewrite(
+						`{ERROR_PREFIX} Failed to decode bundled manifest. This is probably a bug.\n\n{manifest}`
+					)
+					process.exit(1)
+				end
+
+				return manifest.version
+			end
+
+			local toolId = string.gsub(repo :: string, "/", "+")
+			local toolAlias = string.split(toolId, "+")[2]
+			local toolInstallPath = TOOL_STORAGE_DIR:join(toolId):join(
+				`{toolAlias}-` .. if version ~= "" then version :: string else manifestVersion()
+			)
+
+			print(toolInstallPath)
+			if pathfs.isFile(toolInstallPath) then
+				process.exit(lib.runTool(toolInstallPath))
+			end
+
+			local ok, err = pcall(
+				lib.installTool,
+				{
+					alias = Option.None,
+					repo = repo,
+					version = Option.Some(
+						Semver.parse(if version ~= "" then version :: string else manifestVersion()):unwrap()
+					) :: Option<Semver.SemverImpl>,
+				} :: ToolId,
+				toolInstallPath
+			)
+
 			if not ok then
-				stdio.ewrite(`{ERROR_PREFIX} Failed to decode bundled manifest. This is probably a bug.\n\n{manifest}`)
-				process.exit(1)
+				stdio.ewrite(`{ERROR_PREFIX} Failed to install {tool}\n`)
+				stdio.ewrite(`	- {err}\n`)
 			end
-
-			return manifest.version
-		end
-
-		local ok, err = pcall(
-			lib.installTool,
-			{
-				-- TODO: Use alias within pesde.toml in linker script
-				alias = Option.None,
-				repo = repo,
-				version = Option.Some(
-					Semver.parse(if version ~= "" then version :: string else manifestVersion()):unwrap()
-				) :: Option<Semver.SemverImpl>,
-			} :: ToolId
-		)
-
-		if not ok then
-			stdio.ewrite(`{ERROR_PREFIX} Failed to install {tool}\n`)
-			stdio.ewrite(`	- {err}\n`)
-		end
-	end,
-})
+		end,
+	}
+)
