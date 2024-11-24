@@ -203,7 +203,7 @@ return setmetatable(
 		installTool = installTool,
 	} :: LibExports,
 	{
-		__call = function(lib: LibExportsImpl, tool: string, pesdeRoot: string?)
+		__call = function(lib: LibExportsImpl, tool: string, pesdeRoot: string?): number
 			-- TODO: Progress bar maybe? :D
 
 			local ERROR_PREFIX = `{stdio.color("red")}{stdio.style("bold")}error{stdio.color("reset")}:`
@@ -211,13 +211,13 @@ return setmetatable(
 			local repo, version = string.match(tool, "([^@]+)@?(.*)")
 			if repo == nil then
 				stdio.ewrite(`{ERROR_PREFIX} Invalid tool provided\n`)
-				process.exit(1)
+				return 1
 			end
 
-			local function manifestVersion(): string
+			local function manifestVersion(): (number, string?)
 				if pesdeRoot == nil then
 					stdio.ewrite(`{ERROR_PREFIX} Failed to discover pesde package root\n`)
-					process.exit(1)
+					return 1, nil
 				end
 
 				-- Use _G.PESDE_ROOT to get the install directory, then decode the
@@ -229,10 +229,10 @@ return setmetatable(
 					stdio.ewrite(
 						`{ERROR_PREFIX} Failed to decode bundled manifest. This is probably a bug.\n\n{manifest}`
 					)
-					process.exit(1)
+					return 1, nil
 				end
 
-				return manifest.version
+				return 0, manifest.version
 			end
 
 			local toolId = string.gsub(repo :: string, "/", "+")
@@ -241,9 +241,17 @@ return setmetatable(
 				`{toolAlias}-` .. if version ~= "" then version :: string else manifestVersion()
 			)
 
-			print(toolInstallPath)
 			if pathfs.isFile(toolInstallPath) then
-				process.exit(lib.runTool(toolInstallPath))
+				return lib.runTool(toolInstallPath)
+			end
+
+			local versionOrDefault: string = version :: string
+			if versionOrDefault == "" then
+				local code, ver = manifestVersion()
+				if code ~= 0 then
+					return code
+				end
+				versionOrDefault = ver :: string
 			end
 
 			local ok, err = pcall(
@@ -251,9 +259,7 @@ return setmetatable(
 				{
 					alias = Option.None,
 					repo = repo,
-					version = Option.Some(
-						Semver.parse(if version ~= "" then version :: string else manifestVersion()):unwrap()
-					) :: Option<Semver.SemverImpl>,
+					version = Option.Some(Semver.parse(versionOrDefault):unwrap()) :: Option<Semver.SemverImpl>,
 				} :: ToolId,
 				toolInstallPath
 			)
@@ -261,7 +267,10 @@ return setmetatable(
 			if not ok then
 				stdio.ewrite(`{ERROR_PREFIX} Failed to install {tool}\n`)
 				stdio.ewrite(`	- {err}\n`)
+				return 1
 			end
+
+			return 0
 		end,
 	}
 )
