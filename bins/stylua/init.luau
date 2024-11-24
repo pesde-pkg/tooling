@@ -1,2 +1,7 @@
-local process = require("@lune/process")
-process.exit(require("./lune_packages/core")("JohnnyMorganz/stylua", _G.PESDE_ROOT))
+-- TODO: Make use of returned exit code. Currently this script will get
+-- required by a pesde generated linker script, and due to a lune bug,
+-- exiting from within a required module causes a non-winding panic
+
+-- See https://github.com/lune-org/lune/pull/247 for more details
+
+require("./lune_packages/core")("JohnnyMorganz/stylua", _G.PESDE_ROOT)
