@@ -24,8 +24,10 @@ return function<T>(str: string, substrings: { [T]: { string } }, fullWords: { [T
 	local components = String.splitAtChar(lowercased, charWordSep)
 	for _, component in components do
 		for item, keywords in fullWords do
-			if table.find(keywords, component) then
-				return Option.Some(item) :: Option<T>
+			for _, keyword in keywords do
+				if string.find(component, keyword) then
+					return Option.Some(item) :: Option<T>
+				end
 			end
 		end
 	end

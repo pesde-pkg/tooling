@@ -14,10 +14,14 @@ type Option<T> = types.Option<T>
 type Result<T, E> = types.Result<T, E>
 
 local PlatformDescriptor = {}
-type PlatformDescriptor = {
+export type PlatformDescriptor = {
 	os: process.OS,
 	arch: Option<arch.Arch>,
 	toolchain: Option<toolchain.Toolchain>,
+}
+type ExecutableDetectionResult = {
+	os: Option<process.OS>,
+	arch: Option<arch.Arch>,
 }
 
 function PlatformDescriptor.currentSystem(): PlatformDescriptor
@@ -43,12 +47,20 @@ end
 
 function PlatformDescriptor.fromExecutable(path: string): result.PlatformResult<PlatformDescriptor>
 	local binaryContents = fs.readFile(path)
-	local detected =
-		Option.from(detectFromExecutable(buffer.fromstring(binaryContents))) :: Option<detectFromExecutable.ExecutableDetectionResult>
-	local platformDesc = detected:map(function(inner: detectFromExecutable.ExecutableDetectionResult)
-		local innerClone: PlatformDescriptor = table.clone(inner) :: any
-		innerClone.toolchain = Option.None :: Option<toolchain.Toolchain>
-		return innerClone
+	local detected = Option.from(detectFromExecutable(buffer.fromstring(binaryContents)))
+		:map(function(inner: detectFromExecutable.ExecutableDetectionResult): ExecutableDetectionResult
+			return {
+				os = Option.from(inner.os) :: Option<process.OS>,
+				arch = Option.from(inner.arch) :: Option<arch.Arch>,
+			}
+		end) :: Option<ExecutableDetectionResult>
+
+	local platformDesc = detected:map(function(inner: ExecutableDetectionResult): PlatformDescriptor
+		return {
+			os = inner.os:unwrap(),
+			arch = inner.arch :: Option<arch.Arch>,
+			toolchain = Option.None :: Option<toolchain.Toolchain>,
+		}
 	end) :: Option<PlatformDescriptor>
 
 	return platformDesc:okOr(
