@@ -4,11 +4,10 @@ local process = require("@lune/process")
 
 local CommandBuilder = require("./exec")
 
-local PLATFORM_SEP = if process.os == "windows" then ";" else ":"
-
 process.exit(
-	CommandBuilder.new("luau-lsp")
-		:withArg("analyze")
+	CommandBuilder.new("pesde")
+		:withArgs({ "run", "./bins/luau-lsp" })
+		:withArgs({ "--", "analyze" })
 		:withArgs({ "--settings", ".vscode/settings.json" })
 		:withArgs({ "--ignore", "'**/*_packages/**'" })
 		:withArg(".")
