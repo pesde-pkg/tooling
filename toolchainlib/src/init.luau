@@ -87,7 +87,6 @@ end
 
 function installTool(tool: ToolId, installPath: pathfs.Path)
 	local toolAlias = toolAliasOrDefault(tool)
-
 	local client = Github.new(
 		tool.repo,
 		Option.Some({
@@ -134,7 +133,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 
 	local binaryPath: pathfs.Path
 	if matchingAsset == nil then
-		warn("No matching asset found, downloading all assets")
+		stdio.ewrite("No matching asset found, testing all binaries")
 		for _, asset in assets do
 			local decompressedPath = downloadAndDecompress(asset)
 
@@ -165,7 +164,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 
 	pathfs.move(binaryPath, installPath)
 
-	-- In order to eliminate fs read overhead on startup and to disallow
+	-- IDEA: In order to eliminate fs read overhead on startup and to disallow
 	-- the use of the tool binary when outside a package where it is installed,
 	-- we can improve this by following what rokit does, where we symlink
 	-- the tool's path to this script, and check the file that we are being

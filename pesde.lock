@@ -7,3 +7,21 @@ lune = "bins/stylua"
 
 [workspace."pesde/toolchainlib"]
 lune = "toolchainlib"
+
+[graph."lukadev_0/option"."1.2.0 lune"]
+direct = ["option", { name = "lukadev_0/option", version = "^1.2.0" }, "standard"]
+resolved_ty = "standard"
+
+[graph."lukadev_0/option"."1.2.0 lune".target]
+environment = "lune"
+lib = "lib/init.luau"
+
+[graph."lukadev_0/option"."1.2.0 lune".pkg_ref]
+ref_ty = "pesde"
+name = "lukadev_0/option"
+version = "1.2.0"
+index_url = "https://github.com/daimond113/pesde-index"
+
+[graph."lukadev_0/option"."1.2.0 lune".pkg_ref.target]
+environment = "lune"
+lib = "lib/init.luau"

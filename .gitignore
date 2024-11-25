@@ -1,3 +1,2 @@
-lune_packages/
-luau_packages/
+**/*_packages/
 core/pesde.lock
