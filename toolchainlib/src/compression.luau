@@ -58,9 +58,13 @@ local decompress: { [CompressionFormat]: (compressed: buffer) -> Result<pathfs.A
 				pathfs.writeDir(decompressedDir)
 
 				-- Run unzip to decompress the file
-				local child = CommandBuilder
-					.new("unzip")
-					:withArgs({ tmpFilePath, "-d", decompressedDir:toString() })
+				local child = (if process.os == "windows"
+					-- Thanks windows :)
+					then CommandBuilder.new("powershell"):withArgs({
+						"-ExecutionPolicy RemoteSigned",
+						`-c \`"Import-Module Microsoft.PowerShell.Archive; Expand-Archive -LiteralPath '{tmpFilePath}' -DestinationPath '{decompressedDir:toString()}'\`"`,
+					})
+					else CommandBuilder.new("unzip"):withArgs({ tmpFilePath, "-d", decompressedDir:toString() }))
 					-- FIXME: remove unknown usage
 					:withStdioStrategy({
 						stdout = Option.Some("pipe" :: CommandBuilder.StdioStrategy) :: Option<unknown>,
