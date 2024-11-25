@@ -64,7 +64,11 @@ local decompress: { [CompressionFormat]: (compressed: buffer) -> Result<pathfs.A
 					-- FIXME: remove unknown usage
 					:withStdioStrategy({
 						stdout = Option.Some("pipe" :: CommandBuilder.StdioStrategy) :: Option<unknown>,
-						stderr = Option.Some(if process.env.PESDE_LOG == "debug" then "forward" else "pipe" :: CommandBuilder.StdioStrategy) :: Option<unknown>,
+						stderr = Option.Some(
+							if process.env.PESDE_LOG == "debug"
+								then "forward"
+								else "pipe" :: CommandBuilder.StdioStrategy
+						) :: Option<unknown>,
 					} :: CommandBuilder.IoStrategyMapping)
 					:intoChildProcess()
 
@@ -90,8 +94,5 @@ local decompress: { [CompressionFormat]: (compressed: buffer) -> Result<pathfs.A
 
 	-- TODO: Other formats
 }
-
--- local path = "pesde-0.5.0-rc.7-windows-x86_64.zip"
--- print(decompress[detectFormat(path):unwrap()](buffer.fromstring(pathfs.readFile(path))))
 
 return { decompress = decompress, detectFormat = detectFormat }
