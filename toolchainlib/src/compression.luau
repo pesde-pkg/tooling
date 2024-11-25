@@ -62,7 +62,7 @@ local decompress: { [CompressionFormat]: (compressed: buffer) -> Result<pathfs.A
 					-- Thanks windows :)
 					then CommandBuilder.new("powershell"):withArgs({
 						"-ExecutionPolicy RemoteSigned",
-						`-c \`"Import-Module Microsoft.PowerShell.Archive; $global:ProgressPreference = 'SilentlyContinue'; Expand-Archive -LiteralPath '{tmpFilePath}' -DestinationPath '{decompressedDir:toString()}'\`"`,
+						`-c \`"Import-Module Microsoft.PowerShell.Archive; Expand-Archive -LiteralPath '{tmpFilePath}' -DestinationPath '{decompressedDir:toString()}'\`"`,
 					})
 					else CommandBuilder.new("unzip"):withArgs({ tmpFilePath, "-d", decompressedDir:toString() }))
 					-- FIXME: remove unknown usage
