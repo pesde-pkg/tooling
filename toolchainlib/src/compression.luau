@@ -67,7 +67,12 @@ local decompress: { [CompressionFormat]: (compressed: buffer) -> Result<pathfs.A
 					else CommandBuilder.new("unzip"):withArgs({ tmpFilePath, "-d", decompressedDir:toString() }))
 					-- FIXME: remove unknown usage
 					:withStdioStrategy({
-						stdout = Option.Some("pipe" :: CommandBuilder.StdioStrategy) :: Option<unknown>,
+						-- Powershell on Windows writes errors to stdout. Bruh
+						stdout = Option.Some(
+							if process.os == "windows" and process.env.PESDE_LOG == "debug"
+								then "forward"
+								else "pipe" :: CommandBuilder.StdioStrategy
+						) :: Option<unknown>,
 						stderr = Option.Some(
 							if process.env.PESDE_LOG == "debug"
 								then "forward"
