@@ -1,0 +1,21 @@
+name = "pesde/luau_lsp"
+version = "1.35.0"
+description = "Language Server Implementation for Luau"
+authors = [
+    "CompeyDev <hi@devcomp.xyz>",
+    "Johnny Morganz <johnnymorganz@outlook.com>",
+]
+repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/luau-lsp"
+includes = ["init.luau", "pesde.toml"]
+
+[target]
+environment = "lune"
+bin = "init.luau"
+
+[dependencies]
+result = { name = "lukadev_0/result", version = "^1.2.0" }
+option = { name = "lukadev_0/option", version = "^1.2.0" }
+core = { workspace = "pesde/toolchainlib", version = "^" }
+
+[indices]
+default = "https://github.com/daimond113/pesde-index"
