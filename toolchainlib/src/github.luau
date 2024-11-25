@@ -37,7 +37,7 @@ function Github.new(repo: string, config: Option<Config>)
 					["Authorization"] = configOrDefault.authToken:mapOr("", function(token)
 						return `Bearer {token}`
 					end),
-				},
+				} :: net.HttpHeaderMap,
 			} :: net.FetchParams,
 			config = config,
 			retries = configOrDefault.retries:unwrapOr(DEFAULT_MAX_RETRIES),
