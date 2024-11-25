@@ -33,3 +33,6 @@ If a Luau tool you would like is not present here, please open an issue or submi
 
 <!-- TODO: Recommend contributors to read CONTRIBUTING.md when that is a thing -->
 
+# License
+
+This project is licensed under the [MIT](https://github.com/pesde/toolchainlib/blob/main/LICENSE.md) license.
