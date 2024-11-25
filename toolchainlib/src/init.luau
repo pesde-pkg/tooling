@@ -47,22 +47,30 @@ export type GithubReleases = {
 	}
 }
 
+local WARN_PREFIX = `{stdio.color("yellow")}{stdio.style("bold")}warn{stdio.color("reset")}:`
+
+local function warn(...)
+	stdio.ewrite(`{WARN_PREFIX} {stdio.format(...)}\n`)
+end
+
 local function downloadAndDecompress(asset: {
 	name: string,
 	browser_download_url: string,
 	size: number,
 	content_type: string,
-}): pathfs.Path
+}): Option<pathfs.Path>
+	-- TODO: Small optimization by first detecting that its a valid format we support
+	-- before downloading the file
 	local contentsResp = net.request(asset.browser_download_url)
 	if not contentsResp.ok then
 		return error(`Failed to download asset {asset.name}: HTTP Code {contentsResp.statusCode}`)
 	end
 
-	local decompressedPath = compression.decompress
-		[compression.detectFormat(asset.name):unwrap()](buffer.fromstring(contentsResp.body))
-		:unwrap() :: pathfs.Path
-
-	return decompressedPath
+	return compression
+			.detectFormat(asset.name)
+			:map(function(format: compression.CompressionFormat)
+				return compression.decompress[format](buffer.fromstring(contentsResp.body)):unwrap() :: pathfs.Path
+			end) :: Option<pathfs.Path>
 end
 
 local function toolAliasOrDefault(tool: ToolId): string
@@ -125,30 +133,39 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 	local aliasPath = pathfs.Path.from(toolAlias):withExtension(if currentDesc.os == "windows" then "exe" else "")
 
 	for _, asset in assets do
-		local desc = PlatformDescriptor.fromString(asset.name):unwrap()
-		if eq(currentDesc, desc) then
+		local desc = PlatformDescriptor.fromString(asset.name)
+		local descWithArch = desc:map(function(inner: PlatformDescriptor.PlatformDescriptor)
+			-- FIXME: unknown usage
+			return inner
+		end)
+
+		if descWithArch:isOk() and eq(currentDesc, descWithArch:unwrap()) then
 			matchingAsset = asset
+			break
 		end
 	end
 
 	local binaryPath: pathfs.Path
 	if matchingAsset == nil then
-		stdio.ewrite("No matching asset found, testing all binaries")
+		warn("Pesde could not find a matching binary for your system")
+		warn("Will now attempt to download all binaries and find a matching one")
 		for _, asset in assets do
 			local decompressedPath = downloadAndDecompress(asset)
+			if decompressedPath:isSome() then
+				local path = decompressedPath:unwrap()
+				for _, file in pathfs.readDir(path) do
+					local filePath = path:join(file)
+					local nativeDesc = PlatformDescriptor.fromExecutable(filePath:toString()):unwrap()
 
-			for _, file in pathfs.readDir(decompressedPath) do
-				local filePath = decompressedPath:join(file)
-				local nativeDesc = PlatformDescriptor.fromExecutable(filePath:toString()):unwrap()
-
-				if eq(currentDesc, nativeDesc) then
-					binaryPath = filePath
-					break
+					if eq(currentDesc, nativeDesc) then
+						binaryPath = filePath
+						break
+					end
 				end
 			end
 		end
 	else
-		local decompressedPath = downloadAndDecompress(matchingAsset)
+		local decompressedPath = downloadAndDecompress(matchingAsset):unwrap()
 		binaryPath = decompressedPath:join(aliasPath)
 		if not pathfs.isFile(binaryPath) then
 			error(`No matching binary found in {decompressedPath}`)
