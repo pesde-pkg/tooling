@@ -120,7 +120,7 @@ function CommandBuilder.intoChildProcess(self: CommandBuilder): ChildProcess
 			for _ = 0, retries do
 				local spawned = process.spawn(
 					if process.os == "windows"
-						then `(Start-Process {self.program} -Passthru -Wait -ExecutionPolicy Bypass -NoNewWindow -ArgumentList \"{argsList}\").Id`
+						then `(Start-Process {self.program} -Passthru -Wait -NoNewWindow -ArgumentList \"{argsList}\").Id`
 						else `{self.program} {argsList} & echo $!`,
 					{},
 					{
