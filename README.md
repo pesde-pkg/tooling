@@ -19,15 +19,14 @@
 
 ## Usage
 
-```sh
-pesde x pesde/{TOOL}
+For example, to install [stylua](https://github.com/JohnnyMorganz/stylua), a Lua code formatter, run:
 
-# Or, install the tool into your project and have it accessible in PATH
-pesde add --dev pesde/{TOOL}
+```sh
+pesde add --dev pesde/stylua
 pesde install
 ```
 
-Where `{TOOL}` corresponds to the name of one of the tools present in this directory. 
+Refer to the above table for a list of support tooling packages.
 
 If a Luau tool you would like is not present here, please open an issue or submit a PR, following the format of one of the existing tools.
 
