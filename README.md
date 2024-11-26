@@ -1,7 +1,7 @@
 # pesde/tooling 
 
 <a href="https://discord.gg/ATVVsNNv3u"><img alt="Discord" src="https://img.shields.io/discord/385151591524597761?style=plastic&logo=discord&color=%235865F2" /></a>
-<a href="https://lune-org.github.io/docs"><img alt="Lune" src="https://raw.githubusercontent.com/pesde/tooling/refs/heads/main/.lune/assets/powered-by-lune.svg" /></a>
+<a href="https://lune-org.github.io/docs"><img alt="Lune" src="https://raw.githubusercontent.com/pesde-pkg/tooling/refs/heads/main/.lune/assets/powered-by-lune.svg" /></a>
 <!-- TODO: CI workflow status -->
 
  Common Luau tooling packaged for pesde, for use within fully pesde-managed projects. 
