@@ -8,6 +8,9 @@ lune = "bins/luau-lsp"
 [workspace."pesde/rojo"]
 lune = "bins/rojo"
 
+[workspace."pesde/selene"]
+lune = "bins/selene"
+
 [workspace."pesde/stylua"]
 lune = "bins/stylua"
 
