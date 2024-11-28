@@ -1,0 +1,18 @@
+name = "pesde/blink"
+version = "0.14.15"                                                          # TODO: Package 0.15.0-rc.1 as well
+description = "An IDL compiler written in Luau for ROBLOX buffer networking"
+authors = ["CompeyDev <hi@devcomp.xyz>", "Axen <axen@frombloxware.com>"]
+repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/blink"
+includes = ["init.luau", "pesde.toml"]
+
+[target]
+environment = "lune"
+bin = "init.luau"
+
+[dependencies]
+result = { name = "lukadev_0/result", version = "^1.2.0" }
+option = { name = "lukadev_0/option", version = "^1.2.0" }
+core = { workspace = "pesde/toolchainlib", version = "^" }
+
+[indices]
+default = "https://github.com/daimond113/pesde-index"
