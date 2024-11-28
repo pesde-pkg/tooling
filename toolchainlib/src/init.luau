@@ -73,7 +73,6 @@ local function downloadAndDecompress(asset: {
 			end) :: Option<pathfs.Path>
 end
 
--- NOTE: number must be an octal or a string mode
 local function chmod(path: pathfs.Path, mode: number | string)
 	if process.os == "windows" then
 		return
@@ -217,7 +216,9 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 		-- Now we can use `path` to figure out the real tool to execute
 		-- ...
 	]]
-	chmod(installPath, 755)
+
+	-- NOTE: This is equivalent to `0o755` or `rwxr-xr-x`
+	chmod(installPath, 0b10101010011)
 	runTool(installPath)
 end
 
