@@ -73,6 +73,22 @@ local function downloadAndDecompress(asset: {
 			end) :: Option<pathfs.Path>
 end
 
+-- NOTE: number must be an octal or a string mode
+local function chmod(path: pathfs.Path, mode: number | string)
+	if process.os == "windows" then
+		return
+	end
+
+	local result = process.spawn(
+		"chmod",
+		{ if typeof(mode) == "string" then mode else string.format("%o", mode), path:toString() }
+	)
+
+	if not result.ok then
+		return error(result.stderr)
+	end
+end
+
 local function toolAliasOrDefault(tool: ToolId): string
 	return tool.alias:unwrapOr(string.split((tool :: ToolId).repo, "/")[2])
 end
@@ -201,6 +217,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 		-- Now we can use `path` to figure out the real tool to execute
 		-- ...
 	]]
+	chmod(installPath, 755)
 	runTool(installPath)
 end
 
@@ -225,7 +242,7 @@ return setmetatable(
 			local ERROR_PREFIX = `{stdio.color("red")}{stdio.style("bold")}error{stdio.color("reset")}:`
 
 			local repo, version = string.match(tool, "([^@]+)@?(.*)")
-			if repo == nil then
+			if repo == nil or version == nil then
 				stdio.ewrite(`{ERROR_PREFIX} Invalid tool provided\n`)
 				return 1
 			end
@@ -251,11 +268,19 @@ return setmetatable(
 				return 0, manifest.version
 			end
 
+			local versionOrDefault = version
+			if versionOrDefault == "" then
+				local code, ver = manifestVersion()
+				if code ~= 0 then
+					return code
+				end
+
+				versionOrDefault = ver :: string
+			end
+
 			local toolId = string.gsub(repo :: string, "/", "+")
 			local toolAlias = string.split(toolId, "+")[2]
-			local toolInstallPath = TOOL_STORAGE_DIR:join(toolId):join(
-				`{toolAlias}-` .. if version ~= "" then version :: string else manifestVersion()
-			)
+			local toolInstallPath = TOOL_STORAGE_DIR:join(toolId):join(versionOrDefault):join(toolAlias)
 
 			if pathfs.isFile(toolInstallPath) then
 				return lib.runTool(toolInstallPath)
