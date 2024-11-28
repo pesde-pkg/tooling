@@ -77,16 +77,18 @@ return function(binaryContents: buffer): ExecutableDetectionResult?
 		local is64bit = headerStart == MACHO_MAGIC_64
 		local is32bit = headerStart == MACHO_MAGIC_32
 
-		return {
-			os = "macos",
-            --stylua: ignore
-			arch = (
-                if is64bit and cpuType == MACHO_CPU_TYPES.x86 then "x86_64"
-				elseif is64bit and cpuType == MACHO_CPU_TYPES.arm then "aarch64"
-				elseif is32bit and cpuType == MACHO_CPU_TYPES.x86 then "x86"
-				elseif is32bit and cpuType == MACHO_CPU_TYPES.arm then "arm"
-				else nil
-            ),
-		}
+		if is64bit or is32bit then
+			return {
+				os = "macos",
+				arch = (if is64bit and cpuType == MACHO_CPU_TYPES.x86
+					then "x86_64"
+					elseif is64bit and cpuType == MACHO_CPU_TYPES.arm then "aarch64"
+					elseif is32bit and cpuType == MACHO_CPU_TYPES.x86 then "x86"
+					elseif is32bit and cpuType == MACHO_CPU_TYPES.arm then "arm"
+					else nil),
+			}
+		end
 	end
+
+	return nil
 end
