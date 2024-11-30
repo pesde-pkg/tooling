@@ -1,6 +1,3 @@
 {
-	"languageMode": "strict",
-	"lint": {
-		"*": false
-	}
+	"languageMode": "strict"
 }
