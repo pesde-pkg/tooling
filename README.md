@@ -21,13 +21,24 @@
   
 </div>
 
+## Prerequisites
+
+To ensure proper functionality, please make sure you have the following dependencies installed:
+
+- **pesde**: Version `>= 0.5.0-rc.13`
+- **lune**: Version `^0.8.7`
+
 ## Usage
 
 For example, to install [stylua](https://github.com/JohnnyMorganz/stylua), a Lua code formatter, run:
 
 ```sh
+pesde x pesde/stylua -- --version
+
+# Or, install the tool into your project and have it accessible in PATH
 pesde add --dev pesde/stylua
 pesde install
+stylua -- --version
 ```
 
 Refer to the above table for a list of support tooling packages.
