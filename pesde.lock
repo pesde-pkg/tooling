@@ -5,6 +5,9 @@ target = "lune"
 [workspace."pesde/blink"]
 lune = "bins/blink"
 
+[workspace."pesde/darklua"]
+lune = "bins/darklua"
+
 [workspace."pesde/luau_lsp"]
 lune = "bins/luau-lsp"
 
