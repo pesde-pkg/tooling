@@ -18,7 +18,28 @@ export type Config = {
 	authToken: Option<string>,
 	retries: Option<number>,
 }
-export type GithubOperation = "FetchReleases" | "GetMetadata" | "GetActionArtifacts"
+export type GithubOperation =
+	"FetchReleases"
+	| "GetMetadata"
+	| "GetActionArtifacts"
+	| { type: "Custom", payload: net.FetchParams }
+
+export type GithubRelease = {
+	tag_name: string,
+	created_at: string,
+	published_at: string,
+	prerelease: boolean,
+	draft: boolean,
+	assets: {
+		{
+			name: string,
+			browser_download_url: string,
+			size: number,
+			content_type: string,
+		}
+	},
+}
+export type GithubReleases = { GithubRelease }
 
 local API_BASE_URL = "https://api.github.com"
 local DEFAULT_MAX_RETRIES = 5
@@ -58,6 +79,10 @@ function Github.queueTransactions(self: Github, operations: { GithubOperation })
 		if operation == "FetchReleases" then
 			req.url ..= "/releases"
 			req.method = "GET"
+		end
+
+		if typeof(operation) == "table" and operation.type == "Custom" then
+			req = operation.payload
 		end
 
 		--  TODO: Other methods
