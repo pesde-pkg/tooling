@@ -31,21 +31,8 @@ export type ToolId = {
 	version: Option<Semver.SemverImpl>,
 }
 
-export type GithubReleases = {
-	{
-		tag_name: string,
-		prerelease: boolean,
-		draft: boolean,
-		assets: {
-			{
-				name: string,
-				browser_download_url: string,
-				size: number,
-				content_type: string,
-			}
-		},
-	}
-}
+-- TODO: Remove this in a breaking change
+export type GithubReleases = Github.GithubReleases
 
 local WARN_PREFIX = `{stdio.color("yellow")}{stdio.style("bold")}warn{stdio.color("reset")}:`
 
