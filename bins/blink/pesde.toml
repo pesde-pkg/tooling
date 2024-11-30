@@ -1,5 +1,5 @@
 name = "pesde/blink"
-version = "0.14.15"                                                          # TODO: Package 0.15.0-rc.1 as well
+version = "0.15.0-rc.1"
 description = "An IDL compiler written in Luau for ROBLOX buffer networking"
 authors = ["CompeyDev <hi@devcomp.xyz>", "Axen <axen@frombloxware.com>"]
 repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/blink"
