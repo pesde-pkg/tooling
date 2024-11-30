@@ -67,13 +67,7 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 	-- Make sure we have a repo name and version
 	assert(repoName and version, `Failed to get repo name and entrypoint for tool {binSrc}`)
 
-	local gh = Github.new(
-		repoName :: string,
-		Option.Some({
-			authToken = Option.Some("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"),
-			retries = Option.None,
-		} :: Github.Config) :: Option<Github.Config>
-	)
+	local gh = Github.new(repoName :: string, Option.None :: Option<Github.Config>)
 	local transactions = gh:queueTransactions({ "FetchReleases" })
 
 	-- Fetch releases, and order them by published date
