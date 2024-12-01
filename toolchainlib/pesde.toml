@@ -1,5 +1,5 @@
 name = "pesde/toolchainlib"
-version = "0.1.1"
+version = "0.1.2"
 license = "MIT"
 repository = "https://github.com/pesde-pkg/tooling/tree/main/toolchainlib"
 includes = ["src", "pesde.toml", "LICENSE.md", "README.md"]
