@@ -24,6 +24,7 @@ local Github = require("./github")
 local PlatformDescriptor = require("./platform/descriptor")
 local compression = require("./compression")
 local eq = require("./utils/eq")
+local manifest = require("./manifest")
 
 export type ToolId = {
 	alias: Option<string>,
@@ -245,7 +246,7 @@ return setmetatable(
 				-- pesde manifest to get the version of the tool dynamically
 				local manifestContents = pathfs.readFile(pathfs.Path.from(pesdeRoot :: string):join("pesde.toml"))
 				-- TODO: Create a pesde manifest type in toolchainlib, and use that here
-				local ok, manifest = pcall(serde.decode, "toml" :: "toml", manifestContents)
+				local ok, manifest: manifest.PesdeManifest = pcall(serde.decode, "toml" :: "toml", manifestContents)
 				if not ok then
 					stdio.ewrite(
 						`{ERROR_PREFIX} Failed to decode bundled manifest. This is probably a bug.\n\n{manifest}`
@@ -278,6 +279,7 @@ return setmetatable(
 				{
 					alias = Option.None,
 					repo = repo,
+					-- FIXME: Not all tools may necessarily follow semver, might this in the future
 					version = Option.Some(Semver.parse(versionOrDefault):unwrap()) :: Option<Semver.SemverImpl>,
 				} :: ToolId,
 				toolInstallPath
