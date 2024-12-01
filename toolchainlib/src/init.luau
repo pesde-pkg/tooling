@@ -157,9 +157,9 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 				local path = decompressedPath:unwrap()
 				for _, file in pathfs.readDir(path) do
 					local filePath = path:join(file)
-					local nativeDesc = PlatformDescriptor.fromExecutable(filePath:toString()):unwrap()
+					local nativeDesc = PlatformDescriptor.fromExecutable(filePath:toString())
 
-					if eq(currentDesc, nativeDesc) then
+					if nativeDesc:isOk() and eq(currentDesc, nativeDesc:unwrap()) then
 						binaryPath = filePath
 						break
 					end
