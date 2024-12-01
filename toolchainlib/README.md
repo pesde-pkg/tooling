@@ -13,7 +13,7 @@ A Luau library implementing toolchain management for Luau packages. This package
 
 [`pesde/toolchainlib`] uses a logic inspired by [Rokit] to discover compatible artifacts on GitHub releases, downloads them locally, and executes them. [Rokit]'s discovery logic is dynamic, works for a majority of tools. The only requirement is that the tool has to have a GitHub release. See [this comment](https://github.com/pesde-pkg/tooling/blob/e17fd8c40948ab553e984fd9d154ba5394d0a532/toolchainlib/src/init.luau#L1-L8) for more details on the discovery logic.
 
-When consumed from within a binary pesde package, pesde creates global linker scripts within `~/.pesde/bin` which can be invoked when the package is installed in the workspace. These scripts can called from the command line like regular commands, enabling you to run your favorite tooling, while having them be managed entirely by pesde.
+When consumed from within a binary pesde package, pesde creates global linker scripts within `~/.pesde/bin` which can be invoked when the package is installed in the workspace. These scripts can be called from the command line like regular commands, enabling you to run your favorite tooling, while having them be managed entirely by pesde.
 
 # License
 
