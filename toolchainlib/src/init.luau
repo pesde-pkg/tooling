@@ -256,13 +256,12 @@ return setmetatable(
 				return 0, manifest.version
 			end
 
-			local versionOrDefault = version
+			local versionOrDefault: string = version :: string
 			if versionOrDefault == "" then
 				local code, ver = manifestVersion()
 				if code ~= 0 then
 					return code
 				end
-
 				versionOrDefault = ver :: string
 			end
 
@@ -272,15 +271,6 @@ return setmetatable(
 
 			if pathfs.isFile(toolInstallPath) then
 				return lib.runTool(toolInstallPath)
-			end
-
-			local versionOrDefault: string = version :: string
-			if versionOrDefault == "" then
-				local code, ver = manifestVersion()
-				if code ~= 0 then
-					return code
-				end
-				versionOrDefault = ver :: string
 			end
 
 			local ok, err = pcall(
