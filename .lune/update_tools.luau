@@ -3,10 +3,12 @@ local stdio = require("@lune/stdio")
 local process = require("@lune/process")
 local DateTime = require("@lune/datetime")
 
+local pathfs = require("../lune_packages/pathfs")
+
+local manifestTypes = require("../toolchainlib/src/manifest")
 local types = require("../toolchainlib/src/utils/result_option_conv")
 local Option = types.Option
 type Option<T> = types.Option<T>
-local pathfs = require("../lune_packages/pathfs")
 local Github = require("../toolchainlib/src/github")
 
 local function isoDateToTimestamp(isoDate: string): number
@@ -43,6 +45,7 @@ local function assert(expr: boolean, msg: string)
 	end
 end
 
+local START_TIME = os.clock()
 local BINS_SRC_DIR = pathfs.getAbsolutePathOf(pathfs.Path.from("bins"))
 
 for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
@@ -57,15 +60,14 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 	)
 
 	local manifestContents = pathfs.readFile(manifestPath)
-	-- TODO: Type this
-	local manifest = serde.decode("toml", manifestContents)
+	local manifest: manifestTypes.PesdeManifest = serde.decode("toml", manifestContents)
 	local entrypointContents = pathfs.readFile(binEntrypoint)
 
 	local repoName = string.match(entrypointContents, 'require%("./lune_packages/core"%)%("([^"]+)"')
 	local version = manifest.version
 
 	-- Make sure we have a repo name and version
-	assert(repoName and version, `Failed to get repo name and entrypoint for tool {binSrc}`)
+	assert(repoName ~= nil, `Failed to get repo name for tool {binSrc}`)
 
 	local gh = Github.new(repoName :: string, Option.None :: Option<Github.Config>)
 	local transactions = gh:queueTransactions({ "FetchReleases" })
@@ -123,5 +125,10 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 
 			pathfs.writeFile(manifestPath, updatedManifest)
 		end
+
+		-- TODO: Also update the included README for the tool
 	end
 end
+
+local timeElapsed = string.format("%.2fs", os.clock() - START_TIME)
+print(`{INFO_PREFIX} Finished checking for tool updates in {stdio.style("dim")}{timeElapsed}{stdio.style("reset")}!`)
