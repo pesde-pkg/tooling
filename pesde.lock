@@ -2,6 +2,9 @@ name = "pesde/tooling"
 version = "0.1.0"
 target = "lune"
 
+[workspace."pesde/argon"]
+lune = "bins/argon"
+
 [workspace."pesde/blink"]
 lune = "bins/blink"
 
