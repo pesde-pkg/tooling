@@ -26,6 +26,9 @@ lune = "bins/stylua"
 [workspace."pesde/toolchainlib"]
 lune = "toolchainlib"
 
+[workspace."pesde/zap"]
+lune = "bins/zap"
+
 [graph."jiwonz/pathfs"."0.1.0 lune"]
 direct = ["pathfs", { name = "jiwonz/pathfs", version = "^0.1.0" }, "standard"]
 resolved_ty = "standard"
