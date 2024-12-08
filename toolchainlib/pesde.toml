@@ -3,7 +3,7 @@ description = "A Luau library for implementing toolchain management"
 version = "0.1.2"
 license = "MIT"
 repository = "https://github.com/pesde-pkg/tooling/tree/main/toolchainlib"
-includes = ["src", "pesde.toml", "LICENSE.md", "README.md"]
+includes = ["src", "pesde.toml", "LICENSE", "README.md"]
 
 [target]
 environment = "lune"
