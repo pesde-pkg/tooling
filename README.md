@@ -1,10 +1,11 @@
-# pesde/tooling 
+# pesde/tooling
 
 <a href="https://discord.gg/ATVVsNNv3u"><img alt="Discord" src="https://img.shields.io/discord/385151591524597761?style=plastic&logo=discord&color=%235865F2" /></a>
 <a href="https://lune-org.github.io/docs"><img alt="Lune" src="https://raw.githubusercontent.com/pesde-pkg/tooling/refs/heads/main/.lune/assets/powered-by-lune.svg" /></a>
+
 <!-- TODO: CI workflow status -->
 
- Common Luau tooling packaged for pesde, for use within fully pesde-managed projects. 
+Common Luau tooling packaged for pesde, for use within fully pesde-managed projects.
 
 ---
 
@@ -51,4 +52,4 @@ If a Luau tool you would like is not present here, please open an issue or submi
 
 # License
 
-This project is licensed under the [MIT](https://github.com/pesde/toolchainlib/blob/main/LICENSE.md) license.
+This project is licensed under the [MIT](https://github.com/pesde-pkg/tooling/blob/main/LICENSE) license.
