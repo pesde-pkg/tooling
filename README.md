@@ -29,7 +29,7 @@ Common Luau tooling packaged for pesde, for use within fully pesde-managed proje
 To ensure proper functionality, please make sure you have the following dependencies installed:
 
 - **pesde**: Version `>= 0.5.0-rc.13`
-- **lune**: Version `^0.8.7`
+- **lune**: Version `>= 0.8.7`
 
 ## Usage
 
@@ -39,9 +39,9 @@ For example, to install [stylua](https://github.com/JohnnyMorganz/stylua), a Lua
 pesde x pesde/stylua -- --version
 
 # Or, install the tool into your project and have it accessible in PATH
-pesde add --dev pesde/stylua
+pesde add --dev pesde/stylua --target lune
 pesde install
-stylua -- --version
+stylua --version
 ```
 
 Refer to the above table for a list of support tooling packages.
