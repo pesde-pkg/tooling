@@ -12,7 +12,6 @@ local process = require("@lune/process")
 local stdio = require("@lune/stdio")
 local serde = require("@lune/serde")
 
-local Semver = require("../luau_packages/semver")
 local pathfs = require("../lune_packages/pathfs")
 local dirs = require("../lune_packages/dirs")
 
@@ -29,7 +28,7 @@ local manifest = require("./manifest")
 export type ToolId = {
 	alias: Option<string>,
 	repo: string,
-	version: Option<Semver.SemverImpl>,
+	version: Option<string>,
 }
 
 -- TODO: Remove this in a breaking change
@@ -80,6 +79,11 @@ local function toolAliasOrDefault(tool: ToolId): string
 	return tool.alias:unwrapOr(string.split((tool :: ToolId).repo, "/")[2])
 end
 
+local function stripLeadingVersion(version: string): string
+	local stripped = string.gsub(version, "^v", "")
+	return stripped
+end
+
 local LINK_INSTALL_DIR = (dirs.homeDir() or error("Couldn't get home dir :(")):join(".pesde"):join("bin")
 local TOOL_STORAGE_DIR = LINK_INSTALL_DIR:join("tool_storage")
 
@@ -109,9 +113,9 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 
 	local releases = client:queueTransactions({ "FetchReleases" })[1]:unwrap() :: GithubReleases
 	local assets = tool.version:match({
-		Some = function(version: Semver.SemverImpl)
+		Some = function(version: string)
 			for _, release in releases do
-				if Semver.parse(release.tag_name):unwrap() :: Semver.SemverImpl == version then
+				if stripLeadingVersion(release.tag_name) == stripLeadingVersion(version) then
 					return release.assets
 				end
 			end
@@ -279,8 +283,7 @@ return setmetatable(
 				{
 					alias = Option.None,
 					repo = repo,
-					-- FIXME: Not all tools may necessarily follow semver, might this in the future
-					version = Option.Some(Semver.parse(versionOrDefault):unwrap()) :: Option<Semver.SemverImpl>,
+					version = Option.Some(versionOrDefault),
 				} :: ToolId,
 				toolInstallPath
 			)
