@@ -54,7 +54,12 @@ local function confirmAndClear(msg: string, default: boolean?): boolean
 end
 
 local INFO_PREFIX = `{stdio.color("green")}{stdio.style("bold")}info{stdio.color("reset")}:`
+local WARN_PREFIX = `{stdio.color("yellow")}{stdio.style("bold")}warn{stdio.color("reset")}:`
 local ERROR_PREFIX = `{stdio.color("red")}{stdio.style("bold")}error{stdio.color("reset")}:`
+
+local function warn(...)
+	stdio.ewrite(`{WARN_PREFIX} {stdio.format(...)}\n`)
+end
 
 local function error(msg: string): never
 	stdio.ewrite(`{ERROR_PREFIX} {msg}\n`)
@@ -198,14 +203,18 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 
 	-- NOTE: Ideally this block should be a match, but I cannot make use of
 	-- control flow expressions from within a function
-	if not readmeRes:isOk() then
-		warn("Failed to fetch README from tool repo:", readmeRes:unwrapErr())
+	if readmeRes:isErr() then
+		warn(`Failed to fetch README from tool repo {repoName}:`, readmeRes:unwrapErr())
 		continue
 	end
 
 	-- Write the updated README to the tool's directory
 	local readmeContents = readmeRes:unwrap()
 	pathfs.writeFile(readmePath, readmeContents)
+
+	print(
+		`{INFO_PREFIX} Wrote README to {stdio.style("dim")}{readmePath:stripPrefix(pathfs.cwd)}{stdio.style("reset")}`
+	)
 end
 
 local timeElapsed = string.format("%.2fs", os.clock() - START_TIME)
