@@ -4,12 +4,34 @@ local process = require("@lune/process")
 local DateTime = require("@lune/datetime")
 
 local pathfs = require("../lune_packages/pathfs")
+local base64 = require("../lune_packages/base64")
 
 local manifestTypes = require("../toolchainlib/src/manifest")
 local types = require("../toolchainlib/src/utils/result_option_conv")
 local Option = types.Option
 type Option<T> = types.Option<T>
+local Result = types.Result
+type Result<T, E> = types.Result<T, E>
 local Github = require("../toolchainlib/src/github")
+
+type GithubContents = {
+	name: string,
+	path: string,
+	sha: string,
+	size: number,
+	url: string,
+	html_url: string,
+	git_url: string,
+	download_url: string,
+	type: "file" | "dir" | "symlink",
+	content: string,
+	encoding: "base64",
+	_links: {
+		self: string,
+		git: string,
+		html: string,
+	},
+}
 
 local function isoDateToTimestamp(isoDate: string): number
 	return DateTime.fromIsoDate(isoDate).unixTimestamp
@@ -52,6 +74,7 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 	local absPath = BINS_SRC_DIR:join(binSrc)
 	local binEntrypoint = absPath:join("init.luau")
 	local manifestPath = absPath:join("pesde.toml")
+	local readmePath = absPath:join("README.md")
 
 	-- Make sure our constructed entrypoint and manifest paths exist
 	assert(
@@ -69,7 +92,13 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 	-- Make sure we have a repo name and version
 	assert(repoName ~= nil, `Failed to get repo name for tool {binSrc}`)
 
-	local gh = Github.new(repoName :: string, Option.None :: Option<Github.Config>)
+	local gh = Github.new(
+		repoName :: string,
+		Option.Some({
+			authToken = Option.from(process.env.GITHUB_TOKEN) :: Option<string>,
+			retries = Option.None :: Option<number>,
+		} :: Github.Config) :: Option<Github.Config>
+	)
 	local transactions = gh:queueTransactions({ "FetchReleases" })
 
 	-- Fetch releases, and order them by published date
@@ -125,9 +154,58 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 
 			pathfs.writeFile(manifestPath, updatedManifest)
 		end
-
-		-- TODO: Also update the included README for the tool
 	end
+
+	-- Fetch README for the tool repo, if present
+	transactions = gh:queueTransactions({
+		{
+			type = "Custom",
+			payload = {
+				method = "GET",
+				url = `https://api.github.com/repos/{repoName}/contents/README.md`,
+			},
+		},
+	})
+
+	local contentsResp = transactions[1] :: Result<GithubContents, string>
+
+	local readmeRes = contentsResp:andThen(function(resp: GithubContents)
+		-- If there was not an error, and the contents are base64 encoded,
+		-- we decode the contents and return the decoded buffer
+		if resp.encoding == "base64" then
+			-- NOTE: Github uses a special format for encoding the contents, where it
+			-- separates the entire file into multiple lines, and encodes each line in
+			-- base64
+			local lines = string.split(resp.content, "\n")
+			local decoded = buffer.create(resp.size)
+			local cum = 0
+			for _, line in lines do
+				if line == "" then
+					-- Skip empty lines
+					continue
+				end
+
+				local src = base64.decode(buffer.fromstring(line))
+				buffer.copy(decoded, math.clamp(cum - 1, 0, math.huge), src)
+				cum += buffer.len(src)
+			end
+
+			return Result.Ok(decoded)
+		end
+
+		return Result.Err(`Unsupported encoding: {resp.encoding}`)
+	end)
+
+	-- NOTE: Ideally this block should be a match, but I cannot make use of
+	-- control flow expressions from within a function
+	if not readmeRes:isOk() then
+		warn("Failed to fetch README from tool repo:", readmeRes:unwrapErr())
+		continue
+	end
+
+	-- Write the updated README to the tool's directory
+	local readmeContents = readmeRes:unwrap()
+	pathfs.writeFile(readmePath, readmeContents)
 end
 
 local timeElapsed = string.format("%.2fs", os.clock() - START_TIME)

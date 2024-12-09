@@ -7,9 +7,10 @@ workspace_members = ["toolchainlib", "bins/*"]
 [target]
 environment = "lune"
 
-[dependencies]
+[dev_dependencies]
 option = { name = "lukadev_0/option", version = "^1.2.0" }
 pathfs = { name = "jiwonz/pathfs", version = "^0.1.0" }
+base64 = { name = "synpixel/base64", version = "^3.0.1" }
 
 [indices]
 default = "https://github.com/daimond113/pesde-index"
