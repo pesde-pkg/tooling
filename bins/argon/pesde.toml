@@ -6,7 +6,7 @@ authors = [
 	"DervexDev <contact@dervex.dev> (https://dervex.dev/)",
 ]
 repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/argon"
-includes = ["init.luau", "pesde.toml"]
+includes = ["init.luau", "README.md", "pesde.toml"]
 
 [target]
 environment = "lune"
