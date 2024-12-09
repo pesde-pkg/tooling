@@ -167,7 +167,7 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 			type = "Custom",
 			payload = {
 				method = "GET",
-				url = `https://api.github.com/repos/{repoName}/contents/README.md`,
+				url = `https://api.github.com/repos/{repoName}/readme`,
 			},
 		},
 	})
@@ -181,20 +181,10 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 			-- NOTE: Github uses a special format for encoding the contents, where it
 			-- separates the entire file into multiple lines, and encodes each line in
 			-- base64
-			local lines = string.split(resp.content, "\n")
-			local decoded = buffer.create(resp.size)
-			local cum = 0
-			for _, line in lines do
-				if line == "" then
-					-- Skip empty lines
-					continue
-				end
 
-				local src = base64.decode(buffer.fromstring(line))
-				buffer.copy(decoded, math.clamp(cum - 1, 0, math.huge), src)
-				cum += buffer.len(src)
-			end
-
+			-- This should be done by the base64 library, but oh well
+			local content = string.gsub(resp.content, "%s+", "")
+			local decoded = base64.decode(buffer.fromstring(content))
 			return Result.Ok(decoded)
 		end
 
@@ -210,6 +200,8 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 
 	-- Write the updated README to the tool's directory
 	local readmeContents = readmeRes:unwrap()
+	-- There used to be some issues with encoding if not deleted and recreated
+	pathfs.removeFile(readmePath)
 	pathfs.writeFile(readmePath, readmeContents)
 
 	print(

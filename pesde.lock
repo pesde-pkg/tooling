@@ -66,8 +66,8 @@ environment = "lune"
 lib = "lib/init.luau"
 
 [graph."synpixel/base64"."3.0.1 lune"]
-direct = ["base64", { name = "synpixel/base64", version = "^3.0.1" }, "standard"]
-resolved_ty = "standard"
+direct = ["base64", { name = "synpixel/base64", version = "^3.0.1" }, "dev"]
+resolved_ty = "dev"
 
 [graph."synpixel/base64"."3.0.1 lune".target]
 environment = "lune"
