@@ -3,7 +3,7 @@ version = "0.6.15"
 description = "A lightning fast networking solution for roblox."
 authors = ["CompeyDev <hi@devcomp.xyz>", "Redblox Organization"]
 repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/zap"
-includes = ["init.luau", "pesde.toml"]
+includes = ["init.luau", "README.md", "pesde.toml"]
 
 [target]
 environment = "lune"
