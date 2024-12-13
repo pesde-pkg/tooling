@@ -149,7 +149,6 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 				end
 			end
 
-			barFns.stop(bar)
 			return error(`No release found for version {version}`)
 		end,
 
@@ -211,7 +210,6 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 		local decompressedPath = downloadAndDecompress(matchingAsset):unwrap()
 		binaryPath = decompressedPath:join(aliasPath)
 		if not pathfs.isFile(binaryPath) then
-			barFns.stop(bar)
 			error(`No matching binary found in {decompressedPath}`)
 		end
 	end
@@ -328,6 +326,9 @@ return setmetatable(
 			)
 
 			if not ok then
+				-- Cleanup progress bar in case of error
+				makeConditionalBar().stop(bar)
+
 				stdio.ewrite(`{ERROR_PREFIX} Failed to install {tool}\n`)
 				stdio.ewrite(`	- {err}\n`)
 				return 1

@@ -55,10 +55,15 @@ function ProgressBar.start(self: ProgressBarImpl): ()
 			for _, spinner in SPINNERS do
 				local stage = self.stages[self.currentStageIndex]
 				stdio.write(
-					`\x1b[2K\x1b[0G{spinner} {stage.message}{string.rep(" ", MAX_MESSAGE_LENGTH - #stage.message)} [{string.rep(
-						BAR,
-						self.currentStageIndex
-					)}{string.rep(" ", TOTAL_BAR_LENGTH - (BAR_LENGTH * self.currentStageIndex))}] {self.currentStageIndex} / {#self.stages}`
+					`\x1b[2K\x1b[0G{stdio.color("cyan")}{spinner} {stage.message}{stdio.color("reset")}{string.rep(
+						" ",
+						MAX_MESSAGE_LENGTH - #stage.message
+					)} [{stdio.style("dim")}{string.rep(BAR, self.currentStageIndex)}{string.rep(
+						" ",
+						TOTAL_BAR_LENGTH - (BAR_LENGTH * self.currentStageIndex)
+					)}{stdio.style("reset")}] {stdio.style("bold")}{self.currentStageIndex} / {#self.stages}{stdio.style(
+						"reset"
+					)}`
 				)
 
 				task.wait(0.1)
