@@ -4,13 +4,13 @@ local process = require("@lune/process")
 local dirs = require("../lune_packages/dirs")
 local pathfs = require("../lune_packages/pathfs")
 
+local Result = require("../lune_packages/result")
+local Option = require("../lune_packages/option")
+type Result<T, E> = Result.Result<T, E>
+type Option<T> = Option.Option<T>
+
 local revTable = require("./utils/rev_table")
 local CommandBuilder = require("./utils/exec")
-local types = require("./utils/result_option_conv")
-local Option = types.Option
-type Option<T> = types.Option<T>
-local Result = types.Result
-type Result<T, E> = types.Result<T, E>
 
 export type CompressionFormat = "TarGz" | "TarXz" | "Zip"
 

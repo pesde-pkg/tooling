@@ -1,6 +1,5 @@
-local types = require("../utils/result_option_conv")
-local Option = types.Option
-type Option<T> = types.Option<T>
+local Option = require("../../lune_packages/option")
+type Option<T> = Option.Option<T>
 
 local TOOLCHAINS: { Toolchain } = { "msvc", "gnu", "musl" }
 export type Toolchain = "msvc" | "gnu" | "musl"

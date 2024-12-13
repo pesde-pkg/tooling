@@ -15,9 +15,11 @@ local serde = require("@lune/serde")
 local pathfs = require("../lune_packages/pathfs")
 local dirs = require("../lune_packages/dirs")
 
-local types = require("./utils/result_option_conv")
-local Option = types.Option
-type Option<T> = types.Option<T>
+local Result = require("../lune_packages/result")
+local ResultExt = require("./utils/ext/result")
+local Option = require("../lune_packages/option")
+type Result<T, E> = Result.Result<T, E>
+type Option<T> = Option.Option<T>
 
 local Github = require("./github")
 local PlatformDescriptor = require("./platform/descriptor")
@@ -54,7 +56,7 @@ local function downloadAndDecompress(asset: {
 					return error(`Failed to download asset {asset.name}: HTTP Code {contentsResp.statusCode}`)
 				end
 
-				return compression.decompress[format](buffer.fromstring(contentsResp.body)):ok() :: Option<pathfs.Path>
+				return ResultExt.ok(compression.decompress[format](buffer.fromstring(contentsResp.body)))
 			end) :: Option<pathfs.Path>
 end
 
@@ -89,7 +91,9 @@ function runTool(tool: ToolId | pathfs.Path): number
 	-- FIXME: `process.spawn` has a bug where interactive features don't
 	-- forward properly
 	local toolId = tool :: ToolId
-	local path = if toolId.alias ~= nil then LINK_INSTALL_DIR:join(toolAliasOrDefault(toolId)) else tool :: pathfs.Path
+	local path = if (toolId :: any).alias ~= nil
+		then LINK_INSTALL_DIR:join(toolAliasOrDefault(toolId))
+		else tool :: pathfs.Path
 
 	return process.spawn(path:toString(), process.args, {
 		cwd = process.cwd,

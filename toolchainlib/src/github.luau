@@ -1,11 +1,11 @@
 local net = require("@lune/net")
 
+local Result = require("../lune_packages/result")
+local Option = require("../lune_packages/option")
+type Result<T, E> = Result.Result<T, E>
+type Option<T> = Option.Option<T>
+
 local copy = require("./utils/copy")
-local types = require("./utils/result_option_conv")
-local Option = types.Option
-local Result = types.Result
-type Option<T> = types.Option<T>
-type Result<T, E> = types.Result<T, E>
 
 local Github = {}
 export type Github = typeof(setmetatable(Github :: GithubFields, { __index = Github }))

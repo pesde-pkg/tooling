@@ -3,9 +3,8 @@
 local process = require("@lune/process")
 local task = require("@lune/task")
 
-local types = require("../utils/result_option_conv")
-local Option = types.Option
-type Option<T> = types.Option<T>
+local Option = require("../../lune_packages/option")
+type Option<T> = Option.Option<T>
 
 local CommandBuilder = {}
 type CommandBuilderFields = {
@@ -34,10 +33,9 @@ export type ChildStatus = { ok: boolean, code: number, io: {
 	stderr: string,
 } }
 
--- FIXME: remove unknown usage
 local DEFAULT_STDIO_STRATEGY: IoStrategyMapping = {
-	stdout = Option.Some("pipe" :: StdioStrategy) :: Option<unknown>,
-	stderr = Option.Some("pipe" :: StdioStrategy) :: Option<unknown>,
+	stdout = Option.Some("pipe" :: StdioStrategy),
+	stderr = Option.Some("pipe" :: StdioStrategy),
 }
 local DEFAULT_RETRIES = 0
 local DEFAULT_IGNORE_ERRORS = false
@@ -84,11 +82,10 @@ function CommandBuilder.withStdioStrategy(
 	self: CommandBuilder,
 	strategy: StdioStrategy | IoStrategyMapping
 ): CommandBuilder
-	-- FIXME: remove unknown usage
 	self.stdioStrategy = Option.Some(if typeof(strategy) == "string"
 		then {
-			stdout = Option.Some(strategy) :: Option<unknown>,
-			stderr = Option.Some(strategy) :: Option<unknown>,
+			stdout = Option.Some(strategy),
+			stderr = Option.Some(strategy),
 		}
 		else strategy) :: Option<IoStrategyMapping>
 	return self
@@ -124,12 +121,8 @@ function CommandBuilder.intoChildProcess(self: CommandBuilder): ChildProcess
 						else `{self.program} {argsList} & echo $!`,
 					{},
 					{
-						stdio = self
-							.stdioStrategy
-							-- FIXME: remove unknown usage
-							:orOpt(
-								Option.Some(DEFAULT_STDIO_STRATEGY) :: Option<unknown>
-							)
+						stdio = self.stdioStrategy
+							:orOpt(Option.Some(DEFAULT_STDIO_STRATEGY))
 							:map(function(mappings: IoStrategyMapping)
 								local translatedMappings: process.SpawnOptionsStdio = {}
 								for field, value in mappings do

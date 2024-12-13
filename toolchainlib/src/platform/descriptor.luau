@@ -7,11 +7,11 @@ local toolchain = require("./toolchain")
 local result = require("./result")
 local detectFromExecutable = require("./detection/executable")
 
-local types = require("../utils/result_option_conv")
-local Option = types.Option
-local Result = types.Result
-type Option<T> = types.Option<T>
-type Result<T, E> = types.Result<T, E>
+local Result = require("../../lune_packages/result")
+local Option = require("../../lune_packages/option")
+local OptionExt = require("../utils/ext/option")
+type Result<T, E> = Result.Result<T, E>
+type Option<T> = Option.Option<T>
 
 local PlatformDescriptor = {}
 export type PlatformDescriptor = {
@@ -63,7 +63,8 @@ function PlatformDescriptor.fromExecutable(path: string): result.PlatformResult<
 		}
 	end) :: Option<PlatformDescriptor>
 
-	return platformDesc:okOr(
+	return OptionExt.okOr(
+			platformDesc,
 			"NoExecutableDetected" :: result.PlatformError
 		) :: result.PlatformResult<PlatformDescriptor>
 end

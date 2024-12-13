@@ -9,6 +9,7 @@ environment = "lune"
 
 [dev_dependencies]
 option = { name = "lukadev_0/option", version = "^1.2.0" }
+result = { name = "lukadev_0/result", version = "^1.2.0" }
 pathfs = { name = "jiwonz/pathfs", version = "^0.1.0" }
 base64 = { name = "synpixel/base64", version = "^3.0.1" }
 

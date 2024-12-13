@@ -7,11 +7,11 @@ local pathfs = require("../lune_packages/pathfs")
 local base64 = require("../lune_packages/base64")
 
 local manifestTypes = require("../toolchainlib/src/manifest")
-local types = require("../toolchainlib/src/utils/result_option_conv")
-local Option = types.Option
-type Option<T> = types.Option<T>
-local Result = types.Result
-type Result<T, E> = types.Result<T, E>
+local Result = require("../lune_packages/result")
+local Option = require("../lune_packages/option")
+type Result<T, E> = Result.Result<T, E>
+type Option<T> = Option.Option<T>
+
 local Github = require("../toolchainlib/src/github")
 
 type GithubContents = {
