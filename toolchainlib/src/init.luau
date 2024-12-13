@@ -46,17 +46,15 @@ local function downloadAndDecompress(asset: {
 	size: number,
 	content_type: string,
 }): Option<pathfs.Path>
-	-- TODO: Small optimization by first detecting that its a valid format we support
-	-- before downloading the file
-	local contentsResp = net.request(asset.browser_download_url)
-	if not contentsResp.ok then
-		return error(`Failed to download asset {asset.name}: HTTP Code {contentsResp.statusCode}`)
-	end
-
 	return compression
 			.detectFormat(asset.name)
-			:map(function(format: compression.CompressionFormat)
-				return compression.decompress[format](buffer.fromstring(contentsResp.body)):unwrap() :: pathfs.Path
+			:andThen(function(format: compression.CompressionFormat)
+				local contentsResp = net.request(asset.browser_download_url)
+				if not contentsResp.ok then
+					return error(`Failed to download asset {asset.name}: HTTP Code {contentsResp.statusCode}`)
+				end
+
+				return compression.decompress[format](buffer.fromstring(contentsResp.body)):ok() :: Option<pathfs.Path>
 			end) :: Option<pathfs.Path>
 end
 
