@@ -113,35 +113,24 @@ function runTool(tool: ToolId | pathfs.Path): number
 	}).code
 end
 
-local function makeCondInc(yes: boolean?)
-	return function()
-		if yes then
-			bar:nextStage()
+local function makeConditionalBar()
+	local function makeConditional(fn: (ProgressBar.ProgressBarImpl) -> ())
+		return function(bar: ProgressBar.ProgressBarImpl)
+			local _ = _G.interactive and task.spawn(fn, bar)
 		end
 	end
+
+	return {
+		next = makeConditional(bar.nextStage),
+		pause = makeConditional(bar.pause),
+		resume = makeConditional(bar.resume),
+	}
 end
 
-local function makeCondPause(yes: boolean?)
-	return function()
-		if yes then
-			bar:pause()
-		end
-	end
-end
-
-local function makeCondResume(yes: boolean?)
-	return function()
-		if yes then
-			bar:resume()
-		end
-	end
-end
-
-function installTool(tool: ToolId, installPath: pathfs.Path, interactive: boolean?)
-	local next = makeCondInc(interactive)
-	local pause = makeCondPause(interactive)
-	local resume = makeCondResume(interactive)
-	next()
+_G.interactive = false
+function installTool(tool: ToolId, installPath: pathfs.Path)
+	local barFns = makeConditionalBar()
+	barFns.next(bar)
 
 	local toolAlias = toolAliasOrDefault(tool)
 	local client = Github.new(
@@ -153,7 +142,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path, interactive: boolea
 		}) :: Option<Github.Config>
 	)
 
-	next()
+	barFns.next(bar)
 	local releases = client:queueTransactions({ "FetchReleases" })[1]:unwrap() :: GithubReleases
 	local assets = tool.version:match({
 		Some = function(version: string)
@@ -163,7 +152,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path, interactive: boolea
 				end
 			end
 
-			pause()
+			barFns.pause(bar)
 			return error(`No release found for version {version}`)
 		end,
 
@@ -172,7 +161,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path, interactive: boolea
 		end,
 	})
 
-	next()
+	barFns.next(bar)
 	-- TODO: Use index type fn in solver v2
 	local matchingAsset: {
 		name: string,
@@ -199,12 +188,12 @@ function installTool(tool: ToolId, installPath: pathfs.Path, interactive: boolea
 
 	local binaryPath: pathfs.Path
 	if matchingAsset == nil then
-		pause()
+		barFns.pause(bar)
 		warn("Pesde could not find a matching binary for your system")
 		warn("Will now attempt to download all binaries and find a matching one")
-		resume()
+		barFns.resume(bar)
 
-		next()
+		barFns.next(bar)
 
 		for _, asset in assets do
 			local decompressedPath = downloadAndDecompress(asset)
@@ -225,12 +214,12 @@ function installTool(tool: ToolId, installPath: pathfs.Path, interactive: boolea
 		local decompressedPath = downloadAndDecompress(matchingAsset):unwrap()
 		binaryPath = decompressedPath:join(aliasPath)
 		if not pathfs.isFile(binaryPath) then
-			pause()
+			barFns.pause(bar)
 			error(`No matching binary found in {decompressedPath}`)
 		end
 	end
 
-	next()
+	barFns.next(bar)
 	-- Maintain multiple versions of a tool, and avoid downloading
 	-- the binary for a version again if it's already there
 	local toolDir = Option.from(installPath:parent()):unwrap()
@@ -273,7 +262,7 @@ end
 
 type LibExports = {
 	runTool: (pathfs.Path | ToolId) -> number,
-	installTool: (ToolId, pathfs.Path, boolean?) -> never,
+	installTool: (ToolId, pathfs.Path) -> never,
 }
 type LibExportsImpl = typeof(setmetatable(
 	{} :: LibExports,
@@ -287,6 +276,7 @@ return setmetatable(
 	} :: LibExports,
 	{
 		__call = function(lib: LibExportsImpl, tool: string, pesdeRoot: string?): number
+			_G.interactive = true
 			local repo, version = string.match(tool, "([^@]+)@?(.*)")
 			if repo == nil or version == nil then
 				stdio.ewrite(`{ERROR_PREFIX} Invalid tool provided\n`)
@@ -339,8 +329,7 @@ return setmetatable(
 					repo = repo,
 					version = Option.Some(versionOrDefault),
 				} :: ToolId,
-				toolInstallPath,
-				true
+				toolInstallPath
 			)
 
 			if not ok then
