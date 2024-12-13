@@ -88,7 +88,12 @@ local function stripLeadingVersion(version: string): string
 end
 
 local LINK_INSTALL_DIR = (dirs.homeDir() or error("Couldn't get home dir :(")):join(".pesde"):join("bin")
-local TOOL_STORAGE_DIR = LINK_INSTALL_DIR:join("tool_storage")
+local TOOL_STORAGE_DIR = LINK_INSTALL_DIR:join(".tool_storage")
+
+local OLD_TOOL_STORAGE_DIR = LINK_INSTALL_DIR:join("tool_storage")
+if pathfs.isFile(OLD_TOOL_STORAGE_DIR) then
+	pathfs.move(OLD_TOOL_STORAGE_DIR, TOOL_STORAGE_DIR)
+end
 
 local bar = ProgressBar.new()
 	:withStage("init", "Initializing")
