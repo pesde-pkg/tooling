@@ -11,7 +11,6 @@ local net = require("@lune/net")
 local process = require("@lune/process")
 local stdio = require("@lune/stdio")
 local serde = require("@lune/serde")
-local task = require("@lune/task")
 
 local pathfs = require("../lune_packages/pathfs")
 local dirs = require("../lune_packages/dirs")
@@ -116,21 +115,19 @@ end
 local function makeConditionalBar()
 	local function makeConditional(fn: (ProgressBar.ProgressBarImpl) -> ())
 		return function(bar: ProgressBar.ProgressBarImpl)
-			local _ = _G.interactive and task.spawn(fn, bar)
+			local _ = _G.interactive and fn(bar)
 		end
 	end
 
 	return {
 		next = makeConditional(bar.nextStage),
-		pause = makeConditional(bar.pause),
-		resume = makeConditional(bar.resume),
+		stop = makeConditional(bar.stop),
 	}
 end
 
 _G.interactive = false
-function installTool(tool: ToolId, installPath: pathfs.Path)
+function installTool(tool: ToolId, installPath: pathfs.Path): number
 	local barFns = makeConditionalBar()
-	barFns.next(bar)
 
 	local toolAlias = toolAliasOrDefault(tool)
 	local client = Github.new(
@@ -142,7 +139,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 		}) :: Option<Github.Config>
 	)
 
-	barFns.next(bar)
+	barFns.next(bar) -- fetch
 	local releases = client:queueTransactions({ "FetchReleases" })[1]:unwrap() :: GithubReleases
 	local assets = tool.version:match({
 		Some = function(version: string)
@@ -152,7 +149,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 				end
 			end
 
-			barFns.pause(bar)
+			barFns.stop(bar)
 			return error(`No release found for version {version}`)
 		end,
 
@@ -161,7 +158,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 		end,
 	})
 
-	barFns.next(bar)
+	barFns.next(bar) -- locate
 	-- TODO: Use index type fn in solver v2
 	local matchingAsset: {
 		name: string,
@@ -186,14 +183,14 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 		end
 	end
 
+	barFns.next(bar) -- download
+	-- task.delay(0.1, barFns.next, bar) -- download
+
 	local binaryPath: pathfs.Path
 	if matchingAsset == nil then
-		barFns.pause(bar)
+		stdio.write("\x1b[2K\x1b[0G")
 		warn("Pesde could not find a matching binary for your system")
 		warn("Will now attempt to download all binaries and find a matching one")
-		barFns.resume(bar)
-
-		barFns.next(bar)
 
 		for _, asset in assets do
 			local decompressedPath = downloadAndDecompress(asset)
@@ -214,12 +211,13 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 		local decompressedPath = downloadAndDecompress(matchingAsset):unwrap()
 		binaryPath = decompressedPath:join(aliasPath)
 		if not pathfs.isFile(binaryPath) then
-			barFns.pause(bar)
+			barFns.stop(bar)
 			error(`No matching binary found in {decompressedPath}`)
 		end
 	end
 
-	barFns.next(bar)
+	barFns.next(bar) -- install
+
 	-- Maintain multiple versions of a tool, and avoid downloading
 	-- the binary for a version again if it's already there
 	local toolDir = Option.from(installPath:parent()):unwrap()
@@ -250,14 +248,11 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 		-- ...
 	]]
 
-	-- Stop the progress bar and clean it up from stdout
-	bar:stop()
-	task.cancel(bar.thread :: thread)
-	stdio.write("\x1b[2K\x1b[0G")
+	barFns.stop(bar)
 
 	-- NOTE: This is equivalent to `0o755` or `rwxr-xr-x`
 	chmod(installPath, 0b10101010011)
-	runTool(installPath)
+	return runTool(installPath)
 end
 
 type LibExports = {
@@ -321,7 +316,7 @@ return setmetatable(
 				return lib.runTool(toolInstallPath)
 			end
 
-			bar:start()
+			bar:start() -- init
 			local ok, err = pcall(
 				lib.installTool,
 				{

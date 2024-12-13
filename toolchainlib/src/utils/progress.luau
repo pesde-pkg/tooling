@@ -52,11 +52,6 @@ function ProgressBar.start(self: ProgressBarImpl): ()
 
 	self.thread = task.spawn(function()
 		while not self.finished do
-			if self.currentStageIndex == #self.stages then
-				self:stop()
-				break
-			end
-
 			for _, spinner in SPINNERS do
 				local stage = self.stages[self.currentStageIndex]
 				stdio.write(
@@ -69,21 +64,14 @@ function ProgressBar.start(self: ProgressBarImpl): ()
 				task.wait(0.1)
 			end
 		end
-
-		stdio.write("\n")
 	end)
 end
 
 function ProgressBar.stop(self: ProgressBarImpl): ()
+	-- Trigger upvalue, kill thread and clean progress bar remnant
 	self.finished = true
-end
-
-function ProgressBar.pause(self: ProgressBarImpl): ()
-	local _ = self.thread and coroutine.yield(self.thread)
-end
-
-function ProgressBar.resume(self: ProgressBarImpl): ()
-	local _ = self.thread and coroutine.resume(self.thread)
+	task.cancel(self.thread :: thread)
+	stdio.write("\x1b[2K\x1b[0G")
 end
 
 function ProgressBar.nextStage(self: ProgressBarImpl): ()
