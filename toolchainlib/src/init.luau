@@ -11,6 +11,7 @@ local net = require("@lune/net")
 local process = require("@lune/process")
 local stdio = require("@lune/stdio")
 local serde = require("@lune/serde")
+local task = require("@lune/task")
 
 local pathfs = require("../lune_packages/pathfs")
 local dirs = require("../lune_packages/dirs")
@@ -23,6 +24,7 @@ type Option<T> = Option.Option<T>
 
 local Github = require("./github")
 local PlatformDescriptor = require("./platform/descriptor")
+local ProgressBar = require("./utils/progress")
 local compression = require("./compression")
 local eq = require("./utils/eq")
 local manifest = require("./manifest")
@@ -36,6 +38,8 @@ export type ToolId = {
 -- TODO: Remove this in a breaking change
 export type GithubReleases = Github.GithubReleases
 
+local ERROR_PREFIX = `{stdio.color("red")}{stdio.style("bold")}error{stdio.color("reset")}:`
+local _INFO_PREFIX = `{stdio.color("green")}{stdio.style("bold")}info{stdio.color("reset")}:`
 local WARN_PREFIX = `{stdio.color("yellow")}{stdio.style("bold")}warn{stdio.color("reset")}:`
 
 local function warn(...)
@@ -87,6 +91,13 @@ end
 local LINK_INSTALL_DIR = (dirs.homeDir() or error("Couldn't get home dir :(")):join(".pesde"):join("bin")
 local TOOL_STORAGE_DIR = LINK_INSTALL_DIR:join("tool_storage")
 
+local bar = ProgressBar.new()
+	:withStage("init", "Initializing")
+	:withStage("fetch", "Fetching release")
+	:withStage("locate", "Identifying asset")
+	:withStage("download", "Downloading")
+	:withStage("install", "Installing")
+
 function runTool(tool: ToolId | pathfs.Path): number
 	-- FIXME: `process.spawn` has a bug where interactive features don't
 	-- forward properly
@@ -102,7 +113,36 @@ function runTool(tool: ToolId | pathfs.Path): number
 	}).code
 end
 
-function installTool(tool: ToolId, installPath: pathfs.Path)
+local function makeCondInc(yes: boolean?)
+	return function()
+		if yes then
+			bar:nextStage()
+		end
+	end
+end
+
+local function makeCondPause(yes: boolean?)
+	return function()
+		if yes then
+			bar:pause()
+		end
+	end
+end
+
+local function makeCondResume(yes: boolean?)
+	return function()
+		if yes then
+			bar:resume()
+		end
+	end
+end
+
+function installTool(tool: ToolId, installPath: pathfs.Path, interactive: boolean?)
+	local next = makeCondInc(interactive)
+	local pause = makeCondPause(interactive)
+	local resume = makeCondResume(interactive)
+	next()
+
 	local toolAlias = toolAliasOrDefault(tool)
 	local client = Github.new(
 		tool.repo,
@@ -113,6 +153,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 		}) :: Option<Github.Config>
 	)
 
+	next()
 	local releases = client:queueTransactions({ "FetchReleases" })[1]:unwrap() :: GithubReleases
 	local assets = tool.version:match({
 		Some = function(version: string)
@@ -122,6 +163,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 				end
 			end
 
+			pause()
 			return error(`No release found for version {version}`)
 		end,
 
@@ -130,6 +172,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 		end,
 	})
 
+	next()
 	-- TODO: Use index type fn in solver v2
 	local matchingAsset: {
 		name: string,
@@ -156,8 +199,13 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 
 	local binaryPath: pathfs.Path
 	if matchingAsset == nil then
+		pause()
 		warn("Pesde could not find a matching binary for your system")
 		warn("Will now attempt to download all binaries and find a matching one")
+		resume()
+
+		next()
+
 		for _, asset in assets do
 			local decompressedPath = downloadAndDecompress(asset)
 			if decompressedPath:isSome() then
@@ -177,10 +225,12 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 		local decompressedPath = downloadAndDecompress(matchingAsset):unwrap()
 		binaryPath = decompressedPath:join(aliasPath)
 		if not pathfs.isFile(binaryPath) then
+			pause()
 			error(`No matching binary found in {decompressedPath}`)
 		end
 	end
 
+	next()
 	-- Maintain multiple versions of a tool, and avoid downloading
 	-- the binary for a version again if it's already there
 	local toolDir = Option.from(installPath:parent()):unwrap()
@@ -211,6 +261,11 @@ function installTool(tool: ToolId, installPath: pathfs.Path)
 		-- ...
 	]]
 
+	-- Stop the progress bar and clean it up from stdout
+	bar:stop()
+	task.cancel(bar.thread :: thread)
+	stdio.write("\x1b[2K\x1b[0G")
+
 	-- NOTE: This is equivalent to `0o755` or `rwxr-xr-x`
 	chmod(installPath, 0b10101010011)
 	runTool(installPath)
@@ -218,7 +273,7 @@ end
 
 type LibExports = {
 	runTool: (pathfs.Path | ToolId) -> number,
-	installTool: (ToolId, pathfs.Path) -> never,
+	installTool: (ToolId, pathfs.Path, boolean?) -> never,
 }
 type LibExportsImpl = typeof(setmetatable(
 	{} :: LibExports,
@@ -232,10 +287,6 @@ return setmetatable(
 	} :: LibExports,
 	{
 		__call = function(lib: LibExportsImpl, tool: string, pesdeRoot: string?): number
-			-- TODO: Progress bar maybe? :D
-
-			local ERROR_PREFIX = `{stdio.color("red")}{stdio.style("bold")}error{stdio.color("reset")}:`
-
 			local repo, version = string.match(tool, "([^@]+)@?(.*)")
 			if repo == nil or version == nil then
 				stdio.ewrite(`{ERROR_PREFIX} Invalid tool provided\n`)
@@ -280,6 +331,7 @@ return setmetatable(
 				return lib.runTool(toolInstallPath)
 			end
 
+			bar:start()
 			local ok, err = pcall(
 				lib.installTool,
 				{
@@ -287,7 +339,8 @@ return setmetatable(
 					repo = repo,
 					version = Option.Some(versionOrDefault),
 				} :: ToolId,
-				toolInstallPath
+				toolInstallPath,
+				true
 			)
 
 			if not ok then
