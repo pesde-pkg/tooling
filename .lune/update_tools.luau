@@ -1,3 +1,5 @@
+--> Updates tooling bin versions and READMEs
+
 local serde = require("@lune/serde")
 local stdio = require("@lune/stdio")
 local process = require("@lune/process")
