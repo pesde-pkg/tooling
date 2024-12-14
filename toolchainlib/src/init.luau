@@ -126,8 +126,22 @@ local function makeConditionalBar()
 
 	return {
 		next = makeConditional(bar.nextStage),
+		start = makeConditional(bar.start),
 		stop = makeConditional(bar.stop),
 	}
+end
+
+local function getGithubToken(): Option<string>
+	return Option.from(process.env.GITHUB_TOKEN):orElse(function()
+		local child = process.spawn("gh", { "auth", "token" })
+		if not child.ok then
+			return Option.None
+		end
+
+		-- Remove newlines and other control characters
+		local token = string.gsub(child.stdout, "%s+", "")
+		return Option.Some(token)
+	end)
 end
 
 _G.interactive = false
@@ -138,8 +152,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 	local client = Github.new(
 		tool.repo,
 		Option.Some({
-			-- TODO: Maybe use the `gh auth token` command to get the token
-			authToken = Option.from(process.env.GITHUB_TOKEN) :: Option<string>,
+			authToken = getGithubToken(),
 			retries = Option.None :: Option<number>,
 		}) :: Option<Github.Config>
 	)
@@ -188,7 +201,6 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 	end
 
 	barFns.next(bar) -- download
-	-- task.delay(0.1, barFns.next, bar) -- download
 
 	local binaryPath: pathfs.Path
 	if matchingAsset == nil then
@@ -275,6 +287,8 @@ return setmetatable(
 	{
 		__call = function(lib: LibExportsImpl, tool: string, pesdeRoot: string?): number
 			_G.interactive = true
+			local barFns = makeConditionalBar()
+
 			local repo, version = string.match(tool, "([^@]+)@?(.*)")
 			if repo == nil or version == nil then
 				stdio.ewrite(`{ERROR_PREFIX} Invalid tool provided\n`)
@@ -290,7 +304,6 @@ return setmetatable(
 				-- Use _G.PESDE_ROOT to get the install directory, then decode the
 				-- pesde manifest to get the version of the tool dynamically
 				local manifestContents = pathfs.readFile(pathfs.Path.from(pesdeRoot :: string):join("pesde.toml"))
-				-- TODO: Create a pesde manifest type in toolchainlib, and use that here
 				local ok, manifest: manifest.PesdeManifest = pcall(serde.decode, "toml" :: "toml", manifestContents)
 				if not ok then
 					stdio.ewrite(
@@ -319,7 +332,7 @@ return setmetatable(
 				return lib.runTool(toolInstallPath)
 			end
 
-			bar:start() -- init
+			barFns.start(bar) -- init
 			local ok, err = pcall(
 				lib.installTool,
 				{
@@ -332,7 +345,7 @@ return setmetatable(
 
 			if not ok then
 				-- Cleanup progress bar in case of error
-				makeConditionalBar().stop(bar)
+				barFns.stop(bar)
 
 				stdio.ewrite(`{ERROR_PREFIX} Failed to install {tool}\n`)
 				stdio.ewrite(`	- {err}\n`)
