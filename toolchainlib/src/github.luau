@@ -69,7 +69,6 @@ function Github.new(repo: string, config: Option<Config>)
 	)
 end
 
--- FIXME: Remove unknown usage here
 function Github.queueTransactions(self: Github, operations: { GithubOperation }): { Result<unknown, string> }
 	local queue: { (retries: number) -> Result<unknown, string> } = table.create(#operations)
 

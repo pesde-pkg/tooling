@@ -19,16 +19,16 @@ local function detectFormat(fileName: string): Option<CompressionFormat>
 	revTable(fileNameParts)
 
 	if fileNameParts[1] == "zip" then
-		return Option.Some("Zip" :: CompressionFormat) :: Option<unknown>
+		return Option.Some("Zip" :: CompressionFormat)
 	end
 
 	if fileNameParts[2] == "tar" then
 		if fileNameParts[1] == "gz" then
-			return Option.Some("TarGz" :: CompressionFormat) :: Option<unknown>
+			return Option.Some("TarGz" :: CompressionFormat)
 		end
 
 		if fileNameParts[1] == "xz" then
-			return Option.Some("TarXz" :: CompressionFormat) :: Option<unknown>
+			return Option.Some("TarXz" :: CompressionFormat)
 		end
 	end
 
@@ -38,16 +38,15 @@ end
 -- TODO: Use a type function to make all CompressionFormat lowercase
 local decompress: { [CompressionFormat]: (compressed: buffer) -> Result<pathfs.AsPath, string> } = {
 	Zip = function(compressed: buffer)
-		-- FIXME: remove any usage
 		return (Option.from(dirs.cacheDir()):map(function(cacheDir)
 			local progCacheDir = cacheDir:join("pesde-bin")
 			if not pathfs.isDir(progCacheDir) then
 				pathfs.writeDir(progCacheDir)
 			end
 
-			return progCacheDir :: pathfs.AsPath
-		end) :: Option<any>):match({
-			Some = function(dir)
+			return progCacheDir :: pathfs.Path
+		end)):match({
+			Some = function(dir: pathfs.Path)
 				-- Generate a unique file name and write the contents to the temporary file
 				local tmpFile = dir:join(`{serde.hash("blake3", compressed)}.zip`)
 				local tmpFilePath = tmpFile:toString()
@@ -65,19 +64,18 @@ local decompress: { [CompressionFormat]: (compressed: buffer) -> Result<pathfs.A
 						`-c \`"Import-Module Microsoft.PowerShell.Archive; Expand-Archive -LiteralPath '{tmpFilePath}' -DestinationPath '{decompressedDir:toString()}'\`"`,
 					})
 					else CommandBuilder.new("unzip"):withArgs({ tmpFilePath, "-d", decompressedDir:toString() }))
-					-- FIXME: remove unknown usage
 					:withStdioStrategy({
 						-- Powershell on Windows writes errors to stdout. Bruh
 						stdout = Option.Some(
 							if process.os == "windows" and process.env.PESDE_LOG == "debug"
 								then "forward"
 								else "pipe" :: CommandBuilder.StdioStrategy
-						) :: Option<unknown>,
+						),
 						stderr = Option.Some(
 							if process.env.PESDE_LOG == "debug"
 								then "forward"
 								else "pipe" :: CommandBuilder.StdioStrategy
-						) :: Option<unknown>,
+						),
 					} :: CommandBuilder.IoStrategyMapping)
 					:intoChildProcess()
 

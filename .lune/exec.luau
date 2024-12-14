@@ -21,10 +21,9 @@ export type IoStrategyMapping = {
 	stderr: Option<StdioStrategy>,
 }
 
--- FIXME: remove unknown usage
 local DEFAULT_STDIO_STRATEGY: IoStrategyMapping = {
-	stdout = Option.Some("pipe" :: StdioStrategy) :: Option<unknown>,
-	stderr = Option.Some("pipe" :: StdioStrategy) :: Option<unknown>,
+	stdout = Option.Some("pipe" :: StdioStrategy),
+	stderr = Option.Some("pipe" :: StdioStrategy),
 }
 function CommandBuilder.new(program: string)
 	return setmetatable(
@@ -70,11 +69,10 @@ function CommandBuilder.withStdioStrategy(
 	self: CommandBuilder,
 	strategy: StdioStrategy | IoStrategyMapping
 ): CommandBuilder
-	-- FIXME: remove unknown usage
 	self.stdioStrategy = Option.Some(if typeof(strategy) == "string"
 		then {
-			stdout = Option.Some(strategy) :: Option<unknown>,
-			stderr = Option.Some(strategy) :: Option<unknown>,
+			stdout = Option.Some(strategy),
+			stderr = Option.Some(strategy),
 		}
 		else strategy) :: Option<IoStrategyMapping>
 	return self
@@ -104,10 +102,8 @@ function CommandBuilder.exec(self: CommandBuilder): process.SpawnResult
 	)
 	local child = process.spawn(self.program, self.args, {
 		shell = if process.os == "windows" then "cmd.exe" else "bash",
-		stdio = self
-			.stdioStrategy
-			-- FIXME: remove unknown usage
-			:orOpt(Option.Some(DEFAULT_STDIO_STRATEGY) :: Option<unknown>)
+		stdio = self.stdioStrategy
+			:orOpt(Option.Some(DEFAULT_STDIO_STRATEGY))
 			:map(function(mappings: IoStrategyMapping)
 				local translatedMappings: process.SpawnOptionsStdio = {}
 				for field, value in mappings do

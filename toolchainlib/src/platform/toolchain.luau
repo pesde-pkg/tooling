@@ -8,8 +8,7 @@ return {
 	detect = function(str: string): Option<Toolchain>
 		for _, toolchain: Toolchain in TOOLCHAINS do
 			if string.find(str, toolchain) then
-				-- FIXME: remove any usage
-				return Option.Some(toolchain :: any) :: Option<Toolchain>
+				return Option.Some(toolchain :: Toolchain)
 			end
 		end
 

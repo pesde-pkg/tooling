@@ -190,7 +190,6 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 	for _, asset in assets do
 		local desc = PlatformDescriptor.fromString(asset.name)
 		local descWithArch = desc:map(function(inner: PlatformDescriptor.PlatformDescriptor)
-			-- FIXME: unknown usage
 			return inner
 		end)
 
