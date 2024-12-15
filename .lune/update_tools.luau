@@ -118,7 +118,7 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 	local releasesAfter = {}
 	local versionIdx = math.huge
 	for idx, release in releases do
-		if release.tag_name == version then
+		if stripLeadingVersion(release.tag_name) == version then
 			versionIdx = idx
 			continue
 		end
