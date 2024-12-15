@@ -138,12 +138,18 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 		-- HACK: To prevent messing with our existing toml ordering and formatting
 		-- we just replace the old version field string with the new version field
 		-- string
+
+		-- the string returned by serde.encode end with newlines, so remove them to maintain compatibility with different line endings
+		-- Old version field string:
+		local oldField = string.gsub(serde.encode("toml", { version = manifest.version }), "%s+$", "")
+
+		-- New version field string:
+		local newField = string.gsub(serde.encode("toml", { version = stripLeadingVersion(newVersion) }), "%s+$", "")
+
 		local updatedManifest = string.gsub(
 			manifestContents,
-			-- Old version field string:
-			serde.encode("toml", { version = manifest.version }),
-			-- New version field string:
-			serde.encode("toml", { version = stripLeadingVersion(newVersion) }),
+			oldField,
+			newField,
 			-- Only replace the first occurrence to be safe
 			1
 		)
