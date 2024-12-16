@@ -1,0 +1,18 @@
+name = "pesde/asphalt"
+version = "0.8.2"
+description = "Upload and reference Roblox assets in code"
+authors = ["CompeyDev <hi@devcomp.xyz>", "Jack T <jack@jackt.space>"]
+repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/asphalt"
+includes = ["init.luau", "README.md", "pesde.toml"]
+
+[target]
+environment = "lune"
+bin = "init.luau"
+
+[dependencies]
+result = { name = "lukadev_0/result", version = "^1.2.0" }
+option = { name = "lukadev_0/option", version = "^1.2.0" }
+core = { workspace = "pesde/toolchainlib", version = "^" }
+
+[indices]
+default = "https://github.com/daimond113/pesde-index"
