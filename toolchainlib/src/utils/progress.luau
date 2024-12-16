@@ -3,8 +3,10 @@
 local task = require("@lune/task")
 local stdio = require("@lune/stdio")
 
+local Result = require("../../lune_packages/result")
 local Option = require("../../lune_packages/option")
 type Option<T> = Option.Option<T>
+type Result<T, E> = Result.Result<T, E>
 
 -- FORMAT: {SPINNER} {MESSAGE} {BAR} {STAGE}
 local SPINNERS = { "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
@@ -79,15 +81,16 @@ function ProgressBar.stop(self: ProgressBarImpl): ()
 	stdio.write("\x1b[2K\x1b[0G")
 end
 
-function ProgressBar.nextStage(self: ProgressBarImpl): ()
+function ProgressBar.nextStage(self: ProgressBarImpl): Result<nil, string>
 	local inc = self.currentStageIndex + 1
 	if inc > #self.stages then
 		-- TODO: Make this a result
 		self.finished = true
-		return error("Out of stage bounds")
+		return Result.Err("OutOfBounds - Attempted to advance past last stage")
 	end
 
 	self.currentStageIndex = inc
+	return Result.Ok(nil)
 end
 
 return ProgressBar
