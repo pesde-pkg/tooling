@@ -29,9 +29,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Make manifest accesses type-safe
 - Download optimization by only downloading assets with formats we support
 - Includes the following new tools:
-  - [`pesde/luau_lsp@1.37.0`](https://pesde.daimond113.com/packages/pesde/luau_lsp/1.37.0/any)
-  - [`pesde/stylua@2.0.2`](https://pesde.daimond113.com/packages/pesde/stylua/2.0.2/any)
-  - [`pesde/zap@0.6.16`](https://pesde.daimond113.com/packages/pesde/luau_lsp/0.6.16/any)
+  - [`pesde/luau_lsp@1.37.0`](https://pesde.dev/packages/pesde/luau_lsp/1.37.0/any)
+  - [`pesde/stylua@2.0.2`](https://pesde.dev/packages/pesde/stylua/2.0.2/any)
+  - [`pesde/zap@0.6.16`](https://pesde.dev/packages/pesde/luau_lsp/0.6.16/any)
 ### Changed
 - Improve `Result` and `Option` typing by not overriding metatables and instead using an extension pattern
 - Remove reliance on semver, now supporting non-semver tools as well
@@ -45,10 +45,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Reorganize types for internal `Github` class
 - Support custom request payload for internal `Github` class
 - Includes the following new tools:
-  - [`pesde/argon@2.0.21`](https://pesde.daimond113.com/packages/pesde/argon/2.0.21/any)
-  - [`pesde/luau_lsp@1.36.0`](https://pesde.daimond113.com/packages/pesde/luau_lsp/1.36.0/any)
-  - [`pesde/darklua@0.14.1`](https://pesde.daimond113.com/packages/pesde/darklua/0.14.1/any)
-  - [`pesde/zap@0.6.15`](https://pesde.daimond113.com/packages/pesde/zap/0.6.15/any)
+  - [`pesde/argon@2.0.21`](https://pesde.dev/packages/pesde/argon/2.0.21/any)
+  - [`pesde/luau_lsp@1.36.0`](https://pesde.dev/packages/pesde/luau_lsp/1.36.0/any)
+  - [`pesde/darklua@0.14.1`](https://pesde.dev/packages/pesde/darklua/0.14.1/any)
+  - [`pesde/zap@0.6.15`](https://pesde.dev/packages/pesde/zap/0.6.15/any)
 ### Fixed
 - Removed duplicate version defaulting code
 - Fixed panic for invalid binaries within artifacts returning an empty `PlatformDescriptor`
@@ -58,10 +58,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Updated tool_storage system to not tamper the base binary name, to prevent bad help menus in some tools (like selene), which change the executable mentioned in the help menu based on the name of the currently running path
 - Supports tools which do not specify an executable bit in their published archives by manually changing the binary's mode on unix-like systems
 - Includes the following new tools:
-  - [`pesde/selene@0.27.1`](https://pesde.daimond113.com/packages/pesde/selene/0.27.1/any)
-  - [`pesde/rojo@7.4.4`](https://pesde.daimond113.com/packages/pesde/rojo/7.4.4/any)
-  - [`pesde/blink@0.14.5`](https://pesde.daimond113.com/packages/pesde/blink/0.14.15/any)
-  - [`pesde/blink@0.15.0-rc.1`](https://pesde.daimond113.com/packages/pesde/blink/0.15.0-rc.1/any)
+  - [`pesde/selene@0.27.1`](https://pesde.dev/packages/pesde/selene/0.27.1/any)
+  - [`pesde/rojo@7.4.4`](https://pesde.dev/packages/pesde/rojo/7.4.4/any)
+  - [`pesde/blink@0.14.5`](https://pesde.dev/packages/pesde/blink/0.14.15/any)
+  - [`pesde/blink@0.15.0-rc.1`](https://pesde.dev/packages/pesde/blink/0.15.0-rc.1/any)
 ### Fixed
 - Fixes a conditional fall-through where an invalid or corrupted executable would default to the Mach-O type, which was incorrect 
 
@@ -69,13 +69,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 - Initial library release :tada:
 - Includes the following new tools:
-  - [`pesde/stylua@2.0.1`](https://pesde.daimond113.com/packages/pesde/stylua/2.0.1/any)
-  - [`pesde/luau-lsp@0.35.0`](https://pesde.daimond113.com/packages/pesde/luau_lsp/1.35.0/any)
+  - [`pesde/stylua@2.0.1`](https://pesde.dev/packages/pesde/stylua/2.0.1/any)
+  - [`pesde/luau-lsp@0.35.0`](https://pesde.dev/packages/pesde/luau_lsp/1.35.0/any)
 
 [unreleased]: https://github.com/pesde-pkg/tooling/commits/HEAD
-[0.1.0]: https://pesde.daimond113.com/packages/pesde/toolchainlib/0.1.0/any
-[0.1.1]: https://pesde.daimond113.com/packages/pesde/toolchainlib/0.1.1/any
-[0.1.2]: https://pesde.daimond113.com/packages/pesde/toolchainlib/0.1.2/any
-[0.1.3]: https://pesde.daimond113.com/packages/pesde/toolchainlib/0.1.3/any
-[0.1.4]: https://pesde.daimond113.com/packages/pesde/toolchainlib/0.1.4/any
-[0.1.5]: https://pesde.daimond113.com/packages/pesde/toolchainlib/0.1.5/any
+[0.1.0]: https://pesde.dev/packages/pesde/toolchainlib/0.1.0/any
+[0.1.1]: https://pesde.dev/packages/pesde/toolchainlib/0.1.1/any
+[0.1.2]: https://pesde.dev/packages/pesde/toolchainlib/0.1.2/any
+[0.1.3]: https://pesde.dev/packages/pesde/toolchainlib/0.1.3/any
+[0.1.4]: https://pesde.dev/packages/pesde/toolchainlib/0.1.4/any
+[0.1.5]: https://pesde.dev/packages/pesde/toolchainlib/0.1.5/any
