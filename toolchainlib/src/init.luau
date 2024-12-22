@@ -120,7 +120,11 @@ end
 local function makeConditionalBar()
 	local function makeConditional(fn: (ProgressBar.ProgressBarImpl) -> ())
 		return function(bar: ProgressBar.ProgressBarImpl)
-			local _ = _G.interactive and fn(bar)
+			if _G.interactive then 
+				return fn(bar)
+			end
+			
+			return
 		end
 	end
 
@@ -157,7 +161,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 		}) :: Option<Github.Config>
 	)
 
-	barFns.next(bar) -- fetch
+	barFns.next(bar):unwrap() -- fetch
 	local releases = client:queueTransactions({ "FetchReleases" })[1]:unwrap() :: GithubReleases
 	local assets = tool.version:match({
 		Some = function(version: string)
@@ -175,7 +179,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 		end,
 	})
 
-	barFns.next(bar) -- locate
+	barFns.next(bar):unwrap() -- locate
 	-- TODO: Use index type fn in solver v2
 	local matchingAsset: {
 		name: string,
@@ -199,7 +203,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 		end
 	end
 
-	barFns.next(bar) -- download
+	barFns.next(bar):unwrap() -- download
 
 	local binaryPath: pathfs.Path
 	if matchingAsset == nil then
@@ -230,7 +234,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 		end
 	end
 
-	barFns.next(bar) -- install
+	barFns.next(bar):unwrap() -- install
 
 	-- Maintain multiple versions of a tool, and avoid downloading
 	-- the binary for a version again if it's already there
