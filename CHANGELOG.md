@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Fixed
+- Propagate and consume `Result` returned by `ProgressBar:nextStage` 
+- Fix error while trying to migrate old tool_storage dir when the new one is already present
+
 ## [0.1.5] - 2024-12-22
 ### Added
 - Includes the following new tools:
@@ -67,6 +72,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - [`pesde/stylua@2.0.1`](https://pesde.daimond113.com/packages/pesde/stylua/2.0.1/any)
   - [`pesde/luau-lsp@0.35.0`](https://pesde.daimond113.com/packages/pesde/luau_lsp/1.35.0/any)
 
+[unreleased]: https://github.com/pesde-pkg/tooling/commits/HEAD
 [0.1.0]: https://pesde.daimond113.com/packages/pesde/toolchainlib/0.1.0/any
 [0.1.1]: https://pesde.daimond113.com/packages/pesde/toolchainlib/0.1.1/any
 [0.1.2]: https://pesde.daimond113.com/packages/pesde/toolchainlib/0.1.2/any
