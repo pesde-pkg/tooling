@@ -91,7 +91,8 @@ local LINK_INSTALL_DIR = (dirs.homeDir() or error("Couldn't get home dir :(")):j
 local TOOL_STORAGE_DIR = LINK_INSTALL_DIR:join(".tool_storage")
 
 local OLD_TOOL_STORAGE_DIR = LINK_INSTALL_DIR:join("tool_storage")
-if pathfs.isDir(OLD_TOOL_STORAGE_DIR) then
+if pathfs.isDir(OLD_TOOL_STORAGE_DIR) and not pathfs.isDir(TOOL_STORAGE_DIR) then
+	-- TODO: Merge both directories into one instead of a single move
 	pathfs.move(OLD_TOOL_STORAGE_DIR, TOOL_STORAGE_DIR)
 end
 
