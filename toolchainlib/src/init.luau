@@ -140,14 +140,16 @@ end
 
 local function getGithubToken(): Option<string>
 	return Option.from(process.env.GITHUB_TOKEN):orElse(function()
-		local child = process.spawn("gh", { "auth", "token" })
-		if not child.ok then
-			return Option.None
-		end
+		return ResultExt.ok(Result.try(process.spawn, "gh", { "auth", "token" }))
+			:andThen(function(child: process.SpawnResult)
+				if not child.ok then
+					return Option.None
+				end
 
-		-- Remove newlines and other control characters
-		local token = string.gsub(child.stdout, "%s+", "")
-		return Option.Some(token)
+				-- Remove newlines and other control characters
+				local token = string.gsub(child.stdout, "%s+", "")
+				return Option.Some(token)
+			end)
 	end)
 end
 
