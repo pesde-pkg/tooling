@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Includes the following new tools:
+  - [`pesde/darklua@0.15.0`](https://pesde.dev/packages/pesde/darklua/0.15.0/any)
 ### Fixed
 - Propagate and consume `Result` returned by `ProgressBar:nextStage` 
 - Fix error while trying to migrate old tool_storage dir when the new one is already present
