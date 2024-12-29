@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 - Includes the following new tools:
   - [`pesde/asphalt@0.8.3`](https://pesde.dev/packages/pesde/asphalt/0.8.3/any)
+  - [`pesde/luau-lsp@1.38.0`](https://pesde.dev/packages/pesde/luau_lsp/1.38.0/any)
 ### Fixed
 - Conditionally handle `ProgressBar:nextStage` result, fixing an error when being consumed as a library without the use of the `__call` metamethod shorthand
 - Fix error when the `gh` CLI is not installed by correctly handling it as a `Result`
