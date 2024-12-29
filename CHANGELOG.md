@@ -83,7 +83,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Initial library release :tada:
 - Includes the following new tools:
   - [`pesde/stylua@2.0.1`](https://pesde.dev/packages/pesde/stylua/2.0.1/any)
-  - [`pesde/luau-lsp@0.35.0`](https://pesde.dev/packages/pesde/luau_lsp/1.35.0/any)
+  - [`pesde/luau-lsp@1.35.0`](https://pesde.dev/packages/pesde/luau_lsp/1.35.0/any)
 
 [unreleased]: https://github.com/pesde-pkg/tooling/commits/HEAD
 [0.1.0]: https://pesde.dev/packages/pesde/toolchainlib/0.1.0/any
