@@ -1,5 +1,5 @@
 name = "pesde/luau_lsp"
-version = "1.38.0"
+version = "1.38.1"
 target = "lune"
 
 [graph."jiwonz/dirs"."0.1.2 lune"]
