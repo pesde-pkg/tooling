@@ -12,6 +12,7 @@ lib = "src/init.luau"
 [dependencies]
 pathfs = { name = "jiwonz/pathfs", version = "^0.1.0" }
 dirs = { name = "jiwonz/dirs", version = "^0.1.1" }
+unzip = { name = "0x5eal/unzip", version = "^0.1.0", target = "luau" }
 
 [peer_dependencies]
 result = { name = "lukadev_0/result", version = "^1.2.0" }

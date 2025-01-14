@@ -1,5 +1,4 @@
 local process = require("@lune/process")
-local fs = require("@lune/fs")
 
 local os = require("./os")
 local arch = require("./arch")
@@ -45,9 +44,8 @@ function PlatformDescriptor.fromString(str: string)
 	} :: PlatformDescriptor)
 end
 
-function PlatformDescriptor.fromExecutable(path: string): result.PlatformResult<PlatformDescriptor>
-	local binaryContents = fs.readFile(path)
-	local detected = Option.from(detectFromExecutable(buffer.fromstring(binaryContents)))
+function PlatformDescriptor.fromExecutable(contents: buffer): result.PlatformResult<PlatformDescriptor>
+	local detected = Option.from(detectFromExecutable(contents))
 		:map(function(inner: detectFromExecutable.ExecutableDetectionResult): ExecutableDetectionResult
 			return {
 				os = Option.from(inner.os) :: Option<process.OS>,

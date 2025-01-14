@@ -45,12 +45,16 @@ local function warn(...)
 	stdio.ewrite(`{WARN_PREFIX} {stdio.format(...)}\n`)
 end
 
-local function downloadAndDecompress(asset: {
-	name: string,
-	browser_download_url: string,
-	size: number,
-	content_type: string,
-}): Option<pathfs.Path>
+local function downloadAndExtractBinary(
+	binaryName: string,
+	targetPlatform: PlatformDescriptor.PlatformDescriptor,
+	asset: {
+		name: string,
+		browser_download_url: string,
+		size: number,
+		content_type: string,
+	}
+): Option<buffer>
 	return compression
 			.detectFormat(asset.name)
 			:andThen(function(format: compression.CompressionFormat)
@@ -59,8 +63,10 @@ local function downloadAndDecompress(asset: {
 					return error(`Failed to download asset {asset.name}: HTTP Code {contentsResp.statusCode}`)
 				end
 
-				return ResultExt.ok(compression.decompress[format](buffer.fromstring(contentsResp.body)))
-			end) :: Option<pathfs.Path>
+				return ResultExt.ok(
+					compression.extractBinary[format](buffer.fromstring(contentsResp.body), binaryName, targetPlatform)
+				)
+			end) :: Option<buffer>
 end
 
 local function chmod(path: pathfs.Path, mode: number | string)
@@ -195,6 +201,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 
 	local currentDesc = PlatformDescriptor.currentSystem()
 	local aliasPath = pathfs.Path.from(toolAlias):withExtension(if currentDesc.os == "windows" then "exe" else "")
+	local aliasName = aliasPath:toString()
 
 	for _, asset in assets do
 		local desc = PlatformDescriptor.fromString(asset.name)
@@ -210,33 +217,28 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 
 	barFns.next(bar) -- download
 
-	local binaryPath: pathfs.Path
+	local binaryContents: buffer
 	if matchingAsset == nil then
 		stdio.write("\x1b[2K\x1b[0G")
 		warn("Pesde could not find a matching binary for your system")
 		warn("Will now attempt to download all binaries and find a matching one")
 
 		for _, asset in assets do
-			local decompressedPath = downloadAndDecompress(asset)
-			if decompressedPath:isSome() then
-				local path = decompressedPath:unwrap()
-				for _, file in pathfs.readDir(path) do
-					local filePath = path:join(file)
-					local nativeDesc = PlatformDescriptor.fromExecutable(filePath:toString())
-
-					if nativeDesc:isOk() and eq(currentDesc, nativeDesc:unwrap()) then
-						binaryPath = filePath
-						break
-					end
-				end
+			local contents = downloadAndExtractBinary(aliasName, currentDesc, asset)
+			if contents:isSome() then
+				binaryContents = contents:unwrap()
+				break
 			end
 		end
 	else
-		local decompressedPath = downloadAndDecompress(matchingAsset):unwrap()
-		binaryPath = decompressedPath:join(aliasPath)
-		if not pathfs.isFile(binaryPath) then
-			error(`No matching binary found in {decompressedPath}`)
-		end
+		downloadAndExtractBinary(aliasName, currentDesc, matchingAsset):match({
+			Some = function(contents: buffer)
+				binaryContents = contents
+			end,
+			None = function()
+				error(`No matching binary found`)
+			end,
+		})
 	end
 
 	barFns.next(bar) -- install
@@ -248,7 +250,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 		pathfs.writeDir(toolDir)
 	end
 
-	pathfs.move(binaryPath, installPath)
+	pathfs.writeFile(installPath, binaryContents)
 
 	-- IDEA: In order to eliminate fs read overhead on startup and to disallow
 	-- the use of the tool binary when outside a package where it is installed,

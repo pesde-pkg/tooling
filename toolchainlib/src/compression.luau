@@ -1,8 +1,4 @@
-local serde = require("@lune/serde")
-local process = require("@lune/process")
-
-local dirs = require("../lune_packages/dirs")
-local pathfs = require("../lune_packages/pathfs")
+local unzip = require("../luau_packages/unzip")
 
 local Result = require("../lune_packages/result")
 local Option = require("../lune_packages/option")
@@ -10,7 +6,8 @@ type Result<T, E> = Result.Result<T, E>
 type Option<T> = Option.Option<T>
 
 local revTable = require("./utils/rev_table")
-local CommandBuilder = require("./utils/exec")
+local eq = require("./utils/eq")
+local PlatformDescriptor = require("./platform/descriptor")
 
 export type CompressionFormat = "TarGz" | "TarXz" | "Zip"
 
@@ -36,70 +33,51 @@ local function detectFormat(fileName: string): Option<CompressionFormat>
 end
 
 -- TODO: Use a type function to make all CompressionFormat lowercase
-local decompress: { [CompressionFormat]: (compressed: buffer) -> Result<pathfs.AsPath, string> } = {
-	Zip = function(compressed: buffer)
-		return (Option.from(dirs.cacheDir()):map(function(cacheDir)
-			local progCacheDir = cacheDir:join("pesde-bin")
-			if not pathfs.isDir(progCacheDir) then
-				pathfs.writeDir(progCacheDir)
+local extractBinary: {
+	[CompressionFormat]: (
+		compressed: buffer,
+		binaryName: string,
+		targetPlatform: PlatformDescriptor.PlatformDescriptor
+	) -> Result<buffer, string>,
+} =
+	{
+		Zip = function(compressed, binaryName, targetPlatform)
+			local reader = unzip.load(compressed)
+
+			local binaryEntry = reader:findEntry(binaryName)
+			local binaryContents = nil
+
+			if binaryEntry then
+				binaryContents = reader:extract(binaryEntry, { type = "binary" }) :: buffer
+			else
+				-- Walk through the entries to find an executable
+				reader:walk(function(entry)
+					if binaryEntry then
+						return
+					end
+
+					if entry.isDirectory then
+						return
+					end
+
+					local contents = reader:extract(entry, { type = "binary" }) :: buffer
+					local executablePlatform = PlatformDescriptor.fromExecutable(contents)
+
+					if executablePlatform:isOk() and eq(executablePlatform:unwrap(), targetPlatform) then
+						binaryEntry = entry
+						binaryContents = contents
+					end
+				end)
 			end
 
-			return progCacheDir :: pathfs.Path
-		end)):match({
-			Some = function(dir: pathfs.Path)
-				-- Generate a unique file name and write the contents to the temporary file
-				local tmpFile = dir:join(`{serde.hash("blake3", compressed)}.zip`)
-				local tmpFilePath = tmpFile:toString()
-				pathfs.writeFile(tmpFile, compressed)
+			if not binaryContents then
+				return Result.Err("ExtractBinaryError::BinaryNotFound" :: string)
+			end
 
-				-- Create the directory to decompress into
-				local decompressedDir = pathfs.Path.from(tmpFile):withExtension("")
-				pathfs.writeDir(decompressedDir)
+			return Result.Ok(binaryContents)
+		end,
 
-				-- Run unzip to decompress the file
-				local child = (if process.os == "windows"
-					-- Thanks windows :)
-					then CommandBuilder.new("powershell"):withArgs({
-						"-ExecutionPolicy RemoteSigned",
-						`-c \`"Import-Module Microsoft.PowerShell.Archive; Expand-Archive -LiteralPath '{tmpFilePath}' -DestinationPath '{decompressedDir:toString()}'\`"`,
-					})
-					else CommandBuilder.new("unzip"):withArgs({ tmpFilePath, "-d", decompressedDir:toString() }))
-					:withStdioStrategy({
-						-- Powershell on Windows writes errors to stdout. Bruh
-						stdout = Option.Some(
-							if process.os == "windows" and process.env.PESDE_LOG == "debug"
-								then "forward"
-								else "pipe" :: CommandBuilder.StdioStrategy
-						),
-						stderr = Option.Some(
-							if process.env.PESDE_LOG == "debug"
-								then "forward"
-								else "pipe" :: CommandBuilder.StdioStrategy
-						),
-					} :: CommandBuilder.IoStrategyMapping)
-					:intoChildProcess()
+		-- TODO: Other formats
+	}
 
-				child:start()
-				local status = child:waitForChild()
-
-				-- Cleanup temporary file and handle errors
-				pathfs.removeFile(tmpFile)
-				if not status.ok then
-					return Result.Err(
-							`DecompressError::CommandFailed(exitCode={status.code})`
-						) :: Result<pathfs.AsPath, string>
-				end
-
-				return Result.Ok(decompressedDir) :: Result<pathfs.AsPath, string>
-			end,
-
-			None = function()
-				return Result.Err("DecompressError::NoCacheDir") :: Result<pathfs.AsPath, string>
-			end,
-		})
-	end,
-
-	-- TODO: Other formats
-}
-
-return { decompress = decompress, detectFormat = detectFormat }
+return { extractBinary = extractBinary, detectFormat = detectFormat }
