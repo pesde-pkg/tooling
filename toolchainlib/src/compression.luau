@@ -44,15 +44,26 @@ local extractBinary: {
 		Zip = function(compressed, binaryName, targetPlatform)
 			local reader = unzip.load(compressed)
 
-			local binaryEntry = reader:findEntry(binaryName)
-			local binaryContents = nil
+			local binaryContents: buffer?
 
+			local function extractEntry(entry: unzip.ZipEntry)
+				local contents = reader:extract(entry, { type = "binary" }) :: buffer
+				local executablePlatform = PlatformDescriptor.fromExecutable(contents)
+
+				if executablePlatform:isOk() and eq(executablePlatform:unwrap(), targetPlatform) then
+					binaryContents = contents
+				end
+			end
+
+			local binaryEntry = reader:findEntry(binaryName)
 			if binaryEntry then
-				binaryContents = reader:extract(binaryEntry, { type = "binary" }) :: buffer
-			else
+				extractEntry(binaryEntry)
+			end
+
+			if not binaryContents then
 				-- Walk through the entries to find an executable
 				reader:walk(function(entry)
-					if binaryEntry then
+					if binaryContents then
 						return
 					end
 
@@ -64,7 +75,6 @@ local extractBinary: {
 					local executablePlatform = PlatformDescriptor.fromExecutable(contents)
 
 					if executablePlatform:isOk() and eq(executablePlatform:unwrap(), targetPlatform) then
-						binaryEntry = entry
 						binaryContents = contents
 					end
 				end)
