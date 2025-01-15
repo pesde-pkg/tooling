@@ -71,12 +71,7 @@ local extractBinary: {
 						return
 					end
 
-					local contents = reader:extract(entry, { type = "binary" }) :: buffer
-					local executablePlatform = PlatformDescriptor.fromExecutable(contents)
-
-					if executablePlatform:isOk() and eq(executablePlatform:unwrap(), targetPlatform) then
-						binaryContents = contents
-					end
+					extractEntry(entry)
 				end)
 			end
 
