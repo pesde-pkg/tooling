@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 ### Changed
-- Use [`luau-unzip`](https://github.com/0x5eal/luau-unzip) to extract archives instead of using an external program.
+- Use [`luau-unzip`](https://github.com/0x5eal/luau-unzip) to extract archives instead of using an external program
 
 ## [0.1.7] - 2024-12-28
 ### Added
