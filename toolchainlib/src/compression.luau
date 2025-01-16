@@ -42,40 +42,50 @@ local extractBinary: {
 } =
 	{
 		Zip = function(compressed, binaryName, targetPlatform)
+			-- Load the compressed data into a `ZipReader`
 			local reader = unzip.load(compressed)
-
 			local binaryContents: buffer?
 
-			local function extractEntry(entry: unzip.ZipEntry)
+			--- Extracts a specific entry from the ZIP and validates that its `PlatformDescriptor` 
+			--- matches the expected one
+			local function extractEntry(entry: unzip.ZipEntry): buffer?
 				local contents = reader:extract(entry, { type = "binary" }) :: buffer
 				local executablePlatform = PlatformDescriptor.fromExecutable(contents)
 
 				if executablePlatform:isOk() and eq(executablePlatform:unwrap(), targetPlatform) then
-					binaryContents = contents
+					return contents
 				end
 			end
 
+
+			-- Find the entry and attempt to extract it
 			local binaryEntry = reader:findEntry(binaryName)
 			if binaryEntry then
-				extractEntry(binaryEntry)
+				binaryContents = extractEntry(binaryEntry)
 			end
 
-			if not binaryContents then
+			-- Fallback for if we cannot find the `ZipEntry`
+			if binaryContents == nil then
 				-- Walk through the entries to find an executable
 				reader:walk(function(entry)
-					if binaryContents then
+					if binaryContents ~= nil then
+						-- If we successfully extracted the binary on a previous iteration,
+						-- we skip this entry
 						return
 					end
 
 					if entry.isDirectory then
+						-- Ignore directories
 						return
 					end
 
-					extractEntry(entry)
+					binaryContents = extractEntry(entry)
 				end)
 			end
 
-			if not binaryContents then
+			if binaryContents == nil then
+				-- If both the fallback and the initial attempts did not yield an extracted binary,
+				-- we return an error
 				return Result.Err("ExtractBinaryError::BinaryNotFound" :: string)
 			end
 
