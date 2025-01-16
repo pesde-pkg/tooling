@@ -46,7 +46,7 @@ local extractBinary: {
 			local reader = unzip.load(compressed)
 			local binaryContents: buffer?
 
-			--- Extracts a specific entry from the ZIP and validates that its `PlatformDescriptor` 
+			--- Extracts a specific entry from the ZIP and validates that its `PlatformDescriptor`
 			--- matches the expected one
 			local function extractEntry(entry: unzip.ZipEntry): buffer?
 				local contents = reader:extract(entry, { type = "binary" }) :: buffer
@@ -55,8 +55,9 @@ local extractBinary: {
 				if executablePlatform:isOk() and eq(executablePlatform:unwrap(), targetPlatform) then
 					return contents
 				end
-			end
 
+				return nil
+			end
 
 			-- Find the entry and attempt to extract it
 			local binaryEntry = reader:findEntry(binaryName)
