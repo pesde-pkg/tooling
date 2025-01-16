@@ -21,7 +21,7 @@ return function(binaryContents: buffer): ExecutableDetectionResult?
 
 		if buffer.readstring(binaryContents, 0, 2) == DOS_HEADER then
 			-- File was a DOS executable, jump to PE header to get the magic offset
-			local signatureOffset = buffer.readu8(binaryContents, PE_HEADER_OFFSET)
+			local signatureOffset = buffer.readu32(binaryContents, PE_HEADER_OFFSET)
 
 			-- Check if the value at the magic offset was the PE magic signature
 			if buffer.readstring(binaryContents, signatureOffset, 4) == PE_MAGIC_SIGNATURE then
