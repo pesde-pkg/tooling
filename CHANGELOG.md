@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## Added
+- Includes the following new tools:
+  - [`pesde/asphalt@0.8.4`](https://pesde.dev/packages/pesde/asphalt/0.8.4/any)
+  - [`pesde/selene@0.28.0`](https://pesde.dev/packages/pesde/selene/0.28.0/any)
+  - [`pesde/blink@0.15.2`](https://pesde.dev/packages/pesde/blink/0.15.2/any)
 ### Changed
 - Use [`luau-unzip`](https://github.com/0x5eal/luau-unzip) to extract archives instead of using an external program
 
