@@ -5,8 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Locking mechanism to prevent conflicting accesses of underlying tool binaries. The lock is an on-disk file which exists during the installation process, and is removed once it is complete. It is located at `~/.pesde/bin/.tool_storage/<tool_id>/<version>/LOCK` and is a JSON file of the following structure:
+```jsonc
+{
+  "resource": "/home/usr/.pesde/bin/.tool_storage/<tool_id>/<version>/<tool>", // The path to the resource being protected, i.e., the tool binary
+  "expiration": 1737480284 // The timestamp until which the lock is considered valid, which is 60s from its creation
+}
+```
+
 ### Fixed
-- Fixed concurrent installations failing due to OS errors during resource access by holding an on-disk lock during the installation process
+- Fixed concurrent installations failing due to OS errors during resource access by using aforementioned locking mechanism
+- Fixed faulty check for existence of tool installation directory 
 ### Changed
 - Improved internal structuring for conditional progress bar rendering
 
