@@ -187,9 +187,11 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 	local installLockFile = toolDir:join("LOCK")
 	local isLocked, lockFileContents = pcall(pathfs.readFile, installLockFile)
 	if isLocked then
-		-- If the lock was held and we know the same tool that we are trying to install
-		-- is also being installed elsewhere, we wait for that installation attempt to
-		-- finish, i.e., the lock file is removed, and then run the freshly installed tool
+		-- If an installation lock was held for the tool we are trying to install, it means
+		-- that it is also being installed elsewhere. In this case, we wait for that installation
+		-- attempt to finish, i.e., when the lock file is removed, and then run the freshly
+		-- installed tool
+
 		-- Disable the progress bar since we're not actually an installation process
 		_G.interactive = false
 		bar:stop()
@@ -200,7 +202,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 		warn("Waiting for existing installation process for tool to exit")
 		while pathfs.isFile(installLockFile) do
 			if os.time() > lockFile.expiration then
-				-- If more than 30s has passed since we started waiting for the lock
+				-- If more than 60s has passed since we started waiting for the lock
 				-- to be released, we assume something went wrong and error; this should
 				-- also remove the lock for subsequent runs
 				error("Installation lock was held for too long (>60s)")
