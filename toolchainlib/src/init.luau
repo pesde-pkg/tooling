@@ -174,7 +174,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 
 	-- If the tool installation directory was not present, we create it
 	local toolDir = Option.from(installPath:parent()):unwrap()
-	if not pathfs.isFile(toolDir) then
+	if not pathfs.isDir(toolDir) then
 		pathfs.writeDir(toolDir)
 	end
 
