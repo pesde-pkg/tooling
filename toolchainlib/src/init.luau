@@ -173,13 +173,13 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 	barFns.start(bar) -- init
 
 	-- If the tool installation directory was not present, we create it
-	local toolDir = Option.from(installPath:parent()):unwrap()
+	local toolDir = assert(installPath:parent(), "Install path did not have parent dir")
 	if not pathfs.isDir(toolDir) then
 		pathfs.writeDir(toolDir)
 	end
 
 	-- Attempt to read an existing lock in EAFP fashion
-	local installLockFile = assert(installPath:parent(), "Install path did not have parent dir"):join("LOCK")
+	local installLockFile = toolDir:join("LOCK")
 	local isLocked, existingInstallPath = pcall(pathfs.readFile, installLockFile)
 	if isLocked then
 		-- If the lock was held and we know the same tool that we are trying to install
