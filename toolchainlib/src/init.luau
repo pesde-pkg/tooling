@@ -106,8 +106,6 @@ if pathfs.isDir(OLD_TOOL_STORAGE_DIR) and not pathfs.isDir(TOOL_STORAGE_DIR) the
 	pathfs.move(OLD_TOOL_STORAGE_DIR, TOOL_STORAGE_DIR)
 end
 
-local TOOLING_LOCK_FILE = TOOL_STORAGE_DIR:join("LOCK")
-
 local bar = ProgressBar.new()
 	:withStage("init", "Initializing")
 	:withStage("fetch", "Fetching release")
@@ -170,8 +168,19 @@ _G.interactive = false
 local barFns
 
 function installTool(tool: ToolId, installPath: pathfs.Path): number
+	-- Configure the conditional progress bar
+	barFns = makeConditionalBar()
+	barFns.start(bar) -- init
+
+	-- If the tool installation directory was not present, we create it
+	local toolDir = Option.from(installPath:parent()):unwrap()
+	if not pathfs.isFile(toolDir) then
+		pathfs.writeDir(toolDir)
+	end
+
 	-- Attempt to read an existing lock in EAFP fashion
-	local isLocked, existingInstallPath = pcall(pathfs.readFile, TOOLING_LOCK_FILE)
+	local installLockFile = assert(installPath:parent(), "Install path did not have parent dir"):join("LOCK")
+	local isLocked, existingInstallPath = pcall(pathfs.readFile, installLockFile)
 	if isLocked then
 		-- If the lock was held and we know the same tool that we are trying to install
 		-- is also being installed elsewhere, we wait for that installation attempt to
@@ -179,9 +188,18 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 		if installPath:toString() == existingInstallPath then
 			-- Disable the progress bar since we're not actually an installation process
 			_G.interactive = false
+			bar:stop()
 
 			warn("Waiting for existing installation process for tool to exit")
-			while pathfs.isFile(TOOLING_LOCK_FILE) do
+
+			local lockWatchStart = os.clock()
+			while pathfs.isFile(installLockFile) do
+				if os.clock() - lockWatchStart > 30_000 then
+					-- If more than 30s has passed since we started waiting for the lock
+					-- to be released, we assume something went wrong and error
+					error("Installation lock was held for too long (>30s)")
+				end
+
 				task.wait(1)
 			end
 
@@ -190,10 +208,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 	end
 
 	-- Write a lock file to prevent concurrent installation attempts
-	pathfs.writeFile(TOOLING_LOCK_FILE, installPath:toString())
-
-	barFns = makeConditionalBar()
-	barFns.start(bar) -- init
+	pathfs.writeFile(installLockFile, installPath:toString())
 
 	local toolAlias = toolAliasOrDefault(tool)
 	local client = Github.new(
@@ -276,13 +291,6 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 
 	barFns.next(bar) -- install
 
-	-- Maintain multiple versions of a tool, and avoid downloading
-	-- the binary for a version again if it's already there
-	local toolDir = Option.from(installPath:parent()):unwrap()
-	if not pathfs.isFile(toolDir) then
-		pathfs.writeDir(toolDir)
-	end
-
 	pathfs.writeFile(installPath, binaryContents)
 
 	-- IDEA: In order to eliminate fs read overhead on startup and to disallow
@@ -312,7 +320,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 	chmod(installPath, 0b10101010011)
 
 	-- Release the installation lock
-	pathfs.removeFile(TOOLING_LOCK_FILE)
+	pathfs.removeFile(installLockFile)
 
 	-- Finally run the tool
 	return runTool(installPath)
@@ -390,6 +398,9 @@ return setmetatable(
 			)
 
 			if not ok then
+				-- Cleanup any failure remnants from installation directory
+				pathfs.removeDir(toolInstallPath:parent() :: pathfs.Path)
+
 				-- Cleanup progress bar in case of error
 				barFns.stop(bar)
 
