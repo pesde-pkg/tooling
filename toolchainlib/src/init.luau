@@ -11,6 +11,7 @@ local net = require("@lune/net")
 local process = require("@lune/process")
 local stdio = require("@lune/stdio")
 local serde = require("@lune/serde")
+local task = require("@lune/task")
 
 local pathfs = require("../lune_packages/pathfs")
 local dirs = require("../lune_packages/dirs")
@@ -95,12 +96,17 @@ end
 
 local LINK_INSTALL_DIR = (dirs.homeDir() or error("Couldn't get home dir :(")):join(".pesde"):join("bin")
 local TOOL_STORAGE_DIR = LINK_INSTALL_DIR:join(".tool_storage")
+if not pathfs.isDir(TOOL_STORAGE_DIR) then
+	pathfs.writeDir(TOOL_STORAGE_DIR)
+end
 
 local OLD_TOOL_STORAGE_DIR = LINK_INSTALL_DIR:join("tool_storage")
 if pathfs.isDir(OLD_TOOL_STORAGE_DIR) and not pathfs.isDir(TOOL_STORAGE_DIR) then
 	-- TODO: Merge both directories into one instead of a single move
 	pathfs.move(OLD_TOOL_STORAGE_DIR, TOOL_STORAGE_DIR)
 end
+
+local TOOLING_LOCK_FILE = TOOL_STORAGE_DIR:join("LOCK")
 
 local bar = ProgressBar.new()
 	:withStage("init", "Initializing")
@@ -159,9 +165,35 @@ local function getGithubToken(): Option<string>
 	end)
 end
 
+-- Initialize the shared global progress bar state
 _G.interactive = false
+local barFns
+
 function installTool(tool: ToolId, installPath: pathfs.Path): number
-	local barFns = makeConditionalBar()
+	-- Attempt to read an existing lock in EAFP fashion
+	local isLocked, existingInstallPath = pcall(pathfs.readFile, TOOLING_LOCK_FILE)
+	if isLocked then
+		-- If the lock was held and we know the same tool that we are trying to install
+		-- is also being installed elsewhere, we wait for that installation attempt to
+		-- finish, i.e., the lock file is removed, and then run the freshly installed tool
+		if installPath:toString() == existingInstallPath then
+			-- Disable the progress bar since we're not actually an installation process
+			_G.interactive = false
+
+			warn("Waiting for existing installation process for tool to exit")
+			while pathfs.isFile(TOOLING_LOCK_FILE) do
+				task.wait(1)
+			end
+
+			return runTool(installPath)
+		end
+	end
+
+	-- Write a lock file to prevent concurrent installation attempts
+	pathfs.writeFile(TOOLING_LOCK_FILE, installPath:toString())
+
+	barFns = makeConditionalBar()
+	barFns.start(bar) -- init
 
 	local toolAlias = toolAliasOrDefault(tool)
 	local client = Github.new(
@@ -191,6 +223,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 	})
 
 	barFns.next(bar) -- locate
+
 	-- TODO: Use index type fn in solver v2
 	local matchingAsset: {
 		name: string,
@@ -277,6 +310,11 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 
 	-- NOTE: This is equivalent to `0o755` or `rwxr-xr-x`
 	chmod(installPath, 0b10101010011)
+
+	-- Release the installation lock
+	pathfs.removeFile(TOOLING_LOCK_FILE)
+
+	-- Finally run the tool
 	return runTool(installPath)
 end
 
@@ -297,7 +335,6 @@ return setmetatable(
 	{
 		__call = function(lib: LibExportsImpl, tool: string, pesdeRoot: string?): number
 			_G.interactive = true
-			local barFns = makeConditionalBar()
 
 			local repo, version = string.match(tool, "([^@]+)@?(.*)")
 			if repo == nil or version == nil then
@@ -342,7 +379,6 @@ return setmetatable(
 				return lib.runTool(toolInstallPath)
 			end
 
-			barFns.start(bar) -- init
 			local ok, err = pcall(
 				lib.installTool,
 				{
