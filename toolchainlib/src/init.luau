@@ -178,37 +178,47 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 		pathfs.writeDir(toolDir)
 	end
 
+	type InstallLock = {
+		expiration: number,
+		resource: string,
+	}
+
 	-- Attempt to read an existing lock in EAFP fashion
 	local installLockFile = toolDir:join("LOCK")
-	local isLocked, existingInstallPath = pcall(pathfs.readFile, installLockFile)
+	local isLocked, lockFileContents = pcall(pathfs.readFile, installLockFile)
 	if isLocked then
 		-- If the lock was held and we know the same tool that we are trying to install
 		-- is also being installed elsewhere, we wait for that installation attempt to
 		-- finish, i.e., the lock file is removed, and then run the freshly installed tool
-		if installPath:toString() == existingInstallPath then
-			-- Disable the progress bar since we're not actually an installation process
-			_G.interactive = false
-			bar:stop()
+		-- Disable the progress bar since we're not actually an installation process
+		_G.interactive = false
+		bar:stop()
 
-			warn("Waiting for existing installation process for tool to exit")
+		local lockFile: InstallLock = serde.decode("json", lockFileContents)
+		assert(lockFile.resource == installPath:toString(), "Mistmatch between lock and expected resource")
 
-			local lockWatchStart = os.clock()
-			while pathfs.isFile(installLockFile) do
-				if os.clock() - lockWatchStart > 30_000 then
-					-- If more than 30s has passed since we started waiting for the lock
-					-- to be released, we assume something went wrong and error
-					error("Installation lock was held for too long (>30s)")
-				end
-
-				task.wait(1)
+		warn("Waiting for existing installation process for tool to exit")
+		while pathfs.isFile(installLockFile) do
+			if os.time() > lockFile.expiration then
+				-- If more than 30s has passed since we started waiting for the lock
+				-- to be released, we assume something went wrong and error; this should
+				-- also remove the lock for subsequent runs
+				error("Installation lock was held for too long (>60s)")
 			end
 
-			return runTool(installPath)
+			task.wait(1)
 		end
+
+		return runTool(installPath)
 	end
 
 	-- Write a lock file to prevent concurrent installation attempts
-	pathfs.writeFile(installLockFile, installPath:toString())
+	local lockFile: InstallLock = {
+		resource = installPath:toString(),
+		expiration = os.time() + 60_000, -- lock expires in 60s from time of issue
+	}
+
+	pathfs.writeFile(installLockFile, serde.encode("json", lockFile))
 
 	local toolAlias = toolAliasOrDefault(tool)
 	local client = Github.new(
