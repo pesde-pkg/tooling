@@ -56,7 +56,7 @@ function ProgressBar.start(self: ProgressBarImpl): ()
 		while not self.finished do
 			for _, spinner in SPINNERS do
 				local stage = self.stages[self.currentStageIndex]
-				stdio.write(
+				stdio.ewrite(
 					`\x1b[2K\x1b[0G{stdio.color("cyan")}{spinner} {stage.message}{stdio.color("reset")}{string.rep(
 						" ",
 						MAX_MESSAGE_LENGTH - #stage.message

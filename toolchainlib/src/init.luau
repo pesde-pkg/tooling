@@ -281,7 +281,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 	if matchingAsset == nil then
 		if _G.interactive then
 			-- Clear the current progress bar line
-			stdio.write("\x1b[2K\x1b[0G")
+			stdio.ewrite("\x1b[2K\x1b[0G")
 		end
 
 		-- Output warnings
