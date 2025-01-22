@@ -164,7 +164,7 @@ local function getGithubToken(): Option<string>
 end
 
 -- Initialize the shared global progress bar state
-_G.interactive = false
+_G.interactive = nil
 local barFns
 
 function installTool(tool: ToolId, installPath: pathfs.Path): number
@@ -359,7 +359,9 @@ return setmetatable(
 	} :: LibExports,
 	{
 		__call = function(lib: LibExportsImpl, tool: string, pesdeRoot: string?): number
-			_G.interactive = true
+			if _G.interactive == nil then
+				_G.interactive = true
+			end
 
 			local repo, version = string.match(tool, "([^@]+)@?(.*)")
 			if repo == nil or version == nil then
