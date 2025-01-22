@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Progress bars are now return to stderr to prevent issues with parsing managed tooling outputs
+- It is now possible for dependents of toolchainlib to programatically disable interactive features (like progress bars) by setting `_G.interactive` to `false.
+### Fixed
+- Fixed attempt to clear progress bar even when not in interactive mode
 
 ## [0.1.10] - 2025-01-22
 ### Added
