@@ -18,4 +18,4 @@ option = { name = "lukadev_0/option", version = "^1.2.0" }
 core = { workspace = "pesde/toolchainlib", version = "^" }
 
 [indices]
-default = "https://github.com/daimond113/pesde-index"
+default = "https://github.com/pesde-pkg/index"

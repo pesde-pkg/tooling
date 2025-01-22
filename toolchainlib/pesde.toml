@@ -19,4 +19,4 @@ result = { name = "lukadev_0/result", version = "^1.2.0" }
 option = { name = "lukadev_0/option", version = "^1.2.0" }
 
 [indices]
-default = "https://github.com/daimond113/pesde-index"
+default = "https://github.com/pesde-pkg/index"

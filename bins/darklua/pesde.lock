@@ -13,7 +13,7 @@ lib = "lib/init.luau"
 ref_ty = "pesde"
 name = "0x5eal/unzip"
 version = "0.1.0"
-index_url = "https://github.com/daimond113/pesde-index"
+index_url = "https://github.com/pesde-pkg/index"
 
 [graph."0x5eal/unzip"."0.1.0 luau".pkg_ref.dependencies]
 asciitable = [{ name = "kimpure/asciitable", version = "^0.1.4", index = "https://github.com/pesde-pkg/index" }, "dev"]
@@ -39,7 +39,7 @@ lib = "src/init.luau"
 ref_ty = "pesde"
 name = "jiwonz/dirs"
 version = "0.1.2"
-index_url = "https://github.com/daimond113/pesde-index"
+index_url = "https://github.com/pesde-pkg/index"
 
 [graph."jiwonz/dirs"."0.1.2 lune".pkg_ref.dependencies]
 pathfs = [{ name = "jiwonz/pathfs", version = "^0.1.0", index = "https://github.com/daimond113/pesde-index" }, "standard"]
@@ -59,7 +59,7 @@ lib = "init.luau"
 ref_ty = "pesde"
 name = "jiwonz/pathfs"
 version = "0.1.0"
-index_url = "https://github.com/daimond113/pesde-index"
+index_url = "https://github.com/pesde-pkg/index"
 
 [graph."jiwonz/pathfs"."0.1.0 lune".pkg_ref.target]
 environment = "lune"
@@ -121,11 +121,11 @@ ref_ty = "workspace"
 path = "toolchainlib"
 
 [graph."pesde/toolchainlib"."0.1.9 lune".pkg_ref.dependencies]
-dirs = [{ name = "jiwonz/dirs", version = "^0.1.1", index = "https://github.com/daimond113/pesde-index" }, "standard"]
-option = [{ name = "lukadev_0/option", version = "^1.2.0", index = "https://github.com/daimond113/pesde-index" }, "peer"]
-pathfs = [{ name = "jiwonz/pathfs", version = "^0.1.0", index = "https://github.com/daimond113/pesde-index" }, "standard"]
-result = [{ name = "lukadev_0/result", version = "^1.2.0", index = "https://github.com/daimond113/pesde-index" }, "peer"]
-unzip = [{ name = "0x5eal/unzip", version = "^0.1.0", index = "https://github.com/daimond113/pesde-index", target = "luau" }, "standard"]
+dirs = [{ name = "jiwonz/dirs", version = "^0.1.1", index = "https://github.com/pesde-pkg/index" }, "standard"]
+option = [{ name = "lukadev_0/option", version = "^1.2.0", index = "https://github.com/pesde-pkg/index" }, "peer"]
+pathfs = [{ name = "jiwonz/pathfs", version = "^0.1.0", index = "https://github.com/pesde-pkg/index" }, "standard"]
+result = [{ name = "lukadev_0/result", version = "^1.2.0", index = "https://github.com/pesde-pkg/index" }, "peer"]
+unzip = [{ name = "0x5eal/unzip", version = "^0.1.0", index = "https://github.com/pesde-pkg/index", target = "luau" }, "standard"]
 
 [graph."pesde/toolchainlib"."0.1.9 lune".pkg_ref.target]
 environment = "lune"
