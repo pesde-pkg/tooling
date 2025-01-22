@@ -279,7 +279,12 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 
 	local binaryContents: buffer
 	if matchingAsset == nil then
-		stdio.write("\x1b[2K\x1b[0G")
+		if _G.interactive then
+			-- Clear the current progress bar line
+			stdio.write("\x1b[2K\x1b[0G")
+		end
+
+		-- Output warnings
 		warn("Pesde could not find a matching binary for your system")
 		warn("Will now attempt to download all binaries and find a matching one")
 
