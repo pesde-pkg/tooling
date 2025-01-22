@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.1.10] - 2025-01-22
 ### Added
 - Locking mechanism to prevent conflicting accesses of underlying tool binaries. The lock is an on-disk file which exists during the installation process, and is removed once it is complete. It is located at `~/.pesde/bin/.tool_storage/<tool_id>/<version>/LOCK` and is a JSON file of the following structure:
 ```jsonc
@@ -126,4 +128,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [0.1.7]: https://pesde.dev/packages/pesde/toolchainlib/0.1.7/any
 [0.1.8]: https://pesde.dev/packages/pesde/toolchainlib/0.1.8/any
 [0.1.9]: https://pesde.dev/packages/pesde/toolchainlib/0.1.9/any
+[0.1.10]: https://pesde.dev/packages/pesde/toolchainlib/0.1.10/any
 

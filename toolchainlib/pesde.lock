@@ -1,5 +1,5 @@
 name = "pesde/toolchainlib"
-version = "0.1.9"
+version = "0.1.10"
 target = "lune"
 
 [graph."0x5eal/unzip"."0.1.0 luau"]
