@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.1.11] - 2025-01-23
 ### Added
 - Progress bars are now return to stderr to prevent issues with parsing managed tooling outputs
 - It is now possible for dependents of toolchainlib to programatically disable interactive features (like progress bars) by setting `_G.interactive` to `false`.
@@ -134,4 +136,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [0.1.8]: https://pesde.dev/packages/pesde/toolchainlib/0.1.8/any
 [0.1.9]: https://pesde.dev/packages/pesde/toolchainlib/0.1.9/any
 [0.1.10]: https://pesde.dev/packages/pesde/toolchainlib/0.1.10/any
+[0.1.11]: https://pesde.dev/packages/pesde/toolchainlib/0.1.11/any
 
