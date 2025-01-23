@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [0.1.11] - 2025-01-23
 ### Added
-- Progress bars are now return to stderr to prevent issues with parsing managed tooling outputs
+- Progress bars are now written to stderr to prevent issues with parsing managed tooling outputs
 - It is now possible for dependents of toolchainlib to programatically disable interactive features (like progress bars) by setting `_G.interactive` to `false`.
 ### Fixed
 - Fixed attempt to clear progress bar even when not in interactive mode
