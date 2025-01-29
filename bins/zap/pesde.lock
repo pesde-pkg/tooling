@@ -1,5 +1,5 @@
 name = "pesde/zap"
-version = "0.6.16"
+version = "0.6.17"
 target = "lune"
 
 [graph."0x5eal/unzip"."0.1.0 luau"]
