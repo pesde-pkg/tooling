@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 - Progress bars are now written to stderr to prevent issues with parsing managed tooling outputs
 - It is now possible for dependents of toolchainlib to programatically disable interactive features (like progress bars) by setting `_G.interactive` to `false`.
+- Includes the following new tools:
+  - [`pesde/zap@0.6.17`](https://pesde.dev/packages/pesde/zap/0.6.17/any)
+  - [`pesde/darklua@0.16.0`](https://pesde.dev/packages/pesde/darklua/0.16.0/any)
+  - [`pesde/argon@2.0.22`](https://pesde.dev/packages/pesde/argon/2.0.22/any)
 ### Fixed
 - Fixed attempt to clear progress bar even when not in interactive mode
 
