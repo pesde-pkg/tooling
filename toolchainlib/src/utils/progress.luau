@@ -78,7 +78,7 @@ function ProgressBar.stop(self: ProgressBarImpl): ()
 	-- Trigger upvalue, kill thread and clean progress bar remnant
 	self.finished = true
 	task.cancel(self.thread :: thread)
-	stdio.write("\x1b[2K\x1b[0G")
+	stdio.ewrite("\x1b[2K\x1b[0G")
 end
 
 function ProgressBar.nextStage(self: ProgressBarImpl): Result<nil, string>
