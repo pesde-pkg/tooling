@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Fixed faulty calculation of lock expiration timestamp due to bad assumption about `os.time` units
+### Changed
+- Updated dependencies:
+    - `dirs` to v0.3.0
+    - `pathfs` to v0.3.0
 
 ## [0.1.11] - 2025-01-23
 ### Added
@@ -26,7 +32,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   "expiration": 1737480284 // The timestamp until which the lock is considered valid, which is 60s from its creation
 }
 ```
-
 ### Fixed
 - Fixed concurrent installations failing due to OS errors during resource access by using aforementioned locking mechanism
 - Fixed faulty check for existence of tool installation directory 
