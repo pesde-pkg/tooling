@@ -14,6 +14,8 @@ local serde = require("@lune/serde")
 local task = require("@lune/task")
 
 local pathfs = require("../lune_packages/pathfs")
+local fs = pathfs.fs
+
 local dirs = require("../lune_packages/dirs")
 
 local Result = require("../lune_packages/result")
@@ -96,14 +98,14 @@ end
 
 local LINK_INSTALL_DIR = (dirs.homeDir() or error("Couldn't get home dir :(")):join(".pesde"):join("bin")
 local TOOL_STORAGE_DIR = LINK_INSTALL_DIR:join(".tool_storage")
-if not pathfs.isDir(TOOL_STORAGE_DIR) then
-	pathfs.writeDir(TOOL_STORAGE_DIR)
+if not fs.isDir(TOOL_STORAGE_DIR) then
+	fs.writeDir(TOOL_STORAGE_DIR)
 end
 
 local OLD_TOOL_STORAGE_DIR = LINK_INSTALL_DIR:join("tool_storage")
-if pathfs.isDir(OLD_TOOL_STORAGE_DIR) and not pathfs.isDir(TOOL_STORAGE_DIR) then
+if fs.isDir(OLD_TOOL_STORAGE_DIR) and not fs.isDir(TOOL_STORAGE_DIR) then
 	-- TODO: Merge both directories into one instead of a single move
-	pathfs.move(OLD_TOOL_STORAGE_DIR, TOOL_STORAGE_DIR)
+	fs.move(OLD_TOOL_STORAGE_DIR, TOOL_STORAGE_DIR)
 end
 
 local bar = ProgressBar.new()
@@ -174,8 +176,8 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 
 	-- If the tool installation directory was not present, we create it
 	local toolDir = assert(installPath:parent(), "Install path did not have parent dir")
-	if not pathfs.isDir(toolDir) then
-		pathfs.writeDir(toolDir)
+	if not fs.isDir(toolDir) then
+		fs.writeDir(toolDir)
 	end
 
 	type InstallLock = {
@@ -185,7 +187,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 
 	-- Attempt to read an existing lock in EAFP fashion
 	local installLockFile = toolDir:join("LOCK")
-	local isLocked, lockFileContents = pcall(pathfs.readFile, installLockFile)
+	local isLocked, lockFileContents = pcall(fs.readFile, installLockFile)
 	if isLocked then
 		-- If an installation lock was held for the tool we are trying to install, it means
 		-- that it is also being installed elsewhere. In this case, we wait for that installation
@@ -200,7 +202,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 		assert(lockFile.resource == installPath:toString(), "Mistmatch between lock and expected resource")
 
 		warn("Waiting for existing installation process for tool to exit")
-		while pathfs.isFile(installLockFile) do
+		while fs.isFile(installLockFile) do
 			if os.time() > lockFile.expiration then
 				-- If more than 60s has passed since we started waiting for the lock
 				-- to be released, we assume something went wrong and error; this should
@@ -220,7 +222,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 		expiration = os.time() + 60, -- lock expires in 60s from time of issue
 	}
 
-	pathfs.writeFile(installLockFile, serde.encode("json", lockFile))
+	fs.writeFile(installLockFile, serde.encode("json", lockFile))
 
 	local toolAlias = toolAliasOrDefault(tool)
 	local client = Github.new(
@@ -308,7 +310,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 
 	barFns.next(bar) -- install
 
-	pathfs.writeFile(installPath, binaryContents)
+	fs.writeFile(installPath, binaryContents)
 
 	-- IDEA: In order to eliminate fs read overhead on startup and to disallow
 	-- the use of the tool binary when outside a package where it is installed,
@@ -337,7 +339,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 	chmod(installPath, 0b10101010011)
 
 	-- Release the installation lock
-	pathfs.removeFile(installLockFile)
+	fs.removeFile(installLockFile)
 
 	-- Finally run the tool
 	return runTool(installPath)
@@ -377,7 +379,7 @@ return setmetatable(
 
 				-- Use _G.PESDE_ROOT to get the install directory, then decode the
 				-- pesde manifest to get the version of the tool dynamically
-				local manifestContents = pathfs.readFile(pathfs.Path.from(pesdeRoot :: string):join("pesde.toml"))
+				local manifestContents = fs.readFile(pathfs.Path.from(pesdeRoot :: string):join("pesde.toml"))
 				local ok, manifest: manifest.PesdeManifest = pcall(serde.decode, "toml" :: "toml", manifestContents)
 				if not ok then
 					stdio.ewrite(
@@ -402,7 +404,7 @@ return setmetatable(
 			local toolAlias = string.split(toolId, "+")[2]
 			local toolInstallPath = TOOL_STORAGE_DIR:join(toolId):join(versionOrDefault):join(toolAlias)
 
-			if pathfs.isFile(toolInstallPath) then
+			if fs.isFile(toolInstallPath) then
 				return lib.runTool(toolInstallPath)
 			end
 
@@ -418,7 +420,7 @@ return setmetatable(
 
 			if not ok then
 				-- Cleanup any failure remnants from installation directory
-				pathfs.removeDir(toolInstallPath:parent() :: pathfs.Path)
+				fs.removeDir(toolInstallPath:parent() :: pathfs.Path)
 
 				-- Cleanup progress bar in case of error
 				barFns.stop(bar)

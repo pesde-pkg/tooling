@@ -10,8 +10,8 @@ environment = "lune"
 lib = "src/init.luau"
 
 [dependencies]
-pathfs = { name = "jiwonz/pathfs", version = "^0.1.0" }
-dirs = { name = "jiwonz/dirs", version = "^0.1.1" }
+pathfs = { name = "jiwonz/pathfs", version = "^0.3.0" }
+dirs = { name = "jiwonz/dirs", version = "^0.3.0" }
 unzip = { name = "0x5eal/unzip", version = "^0.1.0", target = "luau" }
 
 [peer_dependencies]
