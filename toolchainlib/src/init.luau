@@ -217,7 +217,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 	-- Write a lock file to prevent concurrent installation attempts
 	local lockFile: InstallLock = {
 		resource = installPath:toString(),
-		expiration = os.time() + 60_000, -- lock expires in 60s from time of issue
+		expiration = os.time() + 60, -- lock expires in 60s from time of issue
 	}
 
 	pathfs.writeFile(installLockFile, serde.encode("json", lockFile))
