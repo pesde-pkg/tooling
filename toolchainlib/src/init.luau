@@ -185,44 +185,69 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 		resource: string,
 	}
 
-	-- Attempt to read an existing lock in EAFP fashion
 	local installLockFile = toolDir:join("LOCK")
-	local isLocked, lockFileContents = pcall(fs.readFile, installLockFile)
+
+	--- Attempts to write a lock file to prevent concurrent installation attempts, returning
+	--- true if a lock is already held, along with optionally its contents. A lock may be
+	--- denoted as being held but may have no contents returned in some rare cases where
+	--- the lock file may have been released before the contents have been read.
+	local function tryAcquireLock(): (boolean, string?)
+		local lockFile: InstallLock = {
+			resource = installPath:toString(),
+			expiration = os.time() + 60, -- lock expires in 60s from time of issue
+		}
+
+		-- NOTE: We first write to a temporary file and then move it, since moves are
+		-- atomic on unix and windows, preventing a TOCTOU race condition
+
+		local lockFileContents = serde.encode("json", lockFile)
+		local tmpLockFile = dirs.createTempFile(toolDir, "LOCK", "tmp")
+		fs.writeFile(tmpLockFile.path, lockFileContents)
+
+		local ok, contents = pcall(fs.move, tmpLockFile.path, installLockFile)
+		if not ok then
+			local _
+			_, contents = pcall(fs.readFile, installLockFile)
+		end
+
+		return not ok, contents
+	end
+
+	-- Attempt to acquire an on-disk lock
+	local isLocked, lockFileContents = tryAcquireLock()
 	if isLocked then
+		-- Disable the progress bar since we're not actually an installation process
+		barFns.stop(bar)
+		_G.interactive = false
+
+		-- Display warning about wait
+		warn("Waiting for existing installation process for tool to exit")
+	end
+
+	while isLocked do
 		-- If an installation lock was held for the tool we are trying to install, it means
 		-- that it is also being installed elsewhere. In this case, we wait for that installation
 		-- attempt to finish, i.e., when the lock file is removed, and then run the freshly
 		-- installed tool
 
-		-- Disable the progress bar since we're not actually an installation process
-		_G.interactive = false
-		bar:stop()
-
-		local lockFile: InstallLock = serde.decode("json", lockFileContents)
-		assert(lockFile.resource == installPath:toString(), "Mistmatch between lock and expected resource")
-
-		warn("Waiting for existing installation process for tool to exit")
-		while fs.isFile(installLockFile) do
-			if os.time() > lockFile.expiration then
-				-- If more than 60s has passed since we started waiting for the lock
-				-- to be released, we assume something went wrong and error; this should
-				-- also remove the lock for subsequent runs
-				error("Installation lock was held for too long (>60s)")
-			end
-
-			task.wait(1)
+		local lockFile: InstallLock? = lockFileContents and serde.decode("json", lockFileContents)
+		if lockFile ~= nil then
+			assert(lockFile.resource == installPath:toString(), "Mismatch between lock and expected resource")
 		end
 
-		return runTool(installPath)
+		if lockFile ~= nil and os.time() > lockFile.expiration then
+			-- If more than 60s has passed since we started waiting for the lock
+			-- to be released, we assume something went wrong and error; this should
+			-- also remove the lock for subsequent runs
+			error("Installation lock was held for too long (>60s)")
+		end
+
+		task.wait(1)
+		isLocked, lockFileContents = tryAcquireLock()
+		if not isLocked then
+			return runTool(installPath)
+		end
 	end
-
-	-- Write a lock file to prevent concurrent installation attempts
-	local lockFile: InstallLock = {
-		resource = installPath:toString(),
-		expiration = os.time() + 60, -- lock expires in 60s from time of issue
-	}
-
-	fs.writeFile(installLockFile, serde.encode("json", lockFile))
 
 	local toolAlias = toolAliasOrDefault(tool)
 	local client = Github.new(
