@@ -243,7 +243,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 		end
 
 		task.wait(1)
-		isLocked, lockFileContents = tryAcquireLock()
+		isLocked, lockFileContents = pcall(fs.readFile, installLockFile)
 		if not isLocked then
 			return runTool(installPath)
 		end
