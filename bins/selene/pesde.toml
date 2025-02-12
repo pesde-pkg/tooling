@@ -5,6 +5,10 @@ authors = ["CompeyDev <hi@devcomp.xyz>", "Kampfkarren <kampfkarren@gmail.com>"]
 repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/selene"
 includes = ["init.luau", "README.md", "pesde.toml"]
 
+[engines]
+lune = ">=0.8.7"
+pesde = "^0.6.0-rc.6"
+
 [target]
 environment = "lune"
 bin = "init.luau"
