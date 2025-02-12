@@ -7,7 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 ### Fixed
 - Fixed faulty calculation of lock expiration timestamp due to bad assumption about `os.time` units
+- Write progress bar cleanup ANSI sequences to stderr instead to stdout to avoid managling command output
+- Fix TOCTOU race condition by using an atomic operation for acquiring the installation lock
 ### Changed
+- Migrated internal codebase to pesde v0.6.0
 - Updated dependencies:
     - `dirs` to v0.3.0
     - `pathfs` to v0.3.0
