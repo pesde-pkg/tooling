@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.1.12] - 2025-02-12
 ### Fixed
 - Fixed faulty calculation of lock expiration timestamp due to bad assumption about `os.time` units
 - Write progress bar cleanup ANSI sequences to stderr instead to stdout to avoid managling command output
@@ -149,4 +151,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [0.1.9]: https://pesde.dev/packages/pesde/toolchainlib/0.1.9/any
 [0.1.10]: https://pesde.dev/packages/pesde/toolchainlib/0.1.10/any
 [0.1.11]: https://pesde.dev/packages/pesde/toolchainlib/0.1.11/any
+[0.1.12]: https://pesde.dev/packages/pesde/toolchainlib/0.1.12/any
 
