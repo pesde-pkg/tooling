@@ -53,8 +53,12 @@ function ProgressBar.start(self: ProgressBarImpl): ()
 	end
 
 	self.thread = task.spawn(function()
-		while not self.finished do
+		while true do
 			for _, spinner in SPINNERS do
+				if self.finished then
+					return
+				end
+
 				local stage = self.stages[self.currentStageIndex]
 				stdio.ewrite(
 					`\x1b[2K\x1b[0G{stdio.color("cyan")}{spinner} {stage.message}{stdio.color("reset")}{string.rep(
@@ -77,7 +81,6 @@ end
 function ProgressBar.stop(self: ProgressBarImpl): ()
 	-- Trigger upvalue, kill thread and clean progress bar remnant
 	self.finished = true
-	task.cancel(self.thread :: thread)
 	stdio.ewrite("\x1b[2K\x1b[0G")
 end
 
