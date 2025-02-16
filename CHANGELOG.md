@@ -7,15 +7,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ## [0.1.12] - 2025-02-12
+### Added
+- Includes the following new tools:
+  - [`pesde/argon@2.0.23`](https://pesde.dev/packages/pesde/argon/2.0.23/any)
+  - [`pesde/asphalt@0.9.0`](https://pesde.dev/packages/pesde/asphalt/0.9.0/any)
+  - [`pesde/asphalt@0.9.1`](https://pesde.dev/packages/pesde/asphalt/0.9.1/any)
+  - [`pesde/luau-lsp@1.39.0`](https://pesde.dev/packages/pesde/luau-lsp/1.39.0/any)
+  - [`pesde/luau-lsp@1.39.1`](https://pesde.dev/packages/pesde/luau-lsp/1.39.1/any)
+  - [`pesde/luau-lsp@1.39.2`](https://pesde.dev/packages/pesde/luau-lsp/1.39.2/any)
+  - [`pesde/blink@0.15.3`](https://pesde.dev/packages/pesde/blink/0.15.3/any)
+  - [`pesde/blink@0.15.4`](https://pesde.dev/packages/pesde/blink/0.15.4/any)
 ### Fixed
 - Fixed faulty calculation of lock expiration timestamp due to bad assumption about `os.time` units
 - Write progress bar cleanup ANSI sequences to stderr instead to stdout to avoid managling command output
 - Fix TOCTOU race condition by using an atomic operation for acquiring the installation lock
-- Includes the following new tools:
-  - [`pesde/argon@2.0.23`](https://pesde.dev/packages/pesde/argon/2.0.23/any)
-  - [`pesde/asphalt@0.9.0`](https://pesde.dev/packages/pesde/asphalt/0.9.0/any)
-  - [`pesde/luau-lsp@1.39.0`](https://pesde.dev/packages/pesde/luau-lsp/1.39.0/any)
-  - [`pesde/blink@0.15.3`](https://pesde.dev/packages/pesde/blink/0.15.3/any)
 ### Changed
 - Migrated internal codebase to pesde v0.6.0
 - Updated dependencies:
