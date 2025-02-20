@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - [`pesde/luau-lsp@1.39.2`](https://pesde.dev/packages/pesde/luau-lsp/1.39.2/any)
   - [`pesde/blink@0.15.3`](https://pesde.dev/packages/pesde/blink/0.15.3/any)
   - [`pesde/blink@0.15.4`](https://pesde.dev/packages/pesde/blink/0.15.4/any)
+  - [`pesde/zap@0.6.18`](https://pesde.dev/packages/pesde/zap/0.6.18/any)
 ### Fixed
 - Fixed faulty calculation of lock expiration timestamp due to bad assumption about `os.time` units
 - Write progress bar cleanup ANSI sequences to stderr instead to stdout to avoid managling command output
