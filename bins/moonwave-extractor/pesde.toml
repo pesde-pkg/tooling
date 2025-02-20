@@ -1,7 +1,7 @@
 name = "pesde/moonwave_extractor"
 version = "1.2.1"
 description = "Moonwave is a tool for generating documentation from comments in Lua source code."
-authors = ["AsyncMatrix <hi@asyncmatrix.dev>", "eryn L. K.  <https://eryn.io/>"]
+authors = ["eryn L. K. <https://eryn.io/>"]
 repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/moonwave-extractor"
 includes = ["init.luau", "README.md", "pesde.toml"]
 
