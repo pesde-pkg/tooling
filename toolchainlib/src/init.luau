@@ -167,8 +167,8 @@ local function getGithubToken(): Option<string>
 end
 
 local function isInteractive(): boolean
-	return process.env.PESDE_TOOLING_FORCE_INTERACTIVE ~= nil or
-        	(sys.isTTY("stdout") and process.env.TERM ~= "dumb" and process.env.CI == nil)
+	return process.env.PESDE_TOOLING_FORCE_INTERACTIVE ~= nil
+		or (sys.isTTY("stdout") and process.env.TERM ~= "dumb" and process.env.CI == nil)
 end
 
 -- Initialize the shared global progress bar state
