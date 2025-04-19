@@ -30,6 +30,7 @@ local ProgressBar = require("./utils/progress")
 local compression = require("./compression")
 local eq = require("./utils/eq")
 local manifest = require("./manifest")
+local sys = require("./utils/sys")
 
 export type ToolId = {
 	alias: Option<string>,
@@ -165,8 +166,12 @@ local function getGithubToken(): Option<string>
 	end)
 end
 
+local function isInteractive(): boolean
+	return sys.isTTY("stdout") and process.env.TERM ~= "dumb" and process.env.CI == nil
+end
+
 -- Initialize the shared global progress bar state
-_G.interactive = nil
+_G.interactive = isInteractive() or nil
 local barFns
 
 function installTool(tool: ToolId, installPath: pathfs.Path): number
