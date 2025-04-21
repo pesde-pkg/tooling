@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 ### Added
 - Added support for inferring non-interactivity status from process context ([#8](https://github.com/pesde-pkg/tooling/pull/8))
+- Includes the following new tools:
+  - [`pesde/zap@0.6.20`](https://pesde.dev/packages/pesde/zap/0.6.20/any)
+  - [`pesde/luau-lsp@1.43.0`](https://pesde.dev/packages/pesde/luau-lsp/1.43.0/any)
+### Changed
+- Synced package READMEs to upstream for `asphalt` and `stylua`
 
 ## [0.1.12] - 2025-02-12
 ### Added
