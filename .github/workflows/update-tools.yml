@@ -1,0 +1,42 @@
+name: Daily Update Manifests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  update-manifests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup pesde
+        uses: lumin-org/setup-pesde@v0.4.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          cache: true
+
+      - name: Install packages
+        run: pesde install
+        timeout-minutes: 1  # sometimes the install just hangs infinitely, so you won't want spent 12 hours of ci credit for nothing :sob:
+
+      - name: Set up Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Apply updates
+        run: lune run .lune/update_tools -- --yes
+
+      - name: Commit and push changes
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add .
+            git commit -m "chore: daily manifest update [skip ci]"
+            git push
+          else
+            echo "No changes to commit."
+          fi
