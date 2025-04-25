@@ -31,6 +31,9 @@ jobs:
       - name: Apply updates
         run: lune run .lune/update_tools -- --yes
 
+      - name: Publish updates
+        run: pesde publish
+
       - name: Commit and push changes
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
