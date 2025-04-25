@@ -146,13 +146,16 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 		-- New version field string:
 		local newField = string.gsub(serde.encode("toml", { version = stripLeadingVersion(newVersion) }), "%s+$", "")
 
-		local updatedManifest = string.gsub(
+		local updatedManifest, replaces = string.gsub(
 			manifestContents,
-			oldField,
+			string.gsub(oldField, "[%.%+%-]", "%%%0"),
 			newField,
 			-- Only replace the first occurrence to be safe
 			1
 		)
+		if replaces == 0 then
+			error("failed to replace version field in manifest")
+		end
 
 		local toWrite = table.find(process.args, "--yes")
 			or table.find(process.args, "-y")
