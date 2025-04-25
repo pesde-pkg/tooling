@@ -79,6 +79,7 @@ local BINS_SRC_DIR = pathfs.getAbsolutePathOf(pathfs.Path.from("bins"))
 
 for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 	local absPath = BINS_SRC_DIR:join(binSrc)
+	local testsPath = absPath:join("tests/init.spec.luau")
 	local binEntrypoint = absPath:join("init.luau")
 	local manifestPath = absPath:join("pesde.toml")
 	local readmePath = absPath:join("README.md")
@@ -169,6 +170,18 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 			)
 
 			pathfs.writeFile(manifestPath, updatedManifest)
+		end
+
+		-- Check if the tool has any tests, and run them if they do
+		if pathfs.isFile(testsPath) then
+			local success, result = pcall(require, testsPath:toString())
+			if not success then
+				warn(`Rollbacking tool {binSrc} version due failed tests:`, result)
+				pathfs.writeFile(manifestPath, manifestContents)
+				continue
+			end
+		else
+			warn(`Unit tests not found for {binSrc}, assuming that they pass`)
 		end
 	end
 
