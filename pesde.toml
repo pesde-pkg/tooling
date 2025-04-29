@@ -5,8 +5,8 @@ private = true
 workspace_members = ["toolchainlib", "bins/*"]
 
 [engines]
-lune = ">=0.8.7"
-pesde = "^0.6.0-rc.6"
+lune = "^0.8.7"
+pesde = "^0.6.0"
 
 [target]
 environment = "lune"

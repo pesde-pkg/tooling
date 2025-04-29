@@ -5,6 +5,10 @@ authors = ["CompeyDev <hi@devcomp.xyz>", "Lucien Greathouse <me@lpghatguy.com>"]
 repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/rojo"
 includes = ["init.luau", "README.md", "pesde.toml"]
 
+[engines]
+lune = "^0.8.7"
+pesde = "^0.6.0"
+
 [target]
 environment = "lune"
 bin = "init.luau"
