@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Includes the following new tools:
+  - [`pesde/argon@2.0.25`](https://pesde.dev/packages/pesde/argon/2.0.25/any)
+  - [`pesde/luau-lsp@1.44.0`](https://pesde.dev/packages/pesde/luau-lsp/1.44.0/any)
+  - [`pesde/luau-lsp@1.44.1`](https://pesde.dev/packages/pesde/luau-lsp/1.44.1/any)
+  - [`pesde/rojo@7.5.0`](https://pesde.dev/packages/pesde/rojo/7.5.0/any)
+  - [`pesde/rojo@7.5.1`](https://pesde.dev/packages/pesde/rojo/7.5.1/any)
+  - [`pesde/asphalt@1.0.0-pre.6`](https://pesde.dev/packages/pesde/asphalt/1.0.0-pre.6/any)
+  - [`pesde/asphalt@1.0.0-pre.7`](https://pesde.dev/packages/pesde/asphalt/1.0.0-pre.7/any)
+  - [`pesde/asphalt@1.0.0-pre.8`](https://pesde.dev/packages/pesde/asphalt/1.0.0-pre.8/any)
+### Changed
+- Locked Lune to 0.8.x versions only to prevent breakage with Lune 0.9.0
+- Synced package READMEs for `asphalt`
 
 ## [0.1.13] - 2025-04-21
 ### Added
