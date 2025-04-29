@@ -2,7 +2,7 @@
 # It is not intended for manual editing.
 format = 1
 name = "pesde/argon"
-version = "2.0.23"
+version = "2.0.24"
 target = "lune"
 
 [graph."0x5eal/unzip@0.1.3 luau"]
@@ -96,22 +96,22 @@ resolved_ty = "standard"
 ref_ty = "pesde"
 index_url = "https://github.com/pesde-pkg/index"
 
-[graph."pesde/toolchainlib@0.1.13 lune"]
+[graph."pesde/toolchainlib@0.1.14 lune"]
 direct = ["core", { workspace = "pesde/toolchainlib", version = "^" }, "standard"]
 resolved_ty = "standard"
 
-[graph."pesde/toolchainlib@0.1.13 lune".dependencies]
+[graph."pesde/toolchainlib@0.1.14 lune".dependencies]
 "0x5eal/unzip@0.1.3 luau" = "unzip"
 "jiwonz/dirs@0.3.0 lune" = "dirs"
 "jiwonz/pathfs@0.3.2 lune" = "pathfs"
 "lukadev_0/option@1.2.0 lune" = "option"
 "lukadev_0/result@1.2.0 lune" = "result"
 
-[graph."pesde/toolchainlib@0.1.13 lune".pkg_ref]
+[graph."pesde/toolchainlib@0.1.14 lune".pkg_ref]
 ref_ty = "workspace"
 path = "toolchainlib"
 
-[graph."pesde/toolchainlib@0.1.13 lune".pkg_ref.dependencies]
+[graph."pesde/toolchainlib@0.1.14 lune".pkg_ref.dependencies]
 dirs = [{ name = "jiwonz/dirs", version = "^0.3.0", index = "https://github.com/pesde-pkg/index" }, "standard"]
 option = [{ name = "lukadev_0/option", version = "^1.2.0", index = "https://github.com/pesde-pkg/index" }, "peer"]
 pathfs = [{ name = "jiwonz/pathfs", version = "^0.3.0", index = "https://github.com/pesde-pkg/index" }, "standard"]
