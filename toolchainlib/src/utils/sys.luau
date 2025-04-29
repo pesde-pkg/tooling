@@ -36,9 +36,9 @@ function sys.isTTY(fd: number | StdioFd): boolean
 	local pid = assert(string.match(statFd, "^%S+%s+%S+%s+%S+%s+(%S+)"), "Could not get current process PID")
 
 	local stdoutFdMode = ResultExt.ok(
-		Result.try(process.spawn, "stat", { "-L", "-c", "%f", `/proc/{pid}/fd/{inputFd}` })
+		Result.try(process.exec, "stat", { "-L", "-c", "%f", `/proc/{pid}/fd/{inputFd}` })
 	)
-		:andThen(function(child: process.SpawnResult)
+		:andThen(function(child: process.ExecResult)
 			if not child.ok then
 				return Option.None
 			end

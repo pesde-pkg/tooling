@@ -78,7 +78,7 @@ function CommandBuilder.withStdioStrategy(
 	return self
 end
 
-local function intoSpawnOptionsStdioKind(strategy: StdioStrategy): process.SpawnOptionsStdioKind
+local function intoSpawnOptionsStdioKind(strategy: StdioStrategy): process.ExecStdioKind
 	if strategy == "pipe" then
 		return "default"
 	end
@@ -94,18 +94,18 @@ local function intoSpawnOptionsStdioKind(strategy: StdioStrategy): process.Spawn
 	error(`Non-strategy provided: {strategy}`)
 end
 
-function CommandBuilder.exec(self: CommandBuilder): process.SpawnResult
+function CommandBuilder.exec(self: CommandBuilder): process.ExecResult
 	print(
 		stdio.style("bold") .. "$",
 		stdio.style("dim") .. self.program,
 		table.concat(self.args, " ") .. stdio.style("reset")
 	)
-	local child = process.spawn(self.program, self.args, {
+	local child = process.exec(self.program, self.args, {
 		shell = if process.os == "windows" then "cmd.exe" else "bash",
 		stdio = self.stdioStrategy
 			:orOpt(Option.Some(DEFAULT_STDIO_STRATEGY))
 			:map(function(mappings: IoStrategyMapping)
-				local translatedMappings: process.SpawnOptionsStdio = {}
+				local translatedMappings: any = {} -- FIXME: remove this any
 				for field, value in mappings do
 					translatedMappings[field] = intoSpawnOptionsStdioKind((value :: Option<StdioStrategy>):unwrap())
 				end

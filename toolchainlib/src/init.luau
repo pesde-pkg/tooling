@@ -78,10 +78,8 @@ local function chmod(path: pathfs.Path, mode: number | string)
 		return
 	end
 
-	local result = process.spawn(
-		"chmod",
-		{ if typeof(mode) == "string" then mode else string.format("%o", mode), path:toString() }
-	)
+	local result =
+		process.exec("chmod", { if typeof(mode) == "string" then mode else string.format("%o", mode), path:toString() })
 
 	if not result.ok then
 		return error(result.stderr)
@@ -117,14 +115,14 @@ local bar = ProgressBar.new()
 	:withStage("install", "Installing")
 
 function runTool(tool: ToolId | pathfs.Path): number
-	-- FIXME: `process.spawn` has a bug where interactive features don't
+	-- FIXME: `process.exec` has a bug where interactive features don't
 	-- forward properly
 	local toolId = tool :: ToolId
 	local path = if (toolId :: any).alias ~= nil
 		then LINK_INSTALL_DIR:join(toolAliasOrDefault(toolId))
 		else tool :: pathfs.Path
 
-	return process.spawn(path:toString(), process.args, {
+	return process.exec(path:toString(), process.args, {
 		cwd = process.cwd,
 		env = process.env,
 		stdio = "forward",
@@ -153,8 +151,8 @@ end
 
 local function getGithubToken(): Option<string>
 	return Option.from(process.env.GITHUB_TOKEN):orElse(function()
-		return ResultExt.ok(Result.try(process.spawn, "gh", { "auth", "token" }))
-			:andThen(function(child: process.SpawnResult)
+		return ResultExt.ok(Result.try(process.exec, "gh", { "auth", "token" }))
+			:andThen(function(child: process.ExecResult)
 				if not child.ok then
 					return Option.None
 				end
