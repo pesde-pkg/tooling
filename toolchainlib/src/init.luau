@@ -318,7 +318,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 		end
 
 		-- Output warnings
-		warn("Pesde could not find a matching binary for your system")
+		warn("pesde could not find a matching binary for your system")
 		warn("Will now attempt to download all binaries and find a matching one")
 
 		for _, asset in assets do
