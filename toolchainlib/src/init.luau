@@ -310,7 +310,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 
 	barFns.next(bar) -- download
 
-	local binaryContents: buffer
+	local binaryContents: buffer?
 	if matchingAsset == nil then
 		if _G.interactive then
 			-- Clear the current progress bar line
@@ -329,15 +329,10 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 			end
 		end
 	else
-		downloadAndExtractBinary(aliasName, currentDesc, matchingAsset):match({
-			Some = function(contents: buffer)
-				binaryContents = contents
-			end,
-			None = function()
-				error(`No matching binary found`)
-			end,
-		})
+		binaryContents = downloadAndExtractBinary(aliasName, currentDesc, matchingAsset):unwrapOrNil()
 	end
+
+	assert(binaryContents, `No matching binary found`)
 
 	barFns.next(bar) -- install
 
