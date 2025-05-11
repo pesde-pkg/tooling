@@ -18,10 +18,8 @@ export type PlatformDescriptor = {
 	arch: Option<arch.Arch>,
 	toolchain: Option<toolchain.Toolchain>,
 }
-type ExecutableDetectionResult = {
-	os: Option<process.OS>,
-	arch: Option<arch.Arch>,
-}
+local ExecutableDescriptor = {}
+type ExecutableDescriptor = detectFromExecutable.ExecutableDescriptor
 
 function PlatformDescriptor.currentSystem(): PlatformDescriptor
 	return {
@@ -31,40 +29,46 @@ function PlatformDescriptor.currentSystem(): PlatformDescriptor
 	}
 end
 
-function PlatformDescriptor.fromString(str: string)
+function ExecutableDescriptor.fromString(str: string): result.PlatformResult<ExecutableDescriptor>
 	local detectedOs = os.detect(str)
 	if detectedOs:isNone() then
-		return Result.Err("NoPatternDetected" :: result.PlatformError)
+		return Result.Err("NoPatternDetected" :: result.PlatformError) :: result.PlatformResult<ExecutableDescriptor>
 	end
 
 	return Result.Ok({
 		os = detectedOs:unwrap() :: process.OS,
-		arch = arch.detect(str),
-		toolchain = toolchain.detect(str),
-	} :: PlatformDescriptor)
+		arch = arch.detect(str):mapOr({}, function(arch)
+			return { arch }
+		end),
+	}) :: result.PlatformResult<ExecutableDescriptor>
 end
 
-function PlatformDescriptor.fromExecutable(contents: buffer): result.PlatformResult<PlatformDescriptor>
+function ExecutableDescriptor.fromExecutable(contents: buffer): result.PlatformResult<ExecutableDescriptor>
 	local detected = Option.from(detectFromExecutable(contents))
-		:map(function(inner: detectFromExecutable.ExecutableDetectionResult): ExecutableDetectionResult
-			return {
-				os = Option.from(inner.os) :: Option<process.OS>,
-				arch = Option.from(inner.arch) :: Option<arch.Arch>,
-			}
-		end) :: Option<ExecutableDetectionResult>
-
-	local platformDesc = detected:map(function(inner: ExecutableDetectionResult): PlatformDescriptor
-		return {
-			os = inner.os:unwrap(),
-			arch = inner.arch :: Option<arch.Arch>,
-			toolchain = Option.None :: Option<toolchain.Toolchain>,
-		}
-	end) :: Option<PlatformDescriptor>
 
 	return OptionExt.okOr(
-			platformDesc,
+			detected,
 			"NoExecutableDetected" :: result.PlatformError
-		) :: result.PlatformResult<PlatformDescriptor>
+		) :: result.PlatformResult<ExecutableDescriptor>
 end
 
-return PlatformDescriptor
+function PlatformDescriptor.matches(self: PlatformDescriptor, executable: ExecutableDescriptor): boolean
+	if self.os ~= executable.os then
+		return false
+	end
+
+	if self.arch:isNone() then
+		return false
+	end
+
+	if table.find(executable.arch, self.arch:unwrap()) then
+		return true
+	end
+
+	return true
+end
+
+return {
+	PlatformDescriptor = PlatformDescriptor,
+	ExecutableDescriptor = ExecutableDescriptor,
+}

@@ -30,7 +30,7 @@ return {
 
 	detectFromExecutable = function(binaryContents: buffer)
 		return Option.from(detection.detectFromExecutable(binaryContents))
-			:map(function(inner: detection.ExecutableDetectionResult)
+			:map(function(inner: detection.ExecutableDescriptor)
 				return inner.arch
 			end)
 	end,

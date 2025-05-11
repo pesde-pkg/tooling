@@ -27,7 +27,7 @@ return {
 
 	detectFromExecutable = function(binaryContents: buffer): Option<process.OS>
 		return Option.from(detection.detectFromExecutable(binaryContents))
-			:map(function(inner: detection.ExecutableDetectionResult)
+			:map(function(inner: detection.ExecutableDescriptor)
 				return inner.os
 			end)
 	end,

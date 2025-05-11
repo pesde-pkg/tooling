@@ -1,5 +1,5 @@
 local executable = require("./executable")
-export type ExecutableDetectionResult = executable.ExecutableDetectionResult
+export type ExecutableDescriptor = executable.ExecutableDescriptor
 
 return {
 	detect = require("./pattern"),

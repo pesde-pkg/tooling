@@ -6,8 +6,9 @@ type Result<T, E> = Result.Result<T, E>
 type Option<T> = Option.Option<T>
 
 local revTable = require("./utils/rev_table")
-local eq = require("./utils/eq")
-local PlatformDescriptor = require("./platform/descriptor")
+local descriptors = require("./platform/descriptor")
+local PlatformDescriptor = descriptors.PlatformDescriptor
+local ExecutableDescriptor = descriptors.ExecutableDescriptor
 
 export type CompressionFormat = "TarGz" | "TarXz" | "Zip"
 
@@ -37,7 +38,7 @@ local extractBinary: {
 	[CompressionFormat]: (
 		compressed: buffer,
 		binaryName: string,
-		targetPlatform: PlatformDescriptor.PlatformDescriptor
+		targetPlatform: descriptors.PlatformDescriptor
 	) -> Result<buffer, string>,
 } =
 	{
@@ -50,9 +51,12 @@ local extractBinary: {
 			--- matches the expected one
 			local function extractEntry(entry: unzip.ZipEntry): buffer?
 				local contents = reader:extract(entry, { type = "binary" }) :: buffer
-				local executablePlatform = PlatformDescriptor.fromExecutable(contents)
+				local executablePlatform = ExecutableDescriptor.fromExecutable(contents)
 
-				if executablePlatform:isOk() and eq(executablePlatform:unwrap(), targetPlatform) then
+				if
+					executablePlatform:isOk()
+					and PlatformDescriptor.matches(targetPlatform, executablePlatform:unwrap())
+				then
 					return contents
 				end
 

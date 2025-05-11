@@ -25,10 +25,11 @@ type Result<T, E> = Result.Result<T, E>
 type Option<T> = Option.Option<T>
 
 local Github = require("./github")
-local PlatformDescriptor = require("./platform/descriptor")
+local descriptors = require("./platform/descriptor")
+local PlatformDescriptor = descriptors.PlatformDescriptor
+local ExecutableDescriptor = descriptors.ExecutableDescriptor
 local ProgressBar = require("./utils/progress")
 local compression = require("./compression")
-local eq = require("./utils/eq")
 local manifest = require("./manifest")
 local sys = require("./utils/sys")
 
@@ -51,7 +52,7 @@ end
 
 local function downloadAndExtractBinary(
 	binaryName: string,
-	targetPlatform: PlatformDescriptor.PlatformDescriptor,
+	targetPlatform: descriptors.PlatformDescriptor,
 	asset: {
 		name: string,
 		browser_download_url: string,
@@ -297,12 +298,9 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 	local aliasName = aliasPath:toString()
 
 	for _, asset in assets do
-		local desc = PlatformDescriptor.fromString(asset.name)
-		local descWithArch = desc:map(function(inner: PlatformDescriptor.PlatformDescriptor)
-			return inner
-		end)
+		local desc = ExecutableDescriptor.fromString(asset.name)
 
-		if descWithArch:isOk() and eq(currentDesc, descWithArch:unwrap()) then
+		if desc:isOk() and PlatformDescriptor.matches(currentDesc, desc:unwrap()) then
 			matchingAsset = asset
 			break
 		end

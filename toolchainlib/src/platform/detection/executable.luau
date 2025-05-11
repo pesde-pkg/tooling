@@ -1,12 +1,12 @@
 local process = require("@lune/process")
 
 type Arch = process.Arch | "arm" | "x86"
-export type ExecutableDetectionResult = {
-	os: process.OS?,
-	arch: Arch?,
+export type ExecutableDescriptor = {
+	os: process.OS,
+	arch: { Arch },
 }
 
-return function(binaryContents: buffer): ExecutableDetectionResult?
+return function(binaryContents: buffer): ExecutableDescriptor?
 	-- Windows PE
 	do
 		local DOS_HEADER = "MZ"
@@ -29,7 +29,7 @@ return function(binaryContents: buffer): ExecutableDetectionResult?
 				local machineType = buffer.readu16(binaryContents, signatureOffset + 4)
 				return {
 					os = "windows",
-					arch = PE_MACHINE_TYPES[machineType],
+					arch = { PE_MACHINE_TYPES[machineType] },
 				}
 			end
 		end
@@ -55,7 +55,7 @@ return function(binaryContents: buffer): ExecutableDetectionResult?
 			local machineType = buffer.readu16(binaryContents, 18)
 			return {
 				os = "linux",
-				arch = ELF_MACHINE_TYPES[machineType],
+				arch = { ELF_MACHINE_TYPES[machineType] },
 			}
 		end
 	end
@@ -64,28 +64,50 @@ return function(binaryContents: buffer): ExecutableDetectionResult?
 	do
 		local MACHO_MAGIC_32 = 0xFEEDFACE
 		local MACHO_MAGIC_64 = 0xFEEDFACF
-		local MACHO_CPU_TYPES = {
-			x86 = 0x7,
-			arm = 0xc,
+		local MACHO_MAGIC_UN = 0xCAFEBABE
+
+		local MACHO_CPU_TYPES: { [number]: Arch? } = {
+			[0x00000007] = "x86",
+			[0x0000000C] = "arm",
+			[0x01000007] = "x86_64",
+			[0x0100000C] = "aarch64",
 		}
 
-		-- First 4 bytes are the magic depending on 32 or 64 bit
-		-- Next 2 bytes are the CPU type
+		-- First 4 bytes are the magic number
 		local headerStart = buffer.readu32(binaryContents, 0)
-		local cpuType = buffer.readu16(binaryContents, 4)
+		if headerStart == MACHO_MAGIC_UN then
+			-- Next 4 bytes is the number of images in this binary
+			local imagesAmount = buffer.readu32(binaryContents, 4)
+			local arches: { Arch } = {}
 
-		local is64bit = headerStart == MACHO_MAGIC_64
-		local is32bit = headerStart == MACHO_MAGIC_32
+			for i = 0, imagesAmount - 1 do
+				-- 4 bytes for the CPU type
+				-- 4 bytes for the CPU subtype
+				-- 4 bytes for the file offset
+				-- 4 bytes for the size
+				-- 4 bytes for the section alignment
+				-- += 20
+				local cpuType = buffer.readu32(binaryContents, 8 + i * 20)
+				local arch = MACHO_CPU_TYPES[cpuType]
+				if arch then
+					table.insert(arches, arch)
+				end
+			end
 
-		if is64bit or is32bit then
 			return {
 				os = "macos",
-				arch = (if is64bit and cpuType == MACHO_CPU_TYPES.x86
-					then "x86_64"
-					elseif is64bit and cpuType == MACHO_CPU_TYPES.arm then "aarch64"
-					elseif is32bit and cpuType == MACHO_CPU_TYPES.x86 then "x86"
-					elseif is32bit and cpuType == MACHO_CPU_TYPES.arm then "arm"
-					else nil),
+				arch = arches,
+			}
+		end
+
+		if headerStart == MACHO_MAGIC_64 or headerStart == MACHO_MAGIC_32 then
+			-- Next 4 bytes are the CPU type
+			local cpuType = buffer.readu32(binaryContents, 4)
+			local arch: Arch? = MACHO_CPU_TYPES[cpuType]
+
+			return {
+				os = "macos",
+				arch = if arch then { arch } else {},
 			}
 		end
 	end
