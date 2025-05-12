@@ -79,6 +79,7 @@ local BINS_SRC_DIR = pathfs.getAbsolutePathOf(pathfs.Path.from("bins"))
 
 for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 	local absPath = BINS_SRC_DIR:join(binSrc)
+	local testsPath = absPath:join("tests/run.luau")
 	local binEntrypoint = absPath:join("init.luau")
 	local manifestPath = absPath:join("pesde.toml")
 	local readmePath = absPath:join("README.md")
@@ -135,6 +136,21 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 			)}{newVersion}{stdio.style("reset")}`
 		)
 
+		-- Check if the tool has any tests, and run them if they do
+		if pathfs.isFile(testsPath) then
+			local success, result = pcall(require, testsPath:toString())
+			if not success then
+				continue
+			end
+
+			success, result = pcall(result, newVersion)
+			if not success then
+				continue
+			end
+		else
+			warn(`Unit tests not found for {binSrc}, assuming that they pass`)
+		end
+
 		-- HACK: To prevent messing with our existing toml ordering and formatting
 		-- we just replace the old version field string with the new version field
 		-- string
@@ -146,13 +162,16 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 		-- New version field string:
 		local newField = string.gsub(serde.encode("toml", { version = stripLeadingVersion(newVersion) }), "%s+$", "")
 
-		local updatedManifest = string.gsub(
+		local updatedManifest, replaces = string.gsub(
 			manifestContents,
-			oldField,
+			string.gsub(oldField, "[%.%+%-]", "%%%0"),
 			newField,
 			-- Only replace the first occurrence to be safe
 			1
 		)
+		if replaces == 0 then
+			error("failed to replace version field in manifest")
+		end
 
 		local toWrite = table.find(process.args, "--yes")
 			or table.find(process.args, "-y")

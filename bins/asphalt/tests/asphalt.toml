@@ -1,0 +1,10 @@
+[inputs.assets]
+path = "input/**"
+output_path = "output"
+
+[creator]
+type = "user"
+id = 0
+
+[codegen]
+output_name = "init.luau"
