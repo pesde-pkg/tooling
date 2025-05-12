@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Includes the following new tools:
   - [`pesde/blink@0.17.1`](https://pesde.dev/packages/pesde/blink/0.17.1/any)
   - [`pesde/blink@0.17.2`](https://pesde.dev/packages/pesde/blink/0.17.2/any)
-  - [`pesde/luau-lsp@1.45.0`](https://pesde.dev/packages/pesde/luau-lsp/1.45.0/any)
+  - [`pesde/luau_lsp@1.45.0`](https://pesde.dev/packages/pesde/luau_lsp/1.45.0/any)
 - Add support for multi-arch binaries, currently only MacOS
 
 ### Fixed
@@ -20,8 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 - Includes the following new tools:
   - [`pesde/argon@2.0.25`](https://pesde.dev/packages/pesde/argon/2.0.25/any)
-  - [`pesde/luau-lsp@1.44.0`](https://pesde.dev/packages/pesde/luau-lsp/1.44.0/any)
-  - [`pesde/luau-lsp@1.44.1`](https://pesde.dev/packages/pesde/luau-lsp/1.44.1/any)
+  - [`pesde/luau_lsp@1.44.0`](https://pesde.dev/packages/pesde/luau_lsp/1.44.0/any)
+  - [`pesde/luau_lsp@1.44.1`](https://pesde.dev/packages/pesde/luau_lsp/1.44.1/any)
   - [`pesde/rojo@7.5.0`](https://pesde.dev/packages/pesde/rojo/7.5.0/any)
   - [`pesde/rojo@7.5.1`](https://pesde.dev/packages/pesde/rojo/7.5.1/any)
   - [`pesde/asphalt@1.0.0-pre.6`](https://pesde.dev/packages/pesde/asphalt/1.0.0-pre.6/any)
@@ -36,7 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added support for inferring non-interactivity status from process context ([#8](https://github.com/pesde-pkg/tooling/pull/8))
 - Includes the following new tools:
   - [`pesde/zap@0.6.20`](https://pesde.dev/packages/pesde/zap/0.6.20/any)
-  - [`pesde/luau-lsp@1.43.0`](https://pesde.dev/packages/pesde/luau-lsp/1.43.0/any)
+  - [`pesde/luau_lsp@1.43.0`](https://pesde.dev/packages/pesde/luau_lsp/1.43.0/any)
 ### Changed
 - Synced package READMEs to upstream for `asphalt` and `stylua`
 
@@ -46,9 +46,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - [`pesde/argon@2.0.23`](https://pesde.dev/packages/pesde/argon/2.0.23/any)
   - [`pesde/asphalt@0.9.0`](https://pesde.dev/packages/pesde/asphalt/0.9.0/any)
   - [`pesde/asphalt@0.9.1`](https://pesde.dev/packages/pesde/asphalt/0.9.1/any)
-  - [`pesde/luau-lsp@1.39.0`](https://pesde.dev/packages/pesde/luau-lsp/1.39.0/any)
-  - [`pesde/luau-lsp@1.39.1`](https://pesde.dev/packages/pesde/luau-lsp/1.39.1/any)
-  - [`pesde/luau-lsp@1.39.2`](https://pesde.dev/packages/pesde/luau-lsp/1.39.2/any)
+  - [`pesde/luau_lsp@1.39.0`](https://pesde.dev/packages/pesde/luau_lsp/1.39.0/any)
+  - [`pesde/luau_lsp@1.39.1`](https://pesde.dev/packages/pesde/luau_lsp/1.39.1/any)
+  - [`pesde/luau_lsp@1.39.2`](https://pesde.dev/packages/pesde/luau_lsp/1.39.2/any)
   - [`pesde/blink@0.15.3`](https://pesde.dev/packages/pesde/blink/0.15.3/any)
   - [`pesde/blink@0.15.4`](https://pesde.dev/packages/pesde/blink/0.15.4/any)
   - [`pesde/zap@0.6.18`](https://pesde.dev/packages/pesde/zap/0.6.18/any)
@@ -106,8 +106,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 - Includes the following new tools:
   - [`pesde/asphalt@0.8.3`](https://pesde.dev/packages/pesde/asphalt/0.8.3/any)
-  - [`pesde/luau-lsp@1.38.0`](https://pesde.dev/packages/pesde/luau_lsp/1.38.0/any)
-  - [`pesde/luau-lsp@1.38.1`](https://pesde.dev/packages/pesde/luau_lsp/1.38.1/any)
+  - [`pesde/luau_lsp@1.38.0`](https://pesde.dev/packages/pesde/luau_lsp/1.38.0/any)
+  - [`pesde/luau_lsp@1.38.1`](https://pesde.dev/packages/pesde/luau_lsp/1.38.1/any)
 ### Fixed
 - Conditionally handle `ProgressBar:nextStage` result, fixing an error when being consumed as a library without the use of the `__call` metamethod shorthand
 - Fix error when the `gh` CLI is not installed by correctly handling it as a `Result`
@@ -181,7 +181,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Initial library release :tada:
 - Includes the following new tools:
   - [`pesde/stylua@2.0.1`](https://pesde.dev/packages/pesde/stylua/2.0.1/any)
-  - [`pesde/luau-lsp@1.35.0`](https://pesde.dev/packages/pesde/luau_lsp/1.35.0/any)
+  - [`pesde/luau_lsp@1.35.0`](https://pesde.dev/packages/pesde/luau_lsp/1.35.0/any)
 
 [unreleased]: https://github.com/pesde-pkg/tooling/commits/HEAD
 [0.1.0]: https://pesde.dev/packages/pesde/toolchainlib/0.1.0/any
