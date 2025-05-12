@@ -57,15 +57,11 @@ function PlatformDescriptor.matches(self: PlatformDescriptor, executable: Execut
 		return false
 	end
 
-	if self.arch:isNone() then
-		return false
-	end
-
-	if table.find(executable.arch, self.arch:unwrap()) then
+	if self.arch:isNone() or table.find(executable.arch, self.arch:unwrap()) then
 		return true
 	end
 
-	return true
+	return false
 end
 
 return {
