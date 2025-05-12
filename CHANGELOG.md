@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 ### Added
+- Includes the following new tools:
+  - [`pesde/blink@0.17.1`](https://pesde.dev/packages/pesde/blink/0.17.1/any)
+  - [`pesde/blink@0.17.2`](https://pesde.dev/packages/pesde/blink/0.17.2/any)
+  - [`pesde/luau-lsp@1.45.0`](https://pesde.dev/packages/pesde/luau-lsp/1.45.0/any)
 - Add support for multi-arch binaries, currently only MacOS
 
 ### Fixed
