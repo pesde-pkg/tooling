@@ -385,10 +385,6 @@ return setmetatable(
 	} :: LibExports,
 	{
 		__call = function(lib: LibExportsImpl, tool: string, pesdeRoot: string?): number
-			if _G.interactive == nil then
-				_G.interactive = true
-			end
-
 			local repo, version = string.match(tool, "([^@]+)@?(.*)")
 			if repo == nil or version == nil then
 				stdio.ewrite(`{ERROR_PREFIX} Invalid tool provided\n`)
