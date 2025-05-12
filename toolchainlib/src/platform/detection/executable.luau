@@ -6,6 +6,13 @@ export type ExecutableDescriptor = {
 	arch: { Arch },
 }
 
+local ENDIANNESS = {
+	function(x: number)
+		return x
+	end,
+	bit32.byteswap,
+}
+
 return function(binaryContents: buffer): ExecutableDescriptor?
 	-- Windows PE
 	do
@@ -61,24 +68,26 @@ return function(binaryContents: buffer): ExecutableDescriptor?
 	end
 
 	-- macOS Mach-O
-	do
-		-- Mach-O is big endian, but Luau buffers are litte endian
-		local MACHO_MAGIC_32 = bit32.byteswap(0xFEEDFACE)
-		local MACHO_MAGIC_64 = bit32.byteswap(0xFEEDFACF)
-		local MACHO_MAGIC_UN = bit32.byteswap(0xCAFEBABE)
+	-- Unlike other types of executables, which are either strictly defined to an endianness
+	-- or their endianness doesn't matter, Mach-O's executables' endianness is not defined,
+	-- and it matters, so we have to brute force it
+	for _, endianness in ENDIANNESS do
+		local MACHO_MAGIC_32 = endianness(0xFEEDFACE)
+		local MACHO_MAGIC_64 = endianness(0xFEEDFACF)
+		local MACHO_MAGIC_UN = endianness(0xCAFEBABE)
 
 		local MACHO_CPU_TYPES: { [number]: Arch? } = {
-			[bit32.byteswap(0x00000007)] = "x86",
-			[bit32.byteswap(0x0000000C)] = "arm",
-			[bit32.byteswap(0x01000007)] = "x86_64",
-			[bit32.byteswap(0x0100000C)] = "aarch64",
+			[endianness(0x00000007)] = "x86",
+			[endianness(0x0000000C)] = "arm",
+			[endianness(0x01000007)] = "x86_64",
+			[endianness(0x0100000C)] = "aarch64",
 		}
 
 		-- First 4 bytes are the magic number
 		local headerStart = buffer.readu32(binaryContents, 0)
 		if headerStart == MACHO_MAGIC_UN then
 			-- Next 4 bytes is the number of images in this binary
-			local imagesAmount = bit32.byteswap(buffer.readu32(binaryContents, 4))
+			local imagesAmount = endianness(buffer.readu32(binaryContents, 4))
 			local arches: { Arch } = {}
 
 			for i = 0, imagesAmount - 1 do
