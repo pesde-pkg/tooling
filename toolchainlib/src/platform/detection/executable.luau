@@ -62,22 +62,23 @@ return function(binaryContents: buffer): ExecutableDescriptor?
 
 	-- macOS Mach-O
 	do
-		local MACHO_MAGIC_32 = 0xFEEDFACE
-		local MACHO_MAGIC_64 = 0xFEEDFACF
-		local MACHO_MAGIC_UN = 0xCAFEBABE
+		-- Mach-O is big endian, but Luau buffers are litte endian
+		local MACHO_MAGIC_32 = bit32.byteswap(0xFEEDFACE)
+		local MACHO_MAGIC_64 = bit32.byteswap(0xFEEDFACF)
+		local MACHO_MAGIC_UN = bit32.byteswap(0xCAFEBABE)
 
 		local MACHO_CPU_TYPES: { [number]: Arch? } = {
-			[0x00000007] = "x86",
-			[0x0000000C] = "arm",
-			[0x01000007] = "x86_64",
-			[0x0100000C] = "aarch64",
+			[bit32.byteswap(0x00000007)] = "x86",
+			[bit32.byteswap(0x0000000C)] = "arm",
+			[bit32.byteswap(0x01000007)] = "x86_64",
+			[bit32.byteswap(0x0100000C)] = "aarch64",
 		}
 
 		-- First 4 bytes are the magic number
 		local headerStart = buffer.readu32(binaryContents, 0)
 		if headerStart == MACHO_MAGIC_UN then
 			-- Next 4 bytes is the number of images in this binary
-			local imagesAmount = buffer.readu32(binaryContents, 4)
+			local imagesAmount = bit32.byteswap(buffer.readu32(binaryContents, 4))
 			local arches: { Arch } = {}
 
 			for i = 0, imagesAmount - 1 do
