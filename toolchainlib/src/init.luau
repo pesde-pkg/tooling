@@ -98,7 +98,11 @@ local function stripLeadingVersion(version: string): string
 	return stripped
 end
 
-local LINK_INSTALL_DIR = (dirs.homeDir() or error("Couldn't get home dir :(")):join(".pesde"):join("bin")
+local HOME_DIR = if process.env.PESDE_HOME
+	then pathfs.Path.from(process.env.PESDE_HOME)
+	else assert(dirs.homeDir(), "Couldn't get home dir :("):join(".pesde")
+
+local LINK_INSTALL_DIR = HOME_DIR:join("bin")
 local TOOL_STORAGE_DIR = LINK_INSTALL_DIR:join(".tool_storage")
 if not fs.isDir(TOOL_STORAGE_DIR) then
 	fs.writeDir(TOOL_STORAGE_DIR)

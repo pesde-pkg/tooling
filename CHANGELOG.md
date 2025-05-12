@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - [`pesde/blink@0.17.2`](https://pesde.dev/packages/pesde/blink/0.17.2/any)
   - [`pesde/luau_lsp@1.45.0`](https://pesde.dev/packages/pesde/luau_lsp/1.45.0/any)
 - Add support for multi-arch binaries, currently only MacOS
+- Respect the PESDE_HOME environmental variable
 
 ### Fixed
 - Fix support for MacOS binaries
