@@ -121,7 +121,7 @@ local bar = ProgressBar.new()
 	:withStage("download", "Downloading")
 	:withStage("install", "Installing")
 
-function runTool(tool: ToolId | pathfs.Path): number
+function runTool(tool: ToolId | pathfs.Path, args: { string }?): number
 	-- FIXME: `process.spawn` has a bug where interactive features don't
 	-- forward properly
 	local toolId = tool :: ToolId
@@ -129,7 +129,7 @@ function runTool(tool: ToolId | pathfs.Path): number
 		then LINK_INSTALL_DIR:join(toolAliasOrDefault(toolId))
 		else tool :: pathfs.Path
 
-	return process.spawn(path:toString(), process.args, {
+	return process.spawn(path:toString(), args or process.args, {
 		cwd = process.cwd,
 		env = process.env,
 		stdio = "forward",
@@ -180,7 +180,7 @@ end
 _G.interactive = isInteractive() or nil
 local barFns
 
-function installTool(tool: ToolId, installPath: pathfs.Path): number
+function installTool(tool: ToolId, installPath: pathfs.Path): nil
 	-- Configure the conditional progress bar
 	barFns = makeConditionalBar()
 	barFns.start(bar) -- init
@@ -256,7 +256,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 		task.wait(1)
 		isLocked, lockFileContents = pcall(fs.readFile, installLockFile)
 		if not isLocked then
-			return runTool(installPath)
+			return nil
 		end
 	end
 
@@ -369,17 +369,16 @@ function installTool(tool: ToolId, installPath: pathfs.Path): number
 	-- Release the installation lock
 	fs.removeFile(installLockFile)
 
-	-- Finally run the tool
-	return runTool(installPath)
+	return nil
 end
 
 type LibExports = {
-	runTool: (pathfs.Path | ToolId) -> number,
-	installTool: (ToolId, pathfs.Path) -> never,
+	runTool: (pathfs.Path | ToolId, args: { string }?) -> number,
+	installTool: (ToolId, pathfs.Path) -> nil,
 }
 type LibExportsImpl = typeof(setmetatable(
 	{} :: LibExports,
-	{ __call = function(lib: LibExportsImpl, tool: string, pesdeRoot: string?) end }
+	{ __call = function(lib: LibExportsImpl, tool: string, pesdeRoot: string?, args: { string }?) end }
 ))
 
 return setmetatable(
@@ -388,7 +387,7 @@ return setmetatable(
 		installTool = installTool,
 	} :: LibExports,
 	{
-		__call = function(lib: LibExportsImpl, tool: string, pesdeRoot: string?): number
+		__call = function(lib: LibExportsImpl, tool: string, pesdeRoot: string?, args: { string }?): number
 			local repo, version = string.match(tool, "([^@]+)@?(.*)")
 			if repo == nil or version == nil then
 				stdio.ewrite(`{ERROR_PREFIX} Invalid tool provided\n`)
@@ -428,33 +427,31 @@ return setmetatable(
 			local toolAlias = string.split(toolId, "+")[2]
 			local toolInstallPath = TOOL_STORAGE_DIR:join(toolId):join(versionOrDefault):join(toolAlias)
 
-			if fs.isFile(toolInstallPath) then
-				return lib.runTool(toolInstallPath)
+			if not fs.isFile(toolInstallPath) then
+				local ok, err = pcall(
+					lib.installTool,
+					{
+						alias = Option.None,
+						repo = repo,
+						version = Option.Some(versionOrDefault),
+					} :: ToolId,
+					toolInstallPath
+				)
+
+				if not ok then
+					-- Cleanup any failure remnants from installation directory
+					fs.removeDir(toolInstallPath:parent() :: pathfs.Path)
+
+					-- Cleanup progress bar in case of error
+					barFns.stop(bar)
+
+					stdio.ewrite(`{ERROR_PREFIX} Failed to install {tool}\n`)
+					stdio.ewrite(`	- {err}\n`)
+					return 1
+				end
 			end
 
-			local ok, err = pcall(
-				lib.installTool,
-				{
-					alias = Option.None,
-					repo = repo,
-					version = Option.Some(versionOrDefault),
-				} :: ToolId,
-				toolInstallPath
-			)
-
-			if not ok then
-				-- Cleanup any failure remnants from installation directory
-				fs.removeDir(toolInstallPath:parent() :: pathfs.Path)
-
-				-- Cleanup progress bar in case of error
-				barFns.stop(bar)
-
-				stdio.ewrite(`{ERROR_PREFIX} Failed to install {tool}\n`)
-				stdio.ewrite(`	- {err}\n`)
-				return 1
-			end
-
-			return 0
+			return lib.runTool(toolInstallPath, args)
 		end,
 	}
 )
