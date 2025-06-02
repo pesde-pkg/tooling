@@ -1,8 +1,6 @@
 {
   "luau-lsp.sourcemap.enabled": false,
-  "luau-lsp.require.directoryAliases": {
-    "@lune/": "~/.lune/.typedefs/0.8.9/"
-  },
+  "luau-lsp.require.useOriginalRequireByStringSemantics": true,
   "stylua.targetReleaseVersion": "latest",
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
 }
