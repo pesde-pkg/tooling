@@ -1,0 +1,119 @@
+diff --git a/src/init.luau b/src/init.luau
+index 7265e99..c3f707e 100644
+--- a/src/init.luau
++++ b/src/init.luau
+@@ -1,13 +1,13 @@
+ local process = require("@lune/process")
+ local targetOS = process.os
+-local types = require("./types")
+-local pathfs = require("../lune_packages/pathfs")
+-local gt = require("../lune_packages/greentea")
++local types = require("@self/types")
++local pathfs = require("./lune_packages/pathfs")
++local gt = require("./lune_packages/greentea")
+ 
+ local sys: types.Sys? = if targetOS == "windows"
+-	then require("win")
+-	elseif targetOS == "macos" then require("mac")
+-	elseif targetOS == "linux" then require("lin")
++	then require("@self/win")
++	elseif targetOS == "macos" then require("@self/mac")
++	elseif targetOS == "linux" then require("@self/lin")
+ 	else nil
+ 
+ if not sys then
+@@ -322,7 +322,7 @@ function dirs.videoDir(): pathfs.Path?
+ 	return sys.videoDir()
+ end
+ 
+-local tempDir = require("utils/tempDir")
++local tempDir = require("@self/utils/tempDir")
+ 
+ --[=[
+ 	Returns the path to the user's temp directory.
+@@ -331,7 +331,7 @@ function dirs.tempDir()
+ 	return pathfs.Path.from(tempDir())
+ end
+ 
+-local createTemp = require("utils/createTemp")
++local createTemp = require("@self/utils/createTemp")
+ local optionalStringType = gt.build(gt.opt(gt.string()))
+ local optionalNumberType = gt.build(gt.opt(gt.number()))
+ local optionalAsPathType = gt.build(gt.opt(pathfs.gt.AsPath:type()))
+diff --git a/src/sys/init.luau b/src/sys/init.luau
+index 61c4d19..b39775f 100644
+--- a/src/sys/init.luau
++++ b/src/sys/init.luau
+@@ -1,7 +1,7 @@
+ local process = require("@lune/process")
+ local env = process.env
+ local targetOS = process.os
+-local pathfs = require("../../lune_packages/pathfs")
++local pathfs = require("../lune_packages/pathfs")
+ local fs = pathfs.fs
+ 
+ local sys = {}
+@@ -28,7 +28,7 @@ if targetOS == "linux" then
+ 		homeDir = homeDir,
+ 		isAbsolutePath = isAbsolutePath,
+ 	}
+-	local xdgUserDirs = require("xdgUserDirs")
++	local xdgUserDirs = require("@self/xdgUserDirs")
+ 
+ 	local function userDirFile(home: pathfs.Path): pathfs.Path
+ 		return (isAbsolutePath(env.XDG_CONFIG_HOME) or home:join(".config")):join("user-dirs.dirs")
+@@ -65,9 +65,9 @@ if targetOS == "windows" then
+ 		homeDir = homeDir,
+ 		isAbsolutePath = isAbsolutePath,
+ 	}
+-	local KNOWNFOLDERID = require("../win32/KNOWNFOLDERID")
+-	local defaultKnownFolderPaths = require("../win32/defaultKnownFolderPaths")
+-	local parsePath = require("../win32/parsePath")
++	local KNOWNFOLDERID = require("./win32/KNOWNFOLDERID")
++	local defaultKnownFolderPaths = require("./win32/defaultKnownFolderPaths")
++	local parsePath = require("./win32/parsePath")
+ 
+ 	--[=[
+ 		Due to lack of lune-ffi built-in library, there's no way to call SHGetKnownFolderPath. so we're going to dlopen via powershell temporary.
+@@ -76,19 +76,19 @@ if targetOS == "windows" then
+ 	]=]
+ 	local function knownFolder(guid: string): pathfs.Path?
+ 		local success, value = pcall(function()
+-			local script = `$GetSignature = @'\
+-[DllImport("shell32.dll", CharSet = CharSet.Unicode)]public extern static int SHGetKnownFolderPath(\
+-ref Guid folderId,\
+-uint flags,\
+-IntPtr token,\
+-out IntPtr pszProfilePath);\
+-'@\
+-$GetType = Add-Type -MemberDefinition $GetSignature -Name 'GetKnownFolders' -Namespace 'SHGetKnownFolderPath' -Using "System.Text" -PassThru -ErrorAction SilentlyContinue\
+-$ptr = [intptr]::Zero\
+-[void]$GetType::SHGetKnownFolderPath([Ref]"{guid}", 0, 0, [ref]$ptr)\
+-[System.Runtime.InteropServices.Marshal]::PtrToStringUni($ptr)\
++			local script = `$GetSignature = @'\
++[DllImport("shell32.dll", CharSet = CharSet.Unicode)]public extern static int SHGetKnownFolderPath(\
++ref Guid folderId,\
++uint flags,\
++IntPtr token,\
++out IntPtr pszProfilePath);\
++'@\
++$GetType = Add-Type -MemberDefinition $GetSignature -Name 'GetKnownFolders' -Namespace 'SHGetKnownFolderPath' -Using "System.Text" -PassThru -ErrorAction SilentlyContinue\
++$ptr = [intptr]::Zero\
++[void]$GetType::SHGetKnownFolderPath([Ref]"{guid}", 0, 0, [ref]$ptr)\
++[System.Runtime.InteropServices.Marshal]::PtrToStringUni($ptr)\
+ [System.Runtime.InteropServices.Marshal]::FreeCoTaskMem($ptr)`
+-			local result = process.spawn("powershell", { "-Command", script })
++			local result = process.exec("powershell", { "-Command", script })
+ 			if result.ok then
+ 				return result.stdout:split("\r\n")[1]
+ 			else
+diff --git a/src/win32/defaultKnownFolderPaths.luau b/src/win32/defaultKnownFolderPaths.luau
+index f0a449b..303bd60 100644
+--- a/src/win32/defaultKnownFolderPaths.luau
++++ b/src/win32/defaultKnownFolderPaths.luau
+@@ -1,4 +1,4 @@
+-local KNOWNFOLDERID = require("KNOWNFOLDERID")
++local KNOWNFOLDERID = require("./KNOWNFOLDERID")
+ 
+ local defaultKnownFolderPaths = {} :: { [string]: { string } | string }
+ 

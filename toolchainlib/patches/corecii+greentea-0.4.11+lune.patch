@@ -1,0 +1,14 @@
+diff --git a/src/init.luau b/src/init.luau
+index 7841142..f008fad 100644
+--- a/src/init.luau
++++ b/src/init.luau
+@@ -1,6 +1,6 @@
+-local GreenTea = require("./GreenTea")
+-local InstanceClasses = require("./InstanceClasses")
+-local tCompat = require("./tCompat")
++local GreenTea = require("@self/GreenTea")
++local InstanceClasses = require("@self/InstanceClasses")
++local tCompat = require("@self/tCompat")
+ 
+ export type Cause = GreenTea.Cause
+ export type Type = GreenTea.Type

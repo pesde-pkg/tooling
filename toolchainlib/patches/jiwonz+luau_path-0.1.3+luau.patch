@@ -1,0 +1,49 @@
+diff --git a/src/init.luau b/src/init.luau
+index fb61ff3..218ae68 100644
+--- a/src/init.luau
++++ b/src/init.luau
+@@ -1,5 +1,5 @@
+-local Path = require('./Path')
+-local types = require("./types")
++local Path = require('@self/Path')
++local types = require("@self/types")
+ 
+ export type Path = types.Path
+ export type AsPath = types.AsPath
+diff --git a/src/sys/path/init.luau b/src/sys/path/init.luau
+index e84d245..214c109 100644
+--- a/src/sys/path/init.luau
++++ b/src/sys/path/init.luau
+@@ -1,5 +1,5 @@
+-local Prefix = require('../../Prefix')
+-local parsePrefixWindows = require('./parsePrefix')
++local Prefix = require('../Prefix')
++local parsePrefixWindows = require('@self/parsePrefix')
+ 
+ type Prefix = Prefix.Prefix
+ 
+diff --git a/src/sys/path/parsePrefix.luau b/src/sys/path/parsePrefix.luau
+index a4b13a3..608409c 100644
+--- a/src/sys/path/parsePrefix.luau
++++ b/src/sys/path/parsePrefix.luau
+@@ -1,7 +1,7 @@
+ -- https://github.com/rust-lang/rust/blob/master/library/std/src/sys/path/windows.rs
+ 
+ local Prefix = require('../../Prefix')
+-local PrefixParser = require('./PrefixParser')
++local PrefixParser = require('@self/PrefixParser')
+ 
+ type Prefix = Prefix.Prefix
+ type PrefixParser = PrefixParser.PrefixParser
+diff --git a/src/types/init.luau b/src/types/init.luau
+index 730d798..b8e79d8 100644
+--- a/src/types/init.luau
++++ b/src/types/init.luau
+@@ -1,5 +1,5 @@
+-local Path = require("./Path")
+-local Component = require("./Component")
++local Path = require("@self/Path")
++local Component = require("@self/Component")
+ 
+ export type Path = Path.Path
+ export type AsPath = Path.AsPath

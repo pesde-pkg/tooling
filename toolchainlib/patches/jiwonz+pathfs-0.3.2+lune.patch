@@ -1,0 +1,30 @@
+diff --git a/src/lib/init.luau b/src/lib/init.luau
+index 5a41f9b..192ca6a 100644
+--- a/src/lib/init.luau
++++ b/src/lib/init.luau
+@@ -2,18 +2,18 @@ local process = require("@lune/process")
+ local pathSeparator = process.os == "windows" and "\\" or "/"
+ -- selene: allow(global_usage)
+ _G.SYS_PATH_SEPARATOR = pathSeparator
+-local luauPath = require("../../luau_packages/luau_path")
++local luauPath = require("../luau_packages/luau_path")
+ local Path = luauPath.Path
+-local fs = require("./fs")
+-local gt = require("../../lune_packages/greentea")
+-local types = require("./types")
+-local vfs = require("./vfs")
++local fs = require("@self/fs")
++local gt = require("../lune_packages/greentea")
++local types = require("@self/types")
++local vfs = require("@self/vfs")
+ local createPath = vfs.createPath
+ local normalizePath = vfs.normalizePath
+ local cwd = vfs.cwd
+-local Directory = require("./Directory")
++local Directory = require("@self/Directory")
+ local luneFileSystem = require("@lune/fs")
+-local File = require("./File")
++local File = require("@self/File")
+ 
+ export type Directory = Directory.Directory
+ export type File = File.File
