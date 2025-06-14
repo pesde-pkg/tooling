@@ -4,6 +4,7 @@ description = "Rojo enables Roblox developers to use professional-grade software
 authors = ["CompeyDev <hi@devcomp.xyz>", "Lucien Greathouse <me@lpghatguy.com>"]
 repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/rojo"
 includes = ["init.luau", "README.md", "pesde.toml"]
+private = false
 
 [engines]
 lune = "^0.8.7"

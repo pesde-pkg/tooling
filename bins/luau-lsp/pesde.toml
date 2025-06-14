@@ -7,6 +7,7 @@ authors = [
 ]
 repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/luau-lsp"
 includes = ["init.luau", "README.md", "pesde.toml"]
+private = false
 
 [engines]
 lune = "^0.8.7"
