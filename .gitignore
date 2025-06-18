@@ -1,2 +1,4 @@
 **/*_packages/
 toolchainlib/pesde.lock
+
+**/tests/output/**
