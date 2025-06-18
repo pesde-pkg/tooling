@@ -20,12 +20,19 @@ local function confirmAndClear(msg: string, default: boolean?): boolean
 end
 
 -- code
+local toWrite = process.env.CI ~= nil
+	or table.find(process.args, "--yes")
+	or table.find(process.args, "-y")
+	or confirmAndClear(`Update 'private' field of manifests ?`, false)
+
 for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 	local absPath = BINS_SRC_DIR:join(binSrc)
 	local testsPath = absPath:join("tests/run.luau")
 	local manifestPath = absPath:join("pesde.toml")
 	local manifestContents = pathfs.readFile(manifestPath)
 	local manifest = serde.decode("toml", manifestContents)
+
+	local display_bin = stdio.style("dim") .. tostring(absPath:stripPrefix(pathfs.cwd)) .. stdio.style("reset")
 
 	-- Check if the tool has any tests, and run them if they do
 	if not pathfs.isFile(testsPath) then
@@ -39,8 +46,12 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 	end
 
 	success, result = pcall(result, manifest.version)
-	local should_private = not success
+	if not toWrite then
+		print(`{INFO_PREFIX} Test {if success then "succeed" else "failed"} for {display_bin}`)
+		continue
+	end
 
+	local should_private = not success
 	if manifest.private == should_private then
 		continue
 	end
@@ -52,16 +63,6 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 
 	assert(replaces == 1, `failed to replace 'private' field in manifest`)
 
-	local toWrite = table.find(process.args, "--yes")
-		or table.find(process.args, "-y")
-		or confirmAndClear(`Update manifest for {binSrc}?`, false)
-
-	if not toWrite then
-		continue
-	end
-
-	print(
-		`{INFO_PREFIX} Updated manifest {stdio.style("dim")}{manifestPath:stripPrefix(pathfs.cwd)}{stdio.style("reset")}`
-	)
+	print(`{INFO_PREFIX} Updated manifest {display_bin}`)
 	pathfs.writeFile(manifestPath, updatedManifest)
 end
