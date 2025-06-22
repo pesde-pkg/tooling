@@ -3,4 +3,5 @@
   "luau-lsp.require.useOriginalRequireByStringSemantics": true,
   "stylua.targetReleaseVersion": "latest",
   "editor.formatOnSave": true,
+  "files.eol": "\n"
 }
