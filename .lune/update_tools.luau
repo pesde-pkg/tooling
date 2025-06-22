@@ -148,7 +148,7 @@ for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
 
 		local updatedManifest = string.gsub(
 			manifestContents,
-			oldField,
+			string.gsub(oldField, "[%.%+%-]", "%%%0"),
 			newField,
 			-- Only replace the first occurrence to be safe
 			1
