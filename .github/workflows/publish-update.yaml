@@ -1,0 +1,91 @@
+name: Publish updated tools
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  publish-updated-tools:
+    name: Publish updated tools
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'update/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup pesde
+        uses: axiom-co/setup-pesde@b690699ace34169731b6b2a1c93b2008472038a7
+        with:
+          cache: true
+      - name: Publish
+        id: publish
+        continue-on-error: true
+        env:
+          PESDE_TOKEN: ${{ secrets.PESDE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          lune -V
+
+          branch="${{ github.head_ref }}"
+          package="${branch#update/}"
+
+          echo "Publishing '$package'..."
+          cd "bins/$package"
+
+          # Set pesde token
+          pesde auth login --token "$PESDE_TOKEN"
+
+          # Output published packages
+          echo "published<<EOF" >> "$GITHUB_OUTPUT"
+
+          # Fetch & loop through commits
+          response=$(curl "${{ github.event.pull_request.commits_url }}")
+          commits="$(echo "$response" | jq -r '.[].sha')"
+          while read -r commit; do
+            # Fetch & checkout the commit
+            git fetch origin "$commit"
+            git checkout "$commit"
+
+            manifest="$(lune run - <<EOF
+          local fs = require("@lune/fs")
+          local serde = require("@lune/serde")
+          print(serde.encode("json", serde.decode("toml", fs.readFile("pesde.toml"))))
+          EOF
+            )"
+
+            echo "$manifest" | jq -c '{name, version}' >> "$GITHUB_OUTPUT"
+            
+            # Publish
+            pesde publish -y
+          done <<< "$commits"
+
+          echo "EOF" >> "$GITHUB_OUTPUT"
+      - name: Report result
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLISHED: ${{ steps.publish.outputs.published }}
+        run: |
+          outcome="${{ steps.publish.outcome }}"
+          run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          output=""
+
+          if [ "$outcome" = "success" ]; then
+            output+=$'**🚀 Published new versions**\n\n'
+            output+="$(echo "$PUBLISHED" | jq -r '"- [\(.name)@\(.version)](https://pesde.dev/packages/\(.name)/\(.version)/any)"')"
+          elif [ "$outcome" = "failure" ]; then
+            output+="**❌ I couldn't publish the packages.**"$'\n\n'
+            output+="[View Logs]($run_url)"
+          else
+            echo "Outcome is neither success or failure: $outcome"
+            exit
+          fi
+
+          echo "$output" >> "$GITHUB_STEP_SUMMARY"
+          gh pr comment ${{ github.event.number }} --body "$output"
+
+          if [ "$outcome" = "failure" ]; then
+            echo "There was an error in the previous step."
+            exit 1
+          fi
