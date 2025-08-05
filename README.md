@@ -50,7 +50,16 @@ Refer to the above table for a list of support tooling packages.
 
 If a Luau tool you would like is not present here, please open an issue or submit a PR, following the format of one of the existing tools.
 
-<!-- TODO: Recommend contributors to read CONTRIBUTING.md when that is a thing -->
+## Contributing
+Contributions are greatly appreciated! The codebase is separated into two parts - `bins/` which contains individual tools packaged as binaries & `toolchainlib/` which contains the core [resolution implementation](https://github.com/pesde-pkg/tooling/blob/6771ab11dd084418402a354431c14aa7dc846192/toolchainlib/src/init.luau#L1-L8) backing them. In general:
+
+- We utilize [pesde](https://pesde.dev) for package management. Run `pesde install` to install all dependencies. 
+- Make sure any submitted code follows the styleguide; snake_case for directories / files, camelCase for variables, SCREAMING_SNAKE_CASE for constants, PascalCase for classes & types.
+- Attempt to use `Result` and `Option` types for any internal code when required, and handle their cases in the top-level entrypoint.
+- Format (`lune run fmt`) and typecheck (`lune run typecheck`) your code.
+- Sufficiently test your code locally to make sure it functions as intended.
+
+In case there is a new tool you would like to be package, please make sure there is an issue open first, with sufficient discussion in favor of adding it. Refer to existing tools in `bins/` as boilerplate examples.
 
 # License
 
