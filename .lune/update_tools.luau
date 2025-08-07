@@ -44,24 +44,8 @@ local function stripLeadingVersion(version: string): string
 	return stripped
 end
 
-local function confirmAndClear(msg: string, default: boolean?): boolean
-	local yes = stdio.prompt("confirm", msg, default)
-	stdio.write(
-		-- Move to the previous line, clear it, move cursor to start of line,
-		-- and show cursor (if hidden)
-		"\x1b[A\x1b[K\x1b[0G\x1b[?25h"
-	)
-
-	return yes
-end
-
 local INFO_PREFIX = `{stdio.color("green")}{stdio.style("bold")}info{stdio.color("reset")}:`
-local WARN_PREFIX = `{stdio.color("yellow")}{stdio.style("bold")}warn{stdio.color("reset")}:`
 local ERROR_PREFIX = `{stdio.color("red")}{stdio.style("bold")}error{stdio.color("reset")}:`
-
-local function warn(...)
-	stdio.ewrite(`{WARN_PREFIX} {stdio.format(...)}\n`)
-end
 
 local function error(msg: string): never
 	stdio.ewrite(`{ERROR_PREFIX} {msg}\n`)
