@@ -44,24 +44,8 @@ local function stripLeadingVersion(version: string): string
 	return stripped
 end
 
-local function confirmAndClear(msg: string, default: boolean?): boolean
-	local yes = stdio.prompt("confirm", msg, default)
-	stdio.write(
-		-- Move to the previous line, clear it, move cursor to start of line,
-		-- and show cursor (if hidden)
-		"\x1b[A\x1b[K\x1b[0G\x1b[?25h"
-	)
-
-	return yes
-end
-
 local INFO_PREFIX = `{stdio.color("green")}{stdio.style("bold")}info{stdio.color("reset")}:`
-local WARN_PREFIX = `{stdio.color("yellow")}{stdio.style("bold")}warn{stdio.color("reset")}:`
 local ERROR_PREFIX = `{stdio.color("red")}{stdio.style("bold")}error{stdio.color("reset")}:`
-
-local function warn(...)
-	stdio.ewrite(`{WARN_PREFIX} {stdio.format(...)}\n`)
-end
 
 local function error(msg: string): never
 	stdio.ewrite(`{ERROR_PREFIX} {msg}\n`)
@@ -74,148 +58,302 @@ local function assert(expr: boolean, msg: string)
 	end
 end
 
-local START_TIME = os.clock()
 local BINS_SRC_DIR = pathfs.getAbsolutePathOf(pathfs.Path.from("bins"))
 
-for _, binSrc in pathfs.readDir(BINS_SRC_DIR) do
-	local absPath = BINS_SRC_DIR:join(binSrc)
-	local binEntrypoint = absPath:join("init.luau")
-	local manifestPath = absPath:join("pesde.toml")
-	local readmePath = absPath:join("README.md")
+type Package = {
+	name: string,
+	path: pathfs.Path,
+	repo: string,
+	gh: Github.Github,
+	manifestContents: string,
+	manifest: manifestTypes.PesdeManifest,
+	entrypointContents: string,
+}
 
-	-- Make sure our constructed entrypoint and manifest paths exist
+--- name -> package
+type PackageMap = { [string]: Package }
+
+type VersionChange = {
+	old: string,
+	new: string,
+}
+
+local function getPackage(packagePath: pathfs.Path): Package
+	local entrypointPath = packagePath:join("init.luau")
+	local manifestPath = packagePath:join("pesde.toml")
+
 	assert(
-		pathfs.isFile(binEntrypoint) and pathfs.isFile(manifestPath),
-		"Either binary entrypoint or manifest not found"
+		pathfs.isFile(entrypointPath) and pathfs.isFile(manifestPath),
+		`No manifest or entrypoint found in '{packagePath}'`
 	)
 
 	local manifestContents = pathfs.readFile(manifestPath)
 	local manifest: manifestTypes.PesdeManifest = serde.decode("toml", manifestContents)
-	local entrypointContents = pathfs.readFile(binEntrypoint)
+	local entrypointContents = pathfs.readFile(entrypointPath)
 
 	local repoName = string.match(entrypointContents, 'require%("./lune_packages/core"%)%("([^"]+)"')
 	local version = manifest.version
+	local packageName = manifest.name and manifest.name:split("/")[2]
 
-	-- Make sure we have a repo name and version
-	assert(repoName ~= nil, `Failed to get repo name for tool {binSrc}`)
+	assert(repoName ~= nil, `Failed to get repo name for '{packagePath}'`)
+	assert(packageName ~= nil, `Invalid package name in '{manifestPath}'`)
+	assert(version ~= nil, `No version in '{manifestPath}'`)
 
 	local gh = Github.new(
 		repoName :: string,
 		Option.Some({
-			authToken = Option.from(process.env.GITHUB_TOKEN) :: Option<string>,
-			retries = Option.None :: Option<number>,
-		} :: Github.Config) :: Option<Github.Config>
+			authToken = Option.from(process.env.GITHUB_TOKEN),
+			retries = Option.None,
+		})
 	)
-	local transactions = gh:queueTransactions({ "FetchReleases" })
 
-	-- Fetch releases, and order them by published date
-	local releases = transactions[1]:unwrap() :: Github.GithubReleases
-	table.sort(releases, function(a, b)
-		return isoDateToTimestamp(a.published_at) < isoDateToTimestamp(b.published_at)
-	end)
+	return {
+		name = packageName,
+		path = packagePath,
+		repo = repoName :: string,
+		gh = gh,
+		manifestContents = manifestContents,
+		manifest = manifest,
+		entrypointContents = entrypointContents,
+	}
+end
 
-	-- Filter for only versions which are after the current version
-	local releasesAfter = {}
-	local versionIdx = math.huge
-	for idx, release in releases do
-		if stripLeadingVersion(release.tag_name) == version then
-			versionIdx = idx
-			continue
-		end
+local function getPackages(packagesDir: pathfs.Path): PackageMap
+	local packages = {}
 
-		if idx > versionIdx then
-			releasesAfter[release.tag_name] = release
-		end
+	for _, name in pathfs.readDir(packagesDir) do
+		local package = getPackage(packagesDir:join(name))
+		packages[package.name] = package
 	end
 
-	for newVersion, newRelease in releasesAfter do
-		print(
-			`{INFO_PREFIX} Found new tool release {stdio.style("bold")}{binSrc}{stdio.style("reset")}@{stdio.style(
-				"dim"
-			)}{newVersion}{stdio.style("reset")}`
-		)
+	return packages
+end
 
-		-- HACK: To prevent messing with our existing toml ordering and formatting
-		-- we just replace the old version field string with the new version field
-		-- string
+local function fetchNewPackageVersions(packages: PackageMap): { [string]: { string } }
+	local newPackageVersions = {}
 
-		-- the string returned by serde.encode end with newlines, so remove them to maintain compatibility with different line endings
-		-- Old version field string:
-		local oldField = string.gsub(serde.encode("toml", { version = manifest.version }), "%s+$", "")
+	for _, package in packages do
+		local transactions = package.gh:queueTransactions({ "FetchReleases" })
+		local releasesResult = transactions[1] :: Result<Github.GithubReleases, any>
 
-		-- New version field string:
-		local newField = string.gsub(serde.encode("toml", { version = stripLeadingVersion(newVersion) }), "%s+$", "")
+		releasesResult:match({
+			Ok = function(releases)
+				-- Order releases by published date
+				table.sort(releases, function(a, b)
+					return isoDateToTimestamp(a.published_at) < isoDateToTimestamp(b.published_at)
+				end)
 
-		local updatedManifest = string.gsub(
-			manifestContents,
-			oldField,
-			newField,
-			-- Only replace the first occurrence to be safe
-			1
-		)
+				-- Find new releases
+				local newVersions = {}
+				local versionIdx = math.huge
+				for idx, release in releases do
+					if stripLeadingVersion(release.tag_name) == package.manifest.version then
+						versionIdx = idx
+						continue
+					end
 
-		local toWrite = table.find(process.args, "--yes")
-			or table.find(process.args, "-y")
-			or confirmAndClear(`Update manifest for {binSrc}?`, false)
+					if idx > versionIdx then
+						table.insert(newVersions, release.tag_name)
+					end
+				end
 
-		if toWrite then
-			print(
-				`{INFO_PREFIX} Updated manifest {stdio.style("dim")}{manifestPath:stripPrefix(pathfs.cwd)}{stdio.style(
-					"reset"
-				)}`
-			)
+				if #newVersions > 0 then
+					newPackageVersions[package.name] = newVersions
+				end
 
-			pathfs.writeFile(manifestPath, updatedManifest)
-		end
+				return nil
+			end,
+			Err = function(err)
+				stdio.ewrite(`{ERROR_PREFIX} Could not fetch releases for '{package.repo}': {err}\n`)
+
+				return nil
+			end,
+		})
 	end
+
+	return newPackageVersions
+end
+
+local function updatePackage(package: Package, newVersion: string)
+	-- HACK: To prevent messing with our existing toml ordering and formatting
+	-- we just replace the old version field string with the new version field
+	-- string
+
+	-- the string returned by serde.encode end with newlines, so remove them to
+	-- maintain compatibility with different line endings
+	local oldField = string.gsub(serde.encode("toml", { version = package.manifest.version }), "%s+$", "")
+	local newField = string.gsub(serde.encode("toml", { version = stripLeadingVersion(newVersion) }), "%s+$", "")
+
+	local updatedManifest, replaceCount = string.gsub(
+		package.manifestContents,
+		-- Escape any special characters that might be present in the version
+		-- string, since this is interpreted as a string pattern.
+		string.gsub(oldField, "[%.%+%-]", "%%%0"),
+		newField,
+		-- Only replace the first occurrence to be safe
+		1
+	)
+
+	if replaceCount == 0 then
+		error("Failed to replace version field in manifest.")
+	end
+
+	pathfs.writeFile(package.path:join("pesde.toml"), updatedManifest)
 
 	-- Fetch README for the tool repo, if present
-	transactions = gh:queueTransactions({
+	local transactions = package.gh:queueTransactions({
 		{
 			type = "Custom",
 			payload = {
 				method = "GET",
-				url = `https://api.github.com/repos/{repoName}/readme`,
+				url = `https://api.github.com/repos/{package.repo}/readme?ref={newVersion}`,
 			},
 		},
 	})
 
-	local contentsResp = transactions[1] :: Result<GithubContents, string>
+	local contentsResult = transactions[1] :: Result<GithubContents, string>
 
-	local readmeRes = contentsResp:andThen(function(resp: GithubContents)
-		-- If there was not an error, and the contents are base64 encoded,
-		-- we decode the contents and return the decoded buffer
-		if resp.encoding == "base64" then
-			-- NOTE: Github uses a special format for encoding the contents, where it
-			-- separates the entire file into multiple lines, and encodes each line in
-			-- base64
+	contentsResult
+		:andThen(function(resp: GithubContents)
+			-- If there was not an error, and the contents are base64 encoded,
+			-- we decode the contents and return the decoded buffer
+			if resp.encoding == "base64" then
+				-- NOTE: Github uses a special format for encoding the contents, where it
+				-- separates the entire file into multiple lines, and encodes each line in
+				-- base64
 
-			-- This should be done by the base64 library, but oh well
-			local content = string.gsub(resp.content, "%s+", "")
-			local decoded = base64.decode(buffer.fromstring(content))
-			return Result.Ok(decoded)
-		end
+				-- This should be done by the base64 library, but oh well
+				local content = string.gsub(resp.content, "%s+", "")
+				local decoded = base64.decode(buffer.fromstring(content))
+				return Result.Ok(decoded)
+			end
 
-		return Result.Err(`Unsupported encoding: {resp.encoding}`)
-	end)
+			return Result.Err(`Unsupported encoding: {resp.encoding}`)
+		end)
+		:match({
+			Ok = function(readmeContents)
+				local readmePath = package.path:join("README.md")
 
-	-- NOTE: Ideally this block should be a match, but I cannot make use of
-	-- control flow expressions from within a function
-	if readmeRes:isErr() then
-		warn(`Failed to fetch README from tool repo {repoName}:`, readmeRes:unwrapErr())
-		continue
-	end
+				-- There used to be some issues with encoding if not deleted and recreated
+				pathfs.removeFile(readmePath)
+				pathfs.writeFile(readmePath, readmeContents)
 
-	-- Write the updated README to the tool's directory
-	local readmeContents = readmeRes:unwrap()
-	-- There used to be some issues with encoding if not deleted and recreated
-	pathfs.removeFile(readmePath)
-	pathfs.writeFile(readmePath, readmeContents)
+				return nil
+			end,
+			Err = function(err)
+				stdio.ewrite(`{ERROR_PREFIX} Could not fetch README for '{package.repo}': {err}\n`)
 
-	print(
-		`{INFO_PREFIX} Wrote README to {stdio.style("dim")}{readmePath:stripPrefix(pathfs.cwd)}{stdio.style("reset")}`
-	)
+				return nil
+			end,
+		})
 end
 
-local timeElapsed = string.format("%.2fs", os.clock() - START_TIME)
-print(`{INFO_PREFIX} Finished checking for tool updates in {stdio.style("dim")}{timeElapsed}{stdio.style("reset")}!`)
+local function printNewPackageVersions(newPackageVersions: { [string]: { string } })
+	-- The length operator does not work on dictionaries.
+	local count = 0
+
+	for packageName, newVersions in newPackageVersions do
+		count += 1
+
+		local prefix = `{packageName}: `
+		local versionsStr = table.concat(newVersions, ", ")
+
+		print(
+			`{stdio.style("bold")}{prefix}{stdio.style("reset")}{stdio.color("cyan")}{versionsStr}{stdio.color("reset")}`
+		)
+	end
+
+	if count == 0 then
+		print("No updates found.")
+	end
+end
+
+local OPTION: string? = "OPTION"
+local FLAG: true? = true
+local function parseArgs<T>(args: { string }, schema: T): (T, { string })
+	local idx = 1
+
+	local options: { [string]: unknown } = {}
+	local positional: { string } = {}
+
+	while idx <= #args do
+		local arg = args[idx]
+		idx += 1
+
+		if arg:sub(1, 2) == "--" then
+			local name = arg:sub(3)
+			local kind = (schema :: any)[name]
+			if kind == OPTION then
+				local value = args[idx]
+				idx += 1
+				assert(value ~= nil, `No value given for '{name}'`)
+
+				options[name] = value
+			elseif kind == FLAG then
+				options[name] = true
+			end
+		else
+			table.insert(positional, arg)
+		end
+	end
+
+	return options :: any, positional
+end
+
+local options, positional = parseArgs(process.args, {
+	json = FLAG,
+})
+
+local function info(message: string)
+	if not options.json then
+		print(`{INFO_PREFIX} {message}`)
+	end
+end
+
+local function printJson(data: unknown)
+	if options.json then
+		print(serde.encode("json", data))
+	end
+end
+
+if #positional > 0 then
+	-- Do a package update.
+
+	local packageName = positional[1]
+	local newVersion = positional[2]
+	assert(newVersion ~= nil, "No version given.")
+
+	local packagePath = BINS_SRC_DIR:join(packageName)
+	assert(pathfs.isDir(packagePath), "Invalid package name given.")
+	local package = getPackage(packagePath)
+
+	info(`Updating package '{packageName}' to '{newVersion}'...`)
+
+	local startTime = os.clock()
+	updatePackage(package, newVersion)
+	local timeElapsed = string.format("%.2fs", os.clock() - startTime)
+
+	info(`Updated package in {stdio.style("bold")}{timeElapsed}{stdio.style("reset")}!`)
+
+	printJson({ ok = true })
+else
+	-- Fetch new updates.
+
+	local packages = getPackages(BINS_SRC_DIR)
+	info("Fetching for tool updates.")
+
+	local startTime = os.clock()
+	local newPackageVersions = fetchNewPackageVersions(packages)
+	local timeElapsed = string.format("%.2fs", os.clock() - startTime)
+
+	info(`Finished checking for tool updates in {stdio.style("bold")}{timeElapsed}{stdio.style("reset")}!`)
+
+	if options.json then
+		printJson(newPackageVersions)
+	else
+		print()
+		printNewPackageVersions(newPackageVersions)
+		print()
+		info("Run 'lune run update_tools <package> <version>' to update a package.")
+	end
+end
