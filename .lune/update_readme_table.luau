@@ -72,7 +72,7 @@ for _, packageDir in pathfs.readDir(BINS_DIR) do
 	local endpointParams = ""
 		.. `url={manifestUrl}`
 		.. "&query=version"
-		.. `&prefix={net.urlEncode(fullPackageName)}`
+		.. `&prefix={net.urlEncode(fullPackageName .. "@")}`
 		.. "&style=plastic"
 		.. "&label=pesde"
 		.. "&color=F19D1E"
