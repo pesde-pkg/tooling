@@ -13,6 +13,9 @@ local README_PATH = pathfs.Path.from("./README.md")
 local BINS_DIR = pathfs.Path.from("./bins")
 
 local README_TABLE_START = "<!-- @@ table_start @@ -->"
+local README_TABLE_END = "<!-- @@  table_end  @@ -->"
+local BADGE_LIST_START = "<!-- @@ badge_list_start @@ -->"
+
 local COLUMN_HEADERS = [[
 | Tool                                                          | Available package                       |
 |---------------------------------------------------------------|:----------------------------------------|]]
@@ -45,14 +48,16 @@ local function confirmAndClear(msg: string, default: boolean?): boolean
 end
 
 local _, startPos = string.find(readme, README_TABLE_START, nil, true)
-if startPos == nil then
-	error("README table start marker not found")
+local tableEndMarkerStart = string.find(readme, README_TABLE_END, nil, true)
+local _, badgeListStartMarker = string.find(readme, BADGE_LIST_START, nil, true)
+
+if startPos == nil or tableEndMarkerStart == nil or badgeListStartMarker == nil then
+	error("README table / badge list start or end marker not found")
 end
 
-assert(startPos) -- make luau stfu
-startPos += 1 -- move past the newline
-
-local before, after = string.sub(readme, 1, startPos - 1), string.sub(readme, startPos, #readme)
+local before, after =
+	string.sub(readme, 1, startPos :: number),
+	string.sub(readme, tableEndMarkerStart :: number, badgeListStartMarker :: number)
 
 local urlList = {}
 local rows = {
@@ -87,15 +92,15 @@ for _, packageDir in pathfs.readDir(BINS_DIR) do
 	)
 end
 
-table.insert(rows, "\n</div>")
+table.insert(rows, "\n</div>\n")
 
 local formattedTable = table.concat(rows, "\n")
 local formattedBadgeUrls = table.concat(urlList, "\n")
 
-local newReadme = string.format("%s\n%s%s\n%s", before, formattedTable, after, formattedBadgeUrls)
+local newReadme = string.format("%s\n%s%s\n%s\n", before, formattedTable, after, formattedBadgeUrls)
 
 if newReadme == readme then
-	info("README table is already up to date")
+	info("README table is already up to date!")
 	return
 end
 
