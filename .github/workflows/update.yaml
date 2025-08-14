@@ -29,6 +29,7 @@ jobs:
         uses: axiom-co/setup-pesde@b690699ace34169731b6b2a1c93b2008472038a7
         with:
           cache: true
+          token: ${{ secrets.PESDE_TOKEN }}
       - name: Install dependencies
         run: pesde install --locked
       - name: Fetch new versions
