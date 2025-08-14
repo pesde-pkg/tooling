@@ -34,7 +34,7 @@ jobs:
       - name: Fetch new versions
         id: new_versions
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CI_TOKEN }}
         run: |
           lune -V
           new_versions="$(lune run update_tools -- --json | jq -c 'to_entries | map({ package: .key, versions: .value })')"
@@ -61,7 +61,7 @@ jobs:
         run: pesde install --locked
       - name: Update package
         env:
-          GITHUB_TOKEN: ${{ secrets.PESDE_TOKEN }} # FIXME: temporarily use pesde token for PR perms
+          GITHUB_TOKEN: ${{ secrets.CI_TOKEN }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
