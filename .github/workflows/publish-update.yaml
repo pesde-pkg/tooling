@@ -17,12 +17,12 @@ jobs:
       - name: Setup pesde
         uses: axiom-co/setup-pesde@b690699ace34169731b6b2a1c93b2008472038a7
         with:
+          PESDE_TOKEN: ${{ secrets.PESDE_TOKEN }}
           cache: true
       - name: Publish
         id: publish
         continue-on-error: true
         env:
-          PESDE_TOKEN: ${{ secrets.PESDE_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           lune -V
@@ -32,10 +32,7 @@ jobs:
 
           echo "Publishing '$package'..."
           cd "bins/$package"
-
-          # Set pesde token
-          pesde auth login --token "$PESDE_TOKEN"
-
+          
           # Output published packages
           echo "published<<EOF" >> "$GITHUB_OUTPUT"
 
