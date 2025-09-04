@@ -4,4 +4,4 @@
 
 -- See https://github.com/lune-org/lune/pull/247 for more details
 
-require("./lune_packages/core")("argon-rbx/argon", _G.PESDE_ROOT)
+require("@self/lune_packages/toolchainlib")("argon-rbx/argon", _G.PESDE_ROOT)

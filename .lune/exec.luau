@@ -15,13 +15,15 @@ type CommandBuilderFields = {
 	env: { [string]: string },
 	stdioStrategy: Option<IoStrategyMapping>,
 }
-export type StdioStrategy = "pipe" | "forward" | "none"
+export type StdioStrategy = "pipe" | "inherit" | "forward" | "none"
 export type IoStrategyMapping = {
+	stdin: Option<StdioStrategy>,
 	stdout: Option<StdioStrategy>,
 	stderr: Option<StdioStrategy>,
 }
 
 local DEFAULT_STDIO_STRATEGY: IoStrategyMapping = {
+	stdin = Option.Some("pipe" :: StdioStrategy),
 	stdout = Option.Some("pipe" :: StdioStrategy),
 	stderr = Option.Some("pipe" :: StdioStrategy),
 }
@@ -78,9 +80,13 @@ function CommandBuilder.withStdioStrategy(
 	return self
 end
 
-local function intoSpawnOptionsStdioKind(strategy: StdioStrategy): process.SpawnOptionsStdioKind
+local function intoSpawnOptionsStdioKind(strategy: StdioStrategy): process.ExecStdioKind
 	if strategy == "pipe" then
 		return "default"
+	end
+
+	if strategy == "inherit" then
+		return "inherit"
 	end
 
 	if strategy == "forward" then
@@ -94,18 +100,18 @@ local function intoSpawnOptionsStdioKind(strategy: StdioStrategy): process.Spawn
 	error(`Non-strategy provided: {strategy}`)
 end
 
-function CommandBuilder.exec(self: CommandBuilder): process.SpawnResult
+function CommandBuilder.exec(self: CommandBuilder): process.ExecResult
 	print(
 		stdio.style("bold") .. "$",
 		stdio.style("dim") .. self.program,
 		table.concat(self.args, " ") .. stdio.style("reset")
 	)
-	local child = process.spawn(self.program, self.args, {
+	local child = process.exec(self.program, self.args, {
 		shell = if process.os == "windows" then "cmd.exe" else "bash",
 		stdio = self.stdioStrategy
 			:orOpt(Option.Some(DEFAULT_STDIO_STRATEGY))
 			:map(function(mappings: IoStrategyMapping)
-				local translatedMappings: process.SpawnOptionsStdio = {}
+				local translatedMappings: process.ExecStdioOptions = {}
 				for field, value in mappings do
 					translatedMappings[field] = intoSpawnOptionsStdioKind((value :: Option<StdioStrategy>):unwrap())
 				end

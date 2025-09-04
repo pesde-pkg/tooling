@@ -6,17 +6,17 @@ repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/rojo"
 includes = ["init.luau", "README.md", "pesde.toml"]
 
 [engines]
-lune = "^0.8.7"
-pesde = "^0.6.0"
+lune = "^0.10.0"
+pesde = "^0.7.0"
 
 [target]
 environment = "lune"
 bin = "init.luau"
 
 [dependencies]
-result = { name = "lukadev_0/result", version = "^1.2.0" }
-option = { name = "lukadev_0/option", version = "^1.2.0" }
-core = { workspace = "pesde/toolchainlib", version = "^" }
+result = { name = "lukadev_0/result", version = "^1.2.1" }
+option = { name = "lukadev_0/option", version = "^1.2.1" }
+toolchainlib = { workspace = "pesde/toolchainlib" }
 
 [indices]
 default = "https://github.com/pesde-pkg/index"
