@@ -4,4 +4,4 @@
 
 -- See https://github.com/lune-org/lune/pull/247 for more details
 
-require("./lune_packages/core")("jackTabsCode/asphalt", _G.PESDE_ROOT)
+require("@self/lune_packages/toolchainlib")("jackTabsCode/asphalt", _G.PESDE_ROOT)

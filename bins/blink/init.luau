@@ -4,4 +4,4 @@
 
 -- See https://github.com/lune-org/lune/pull/247 for more details
 
-require("./lune_packages/core")("1Axen/blink", _G.PESDE_ROOT)
+require("@self/lune_packages/toolchainlib")("1Axen/blink", _G.PESDE_ROOT)

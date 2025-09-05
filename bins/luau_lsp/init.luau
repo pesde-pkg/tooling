@@ -4,4 +4,4 @@
 
 -- See https://github.com/lune-org/lune/pull/247 for more details
 
-require("./lune_packages/core")("JohnnyMorganz/luau-lsp", _G.PESDE_ROOT)
+require("@self/lune_packages/toolchainlib")("JohnnyMorganz/luau-lsp", _G.PESDE_ROOT)

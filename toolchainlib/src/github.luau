@@ -1,4 +1,5 @@
 local net = require("@lune/net")
+local serde = require("@lune/serde")
 
 local Result = require("../lune_packages/result")
 local Option = require("../lune_packages/option")
@@ -96,7 +97,7 @@ function Github.queueTransactions(self: Github, operations: { GithubOperation })
 					continue
 				end
 
-				return Result.Ok(net.jsonDecode(resp.body))
+				return Result.Ok(serde.decode("json", resp.body))
 			end
 
 			return Result.Err(`Github::RespErr(statusCode={lastCode})`)

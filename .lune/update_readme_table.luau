@@ -20,10 +20,10 @@ local COLUMN_HEADERS = [[
 | Tool                                                          | Available package                       |
 |---------------------------------------------------------------|:----------------------------------------|]]
 
-local pesdeLogoBlob = buffer.fromstring(pathfs.readFile("./.lune/assets/pesde.svg"))
+local pesdeLogoBlob = buffer.fromstring(pathfs.fs.readFile("./.lune/assets/pesde.svg"))
 local PESDE_LOGO_URL = `data:image/svg%2bxml;base64,{buffer.tostring(base64.encode(pesdeLogoBlob))}`
 
-local readme = pathfs.readFile(README_PATH)
+local readme = pathfs.fs.readFile(README_PATH)
 
 local function error(msg: string): never
 	local ERROR_PREFIX = `{stdio.color("red")}{stdio.style("bold")}error{stdio.color("reset")}:`
@@ -64,11 +64,10 @@ local rows = {
 	`<div align="center">\n`,
 	COLUMN_HEADERS,
 }
-for _, packageDir in pathfs.readDir(BINS_DIR) do
-	local package = packageDir:fileName() :: string
-	local fullPackageName = `pesde/{package}`
+for _, packageDir in pathfs.fs.readDir(BINS_DIR) do
+	local fullPackageName = `pesde/{packageDir}`
 	local manifestUrl =
-		net.urlEncode(`https://raw.githubusercontent.com/pesde-pkg/tooling/main/bins/{package}/pesde.toml`)
+		net.urlEncode(`https://raw.githubusercontent.com/pesde-pkg/tooling/main/bins/{packageDir}/pesde.toml`)
 	local endpointParams = ""
 		.. `url={manifestUrl}`
 		.. "&query=version"
@@ -78,7 +77,7 @@ for _, packageDir in pathfs.readDir(BINS_DIR) do
 		.. "&color=F19D1E"
 		.. `&logo={PESDE_LOGO_URL}`
 
-	local badgeUrlId = `{string.upper(package)}_BADGE`
+	local badgeUrlId = `{string.upper(packageDir)}_BADGE`
 
 	local nameColumn = `[\`{fullPackageName}\`](https://pesde.dev/packages/{fullPackageName})`
 	local badgeColumn = `![{badgeUrlId}]`
@@ -110,7 +109,7 @@ local toWrite = table.find(process.args, "--yes")
 	or confirmAndClear("Overwrite current README?", false)
 
 if toWrite then
-	pathfs.writeFile(README_PATH, newReadme)
+	pathfs.fs.writeFile(README_PATH, newReadme)
 end
 
 local timeElapsed = string.format("%.2fs", os.clock() - START_TIME)

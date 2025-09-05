@@ -1,7 +1,7 @@
-local executable = require("./executable")
+local executable = require("@self/executable")
 export type ExecutableDescriptor = executable.ExecutableDescriptor
 
 return {
-	detect = require("./pattern"),
+	detect = require("@self/pattern"),
 	detectFromExecutable = executable,
 }
