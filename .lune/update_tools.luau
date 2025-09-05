@@ -91,7 +91,7 @@ local function getPackage(packagePath: pathfs.Path): Package
 	local manifest: manifestTypes.PesdeManifest = serde.decode("toml", manifestContents)
 	local entrypointContents = pathfs.fs.readFile(entrypointPath)
 
-	local repoName = string.match(entrypointContents, 'require%("./lune_packages/core"%)%("([^"]+)"')
+	local repoName = string.match(entrypointContents, 'require%("@self/lune_packages/toolchainlib"%)%("([^"]+)"')
 	local version = manifest.version
 	local packageName = manifest.name and manifest.name:split("/")[2]
 
