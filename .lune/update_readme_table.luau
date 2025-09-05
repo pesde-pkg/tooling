@@ -65,10 +65,9 @@ local rows = {
 	COLUMN_HEADERS,
 }
 for _, packageDir in pathfs.fs.readDir(BINS_DIR) do
-	local package = packageDir
-	local fullPackageName = `pesde/{package}`
+	local fullPackageName = `pesde/{packageDir}`
 	local manifestUrl =
-		net.urlEncode(`https://raw.githubusercontent.com/pesde-pkg/tooling/main/bins/{package}/pesde.toml`)
+		net.urlEncode(`https://raw.githubusercontent.com/pesde-pkg/tooling/main/bins/{packageDir}/pesde.toml`)
 	local endpointParams = ""
 		.. `url={manifestUrl}`
 		.. "&query=version"
@@ -78,7 +77,7 @@ for _, packageDir in pathfs.fs.readDir(BINS_DIR) do
 		.. "&color=F19D1E"
 		.. `&logo={PESDE_LOGO_URL}`
 
-	local badgeUrlId = `{string.upper(package)}_BADGE`
+	local badgeUrlId = `{string.upper(packageDir)}_BADGE`
 
 	local nameColumn = `[\`{fullPackageName}\`](https://pesde.dev/packages/{fullPackageName})`
 	local badgeColumn = `![{badgeUrlId}]`

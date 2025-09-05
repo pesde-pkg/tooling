@@ -2,14 +2,14 @@ name = "pesde/darklua"
 version = "0.17.1"
 description = "A command line tool that transforms Lua code"
 authors = [
-    "CompeyDev <hi@devcomp.xyz>",
-    "jeparlefrancais <jeparlefrancais21@gmail.com>",
+	"CompeyDev <hi@devcomp.xyz>",
+	"jeparlefrancais <jeparlefrancais21@gmail.com>",
 ]
 repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/darklua"
 includes = ["init.luau", "README.md", "pesde.toml"]
 
 [engines]
-lune = "^0.10.0"
+lune = "^0.10.2"
 pesde = "^0.7.0"
 
 [target]

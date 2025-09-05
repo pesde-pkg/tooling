@@ -79,10 +79,8 @@ local function chmod(path: pathfs.Path, mode: number | string)
 		return
 	end
 
-	local result = process.exec(
-		"chmod",
-		{ if typeof(mode) == "string" then mode else string.format("%o", mode), path:toString() }
-	)
+	local result =
+		process.exec("chmod", { if typeof(mode) == "string" then mode else string.format("%o", mode), path:toString() })
 
 	if not result.ok then
 		return error(result.stderr)
@@ -99,9 +97,11 @@ local function stripLeadingVersion(version: string): string
 end
 
 -- Has to be explicitly casted to `pathfs.Path`
-local HOME_DIR = (if process.env.PESDE_HOME
-	then pathfs.Path.from(process.env.PESDE_HOME)
-	else assert(dirs.homeDir(), "Couldn't get home dir :("):join(".pesde")) :: pathfs.Path
+local HOME_DIR = (
+	if process.env.PESDE_HOME
+		then pathfs.Path.from(process.env.PESDE_HOME)
+		else assert(dirs.homeDir(), "Couldn't get home dir :("):join(".pesde")
+) :: pathfs.Path
 
 local LINK_INSTALL_DIR = HOME_DIR:join("bin")
 local TOOL_STORAGE_DIR = LINK_INSTALL_DIR:join(".tool_storage")
@@ -187,7 +187,7 @@ function installTool(tool: ToolId, installPath: pathfs.Path): nil
 	barFns.start(bar) -- init
 
 	-- If the tool installation directory was not present, we create it
-	local toolDir = (assert(installPath:parent(), "Install path did not have parent dir"))
+	local toolDir = assert(installPath:parent(), "Install path did not have parent dir")
 	if not fs.isDir(toolDir) then
 		fs.writeDir(toolDir)
 	end

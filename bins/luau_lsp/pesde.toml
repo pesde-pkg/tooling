@@ -2,14 +2,14 @@ name = "pesde/luau_lsp"
 version = "1.53.2"
 description = "Language Server Implementation for Luau"
 authors = [
-    "CompeyDev <hi@devcomp.xyz>",
-    "Johnny Morganz <johnnymorganz@outlook.com>",
+	"CompeyDev <hi@devcomp.xyz>",
+	"Johnny Morganz <johnnymorganz@outlook.com>",
 ]
 repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/luau-lsp"
 includes = ["init.luau", "README.md", "pesde.toml"]
 
 [engines]
-lune = "^0.10.0"
+lune = "^0.10.2"
 pesde = "^0.7.0"
 
 [target]
