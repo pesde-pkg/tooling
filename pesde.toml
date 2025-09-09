@@ -5,7 +5,7 @@ private = true
 workspace_members = ["toolchainlib", "bins/*"]
 
 [engines]
-lune = "^0.10.2"
+lune = "^0.10.0"
 pesde = "^0.7.0"
 
 [target]
@@ -14,7 +14,7 @@ environment = "lune"
 [dev_dependencies]
 option = { name = "lukadev_0/option", version = "^1.2.1" }
 result = { name = "lukadev_0/result", version = "^1.2.1" }
-pathfs = { name = "abidbmt/pathfs", version = "^0.6.1" }
+pathfs = { name = "jiwonz/pathfs", version = "^0.6.0" }
 base64 = { name = "synpixel/base64", version = "^3.0.1" }
 
 [indices]

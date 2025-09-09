@@ -38,25 +38,9 @@ lune = "toolchainlib"
 [workspace."pesde/zap"]
 lune = "bins/zap"
 
-[graph."abidbmt/greentea@0.5.1 lune".pkg_ref]
+[graph."jiwonz/greentea_luau@0.2.0 luau".pkg_ref]
 ref_ty = "pesde"
 index_url = "https://github.com/pesde-pkg/index"
-
-[graph."abidbmt/pathfs@0.6.1 lune"]
-direct = ["pathfs", { name = "abidbmt/pathfs", version = "^0.6.1", index = "default" }, "dev"]
-
-[graph."abidbmt/pathfs@0.6.1 lune".dependencies]
-greentea = ["abidbmt/greentea@0.5.1 lune", "standard"]
-luau_path = ["jiwonz/luau_path@0.2.0 luau", "standard"]
-
-[graph."abidbmt/pathfs@0.6.1 lune".pkg_ref]
-ref_ty = "pesde"
-index_url = "https://github.com/pesde-pkg/index"
-
-[graph."abidbmt/pathfs@0.6.1 lune".pkg_ref.dependencies]
-frktest = [{ name = "itsfrank/frktest", version = "^0.0.2", index = "https://github.com/pesde-pkg/index" }, "dev"]
-greentea = [{ name = "abidbmt/greentea", version = "^0.5.1", index = "https://github.com/pesde-pkg/index" }, "standard"]
-luau_path = [{ name = "jiwonz/luau_path", version = "^0.2.0", index = "https://github.com/pesde-pkg/index", target = "luau" }, "standard"]
 
 [graph."jiwonz/luau_disk@0.2.0 luau".pkg_ref]
 ref_ty = "pesde"
@@ -71,6 +55,22 @@ index_url = "https://github.com/pesde-pkg/index"
 
 [graph."jiwonz/luau_path@0.2.0 luau".pkg_ref.dependencies]
 luau_disk = [{ name = "jiwonz/luau_disk", version = "^0.2.0", index = "https://github.com/pesde-pkg/index" }, "standard"]
+
+[graph."jiwonz/pathfs@0.6.0 lune"]
+direct = ["pathfs", { name = "jiwonz/pathfs", version = "^0.6.0", index = "default" }, "dev"]
+
+[graph."jiwonz/pathfs@0.6.0 lune".dependencies]
+greentea = ["jiwonz/greentea_luau@0.2.0 luau", "standard"]
+luau_path = ["jiwonz/luau_path@0.2.0 luau", "standard"]
+
+[graph."jiwonz/pathfs@0.6.0 lune".pkg_ref]
+ref_ty = "pesde"
+index_url = "https://github.com/pesde-pkg/index"
+
+[graph."jiwonz/pathfs@0.6.0 lune".pkg_ref.dependencies]
+frktest = [{ name = "itsfrank/frktest", version = "^0.0.4", index = "https://github.com/pesde-pkg/index", target = "luau" }, "dev"]
+greentea = [{ name = "jiwonz/greentea_luau", version = "^0.2.0", index = "https://github.com/pesde-pkg/index", target = "luau" }, "standard"]
+luau_path = [{ name = "jiwonz/luau_path", version = "^0.2.0", index = "https://github.com/pesde-pkg/index", target = "luau" }, "standard"]
 
 [graph."lukadev_0/option@1.2.1 lune"]
 direct = ["option", { name = "lukadev_0/option", version = "^1.2.1", index = "default" }, "dev"]

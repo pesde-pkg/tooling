@@ -6,17 +6,17 @@ repository = "https://github.com/pesde-pkg/tooling/tree/main/toolchainlib"
 includes = ["src/**/*.luau", "pesde.toml", "LICENSE", "README.md"]
 
 [engines]
-lune = "^0.10.2"
+lune = "^0.10.0"
 pesde = "^0.7.0"
 
 [target]
 environment = "lune"
-lib = "src/init.luau"
+lib = "src/lib.luau"
 
 [dependencies]
-pathfs = { name = "abidbmt/pathfs", version = "^0.6.1" }
-dirs = { name = "abidbmt/dirs", version = "^0.6.0" }
-unzip = { name = "abidbmt/unzip", version = "^0.2.2", target = "luau" }
+pathfs = { name = "jiwonz/pathfs", version = "^0.6.0" }
+dirs = { name = "jiwonz/dirs", version = "^0.6.0" }
+unzip = { repo = "https://github.com/abidbmt/luau-unzip", rev = "2ef0338ac5f1c1d0c43ad490876919ca058f377a" }
 
 [peer_dependencies]
 result = { name = "lukadev_0/result", version = "^1.2.1" }
