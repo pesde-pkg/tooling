@@ -4,11 +4,4 @@ local process = require("@lune/process")
 
 local CommandBuilder = require("./exec")
 
-process.exit(
-	CommandBuilder.new("pesde")
-		:withArgs({ "run", "./bins/stylua" })
-		:withArg("--")
-		:withArgs(process.args)
-		:withStdioStrategy("forward")
-		:exec().code
-)
+process.exit(CommandBuilder.new("stylua"):withArgs(process.args):withStdioStrategy("forward"):exec().code)
