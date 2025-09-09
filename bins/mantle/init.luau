@@ -5,3 +5,5 @@
 -- See https://github.com/lune-org/lune/pull/247 for more details
 
 require("@self/lune_packages/toolchainlib")("blake-mealey/mantle", _G.PESDE_ROOT)
+
+return nil
