@@ -9,7 +9,7 @@ repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/stylua"
 includes = ["init.luau", "README.md", "pesde.toml"]
 
 [engines]
-lune = "^0.10.2"
+lune = "^0.10.0"
 pesde = "^0.7.0"
 
 [target]
