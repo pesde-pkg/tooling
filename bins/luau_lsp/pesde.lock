@@ -2,7 +2,7 @@
 # It is not intended for manual editing.
 format = 2
 name = "pesde/luau_lsp"
-version = "1.53.2"
+version = "1.53.3"
 target = "lune"
 
 [graph."abidbmt/dirs@0.6.0 lune".dependencies]
