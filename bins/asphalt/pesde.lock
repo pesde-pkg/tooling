@@ -5,13 +5,11 @@ name = "pesde/asphalt"
 version = "1.0.0"
 target = "lune"
 
-[graph."0x5eal/unzip@0.1.3 luau".pkg_ref]
-ref_ty = "git"
-repo = "https://github.com/abidbmt/luau-unzip"
-tree_id = "cf468df95756409b65c9330317b7e841e3889dd5"
-new_structure = true
+[graph."0x5eal/unzip@0.1.4 luau".pkg_ref]
+ref_ty = "pesde"
+index_url = "https://github.com/pesde-pkg/index"
 
-[graph."0x5eal/unzip@0.1.3 luau".pkg_ref.dependencies]
+[graph."0x5eal/unzip@0.1.4 luau".pkg_ref.dependencies]
 asciitable = [{ name = "kimpure/asciitable", version = "^0.2.3", index = "https://github.com/pesde-pkg/index" }, "dev"]
 dirs = [{ name = "jiwonz/dirs", version = "^0.6.0", index = "https://github.com/pesde-pkg/index", target = "lune" }, "dev"]
 frktest = [{ name = "itsfrank/frktest", version = "^0.0.4", index = "https://github.com/pesde-pkg/index" }, "dev"]
@@ -83,7 +81,7 @@ dirs = ["jiwonz/dirs@0.6.0 lune", "standard"]
 option = ["lukadev_0/option@1.2.1 lune", "peer"]
 pathfs = ["jiwonz/pathfs@0.6.0 lune", "standard"]
 result = ["lukadev_0/result@1.2.1 lune", "peer"]
-unzip = ["0x5eal/unzip@0.1.3 luau", "standard"]
+unzip = ["0x5eal/unzip@0.1.4 luau", "standard"]
 
 [graph."pesde/toolchainlib@0.1.15 lune".pkg_ref]
 ref_ty = "workspace"
@@ -94,4 +92,4 @@ dirs = [{ name = "jiwonz/dirs", version = "^0.6.0", index = "https://github.com/
 option = [{ name = "lukadev_0/option", version = "^1.2.1", index = "https://github.com/pesde-pkg/index" }, "peer"]
 pathfs = [{ name = "jiwonz/pathfs", version = "^0.6.0", index = "https://github.com/pesde-pkg/index" }, "standard"]
 result = [{ name = "lukadev_0/result", version = "^1.2.1", index = "https://github.com/pesde-pkg/index" }, "peer"]
-unzip = [{ repo = "https://github.com/abidbmt/luau-unzip", rev = "2ef0338ac5f1c1d0c43ad490876919ca058f377a" }, "standard"]
+unzip = [{ name = "0x5eal/unzip", version = "^0.1.4", index = "https://github.com/pesde-pkg/index", target = "luau" }, "standard"]

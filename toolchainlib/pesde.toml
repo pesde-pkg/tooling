@@ -16,7 +16,7 @@ lib = "src/lib.luau"
 [dependencies]
 pathfs = { name = "jiwonz/pathfs", version = "^0.6.0" }
 dirs = { name = "jiwonz/dirs", version = "^0.6.0" }
-unzip = { repo = "https://github.com/abidbmt/luau-unzip", rev = "2ef0338ac5f1c1d0c43ad490876919ca058f377a" }
+unzip = { name = "0x5eal/unzip", version = "^0.1.4", target = "luau" }
 
 [peer_dependencies]
 result = { name = "lukadev_0/result", version = "^1.2.1" }
