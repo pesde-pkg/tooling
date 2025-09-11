@@ -5,9 +5,8 @@ local process = require("@lune/process")
 local CommandBuilder = require("./exec")
 
 process.exit(
-	CommandBuilder.new("pesde")
-		:withArgs({ "run", "./bins/luau-lsp" })
-		:withArgs({ "--", "analyze" })
+	CommandBuilder.new("luau-lsp")
+		:withArgs({ "analyze" })
 		:withArgs({ "--settings", ".vscode/settings.json" })
 		:withArgs({ "--ignore", "'**/*_packages/**'" })
 		:withArg(".")

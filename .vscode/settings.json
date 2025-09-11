@@ -1,6 +1,5 @@
 {
-  "luau-lsp.sourcemap.enabled": false,
-  "luau-lsp.require.useOriginalRequireByStringSemantics": true,
-  "stylua.targetReleaseVersion": "latest",
-  "editor.formatOnSave": true,
+	"luau-lsp.sourcemap.enabled": false,
+	"stylua.targetReleaseVersion": "latest",
+	"editor.formatOnSave": true
 }
