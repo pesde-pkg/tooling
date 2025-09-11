@@ -6,7 +6,7 @@ repository = "https://github.com/pesde-pkg/tooling/tree/main/toolchainlib"
 includes = ["src/**/*.luau", "pesde.toml", "LICENSE", "README.md"]
 
 [engines]
-lune = "^0.10.0"
+lune = "^0.10.2"
 pesde = "^0.7.0"
 
 [target]
