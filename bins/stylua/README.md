@@ -60,7 +60,7 @@ Add the following to your `.pre-commit-config.yaml` file:
 
 ```yaml
 - repo: https://github.com/JohnnyMorganz/StyLua
-  rev: v2.1.0
+  rev: v2.2.0
   hooks:
     - id: stylua # or stylua-system / stylua-github
 ```
@@ -84,7 +84,7 @@ StyLua is available on the [Docker Hub](https://hub.docker.com/r/johnnymorganz/s
 If you are using Docker, the easiest way to install StyLua is:
 
 ```dockerfile
-COPY --from=JohnnyMorganz/StyLua:2.1.0 /stylua /usr/bin/stylua
+COPY --from=JohnnyMorganz/StyLua:2.2.0 /stylua /usr/bin/stylua
 ```
 
 ### Homebrew
@@ -95,13 +95,22 @@ StyLua is available on macOS via the [Homebrew](https://brew.sh) package manager
 brew install stylua
 ```
 
+### pip / uv
+
+You can install StyLua using pip / uv, by passing in the git repository as the archive URL
+
+```sh
+pip install git+https://github.com/johnnymorganz/stylua
+uv tool install git+https://github.com/johnnymorganz/stylua
+```
+
 ### Other Installation Methods
 
 - [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=JohnnyMorganz.stylua)
 - [Aftman](https://github.com/LPGhatguy/aftman)
 
 ```sh
-aftman add johnnymorganz/stylua@2.1.0
+aftman add johnnymorganz/stylua@2.2.0
 ```
 
 - A community maintained package repository. Please note, these packages are maintained by third-parties and we do not control their packaging manifests.
@@ -238,6 +247,20 @@ Requires sorting is off by default. To enable it, add the following to your `sty
 enabled = true
 ```
 
+### Language Server Mode
+
+StyLua can run as a language server, connecting with language clients that follow the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/).
+It will then respond to `textDocument/formatting` and `textDocument/rangeFormatting` requests.
+Formatting is only performed on files with a `lua` or `luau` language ID.
+
+You can start the language server by running:
+
+```sh
+stylua --lsp
+```
+
+StyLua will listen to LSP messages on stdin and respond on stdout.
+
 ## Configuration
 
 StyLua has opinionated defaults, but also provides a few options that can be set per project.
@@ -293,6 +316,7 @@ StyLua only offers the following options:
 | `quote_style`                | `AutoPreferDouble` | Quote style for string literals. Possible options: `AutoPreferDouble`, `AutoPreferSingle`, `ForceDouble`, `ForceSingle`. `AutoPrefer` styles will prefer the specified quote style, but fall back to the alternative if it has fewer string escapes. `Force` styles always use the specified style regardless of escapes.                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | `call_parentheses`           | `Always`           | Whether parentheses should be applied on function calls with a single string/table argument. Possible options: `Always`, `NoSingleString`, `NoSingleTable`, `None`, `Input`. `Always` applies parentheses in all cases. `NoSingleString` omits parentheses on calls with a single string argument. Similarly, `NoSingleTable` omits parentheses on calls with a single table argument. `None` omits parentheses in both cases. Note: parentheses are still kept in situations where removal can lead to obscurity (e.g. `foo "bar".setup -> foo("bar").setup`, since the index is on the call result, not the string). `Input` removes all automation and preserves parentheses only if they were present in input code: consistency is not enforced. |
 | `space_after_function_names` | `Never`            | Specify whether to add a space between the function name and parentheses. Possible options: `Never`, `Definitions`, `Calls`, or `Always`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `block_newline_gaps`         | `Never`            | Specify whether to preserve leading and trailing newline gaps for blocks. Possible options: `Never`, `Preserve`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `collapse_simple_statement`  | `Never`            | Specify whether to collapse simple statements. Possible options: `Never`, `FunctionOnly`, `ConditionalOnly`, or `Always`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 Default `stylua.toml`, note you do not need to explicitly specify each option if you want to use the defaults:
@@ -307,6 +331,7 @@ quote_style = "AutoPreferDouble"
 call_parentheses = "Always"
 collapse_simple_statement = "Never"
 space_after_function_names = "Never"
+block_newline_gaps = "Never"
 
 [sort_requires]
 enabled = false
