@@ -11,7 +11,7 @@ pesde = "^0.7.0"
 
 [target]
 environment = "lune"
-lib = "src/lib.luau"
+lib = "src/init.luau"
 
 [dependencies]
 pathfs = { name = "jiwonz/pathfs", version = "^0.6.0" }

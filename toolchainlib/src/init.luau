@@ -13,25 +13,25 @@ local stdio = require("@lune/stdio")
 local serde = require("@lune/serde")
 local task = require("@lune/task")
 
-local pathfs = require("../lune_packages/pathfs")
+local pathfs = require("./lune_packages/pathfs")
 local fs = pathfs.fs
 
-local dirs = require("../lune_packages/dirs")
+local dirs = require("./lune_packages/dirs")
 
-local Result = require("../lune_packages/result")
-local ResultExt = require("./utils/ext/result")
-local Option = require("../lune_packages/option")
+local Result = require("./lune_packages/result")
+local ResultExt = require("@self/utils/ext/result")
+local Option = require("./lune_packages/option")
 type Result<T, E> = Result.Result<T, E>
 type Option<T> = Option.Option<T>
 
-local Github = require("./github")
-local descriptors = require("./platform/descriptor")
+local Github = require("@self/github")
+local descriptors = require("@self/platform/descriptor")
 local PlatformDescriptor = descriptors.PlatformDescriptor
 local ExecutableDescriptor = descriptors.ExecutableDescriptor
-local ProgressBar = require("./utils/progress")
-local compression = require("./compression")
-local manifest = require("./manifest")
-local sys = require("./utils/sys")
+local ProgressBar = require("@self/utils/progress")
+local compression = require("@self/compression")
+local manifest = require("@self/manifest")
+local sys = require("@self/utils/sys")
 
 export type ToolId = {
 	alias: Option<string>,
