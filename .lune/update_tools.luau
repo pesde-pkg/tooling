@@ -58,7 +58,7 @@ local function assert(expr: boolean, msg: string)
 	end
 end
 
-local BINS_SRC_DIR = pathfs.getAbsolutePathOf(pathfs.Path.from("bins"))
+local BINS_SRC_DIR = pathfs.absolute(pathfs.Path.from("bins"))
 
 type Package = {
 	name: string,
@@ -83,15 +83,15 @@ local function getPackage(packagePath: pathfs.Path): Package
 	local manifestPath = packagePath:join("pesde.toml")
 
 	assert(
-		pathfs.isFile(entrypointPath) and pathfs.isFile(manifestPath),
+		pathfs.fs.isFile(entrypointPath) and pathfs.fs.isFile(manifestPath),
 		`No manifest or entrypoint found in '{packagePath}'`
 	)
 
-	local manifestContents = pathfs.readFile(manifestPath)
+	local manifestContents = pathfs.fs.readFile(manifestPath)
 	local manifest: manifestTypes.PesdeManifest = serde.decode("toml", manifestContents)
-	local entrypointContents = pathfs.readFile(entrypointPath)
+	local entrypointContents = pathfs.fs.readFile(entrypointPath)
 
-	local repoName = string.match(entrypointContents, 'require%("./lune_packages/core"%)%("([^"]+)"')
+	local repoName = string.match(entrypointContents, 'require%("@self/lune_packages/toolchainlib"%)%("([^"]+)"')
 	local version = manifest.version
 	local packageName = manifest.name and manifest.name:split("/")[2]
 
@@ -121,7 +121,7 @@ end
 local function getPackages(packagesDir: pathfs.Path): PackageMap
 	local packages = {}
 
-	for _, name in pathfs.readDir(packagesDir) do
+	for _, name in pathfs.fs.readDir(packagesDir) do
 		local package = getPackage(packagesDir:join(name))
 		packages[package.name] = package
 	end
@@ -198,7 +198,7 @@ local function updatePackage(package: Package, newVersion: string)
 		error("Failed to replace version field in manifest.")
 	end
 
-	pathfs.writeFile(package.path:join("pesde.toml"), updatedManifest)
+	pathfs.fs.writeFile(package.path:join("pesde.toml"), updatedManifest)
 
 	-- Fetch README for the tool repo, if present
 	local transactions = package.gh:queueTransactions({
@@ -235,8 +235,8 @@ local function updatePackage(package: Package, newVersion: string)
 				local readmePath = package.path:join("README.md")
 
 				-- There used to be some issues with encoding if not deleted and recreated
-				pathfs.removeFile(readmePath)
-				pathfs.writeFile(readmePath, readmeContents)
+				pathfs.fs.removeFile(readmePath)
+				pathfs.fs.writeFile(readmePath, readmeContents)
 
 				return nil
 			end,
@@ -324,7 +324,7 @@ if #positional > 0 then
 	assert(newVersion ~= nil, "No version given.")
 
 	local packagePath = BINS_SRC_DIR:join(packageName)
-	assert(pathfs.isDir(packagePath), "Invalid package name given.")
+	assert(pathfs.fs.isDir(packagePath), "Invalid package name given.")
 	local package = getPackage(packagePath)
 
 	info(`Updating package '{packageName}' to '{newVersion}'...`)

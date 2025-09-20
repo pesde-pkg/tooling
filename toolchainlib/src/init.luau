@@ -13,25 +13,25 @@ local stdio = require("@lune/stdio")
 local serde = require("@lune/serde")
 local task = require("@lune/task")
 
-local pathfs = require("../lune_packages/pathfs")
+local pathfs = require("./lune_packages/pathfs")
 local fs = pathfs.fs
 
-local dirs = require("../lune_packages/dirs")
+local dirs = require("./lune_packages/dirs")
 
-local Result = require("../lune_packages/result")
-local ResultExt = require("./utils/ext/result")
-local Option = require("../lune_packages/option")
+local Result = require("./lune_packages/result")
+local ResultExt = require("@self/utils/ext/result")
+local Option = require("./lune_packages/option")
 type Result<T, E> = Result.Result<T, E>
 type Option<T> = Option.Option<T>
 
-local Github = require("./github")
-local descriptors = require("./platform/descriptor")
+local Github = require("@self/github")
+local descriptors = require("@self/platform/descriptor")
 local PlatformDescriptor = descriptors.PlatformDescriptor
 local ExecutableDescriptor = descriptors.ExecutableDescriptor
-local ProgressBar = require("./utils/progress")
-local compression = require("./compression")
-local manifest = require("./manifest")
-local sys = require("./utils/sys")
+local ProgressBar = require("@self/utils/progress")
+local compression = require("@self/compression")
+local manifest = require("@self/manifest")
+local sys = require("@self/utils/sys")
 
 export type ToolId = {
 	alias: Option<string>,
@@ -79,10 +79,8 @@ local function chmod(path: pathfs.Path, mode: number | string)
 		return
 	end
 
-	local result = process.spawn(
-		"chmod",
-		{ if typeof(mode) == "string" then mode else string.format("%o", mode), path:toString() }
-	)
+	local result =
+		process.exec("chmod", { if typeof(mode) == "string" then mode else string.format("%o", mode), path:toString() })
 
 	if not result.ok then
 		return error(result.stderr)
@@ -98,9 +96,11 @@ local function stripLeadingVersion(version: string): string
 	return stripped
 end
 
-local HOME_DIR = if process.env.PESDE_HOME
-	then pathfs.Path.from(process.env.PESDE_HOME)
-	else assert(dirs.homeDir(), "Couldn't get home dir :("):join(".pesde")
+local HOME_DIR = (
+	if process.env.PESDE_HOME
+		then pathfs.Path.from(process.env.PESDE_HOME)
+		else assert(dirs.homeDir(), "Couldn't get home dir :("):join(".pesde")
+)
 
 local LINK_INSTALL_DIR = HOME_DIR:join("bin")
 local TOOL_STORAGE_DIR = LINK_INSTALL_DIR:join(".tool_storage")
@@ -129,7 +129,7 @@ function runTool(tool: ToolId | pathfs.Path, args: { string }?): number
 		then LINK_INSTALL_DIR:join(toolAliasOrDefault(toolId))
 		else tool :: pathfs.Path
 
-	return process.spawn(path:toString(), args or process.args, {
+	return process.exec(path:toString(), args or process.args, {
 		cwd = process.cwd,
 		env = process.env,
 		stdio = "forward",
@@ -158,8 +158,8 @@ end
 
 local function getGithubToken(): Option<string>
 	return Option.from(process.env.GITHUB_TOKEN):orElse(function()
-		return ResultExt.ok(Result.try(process.spawn, "gh", { "auth", "token" }))
-			:andThen(function(child: process.SpawnResult)
+		return ResultExt.ok(Result.try(process.exec, "gh", { "auth", "token" }))
+			:andThen(function(child: process.ExecResult)
 				if not child.ok then
 					return Option.None
 				end
