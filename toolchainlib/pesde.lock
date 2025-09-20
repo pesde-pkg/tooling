@@ -5,14 +5,14 @@ name = "pesde/toolchainlib"
 version = "0.1.15"
 target = "lune"
 
-[graph."0x5eal/unzip@0.1.4 luau"]
-direct = ["unzip", { name = "0x5eal/unzip", version = "^0.1.4", index = "default", target = "luau" }, "standard"]
+[graph."0x5eal/unzip@0.2.0 luau"]
+direct = ["unzip", { name = "0x5eal/unzip", version = "^0.2.0", index = "default", target = "luau" }, "standard"]
 
-[graph."0x5eal/unzip@0.1.4 luau".pkg_ref]
+[graph."0x5eal/unzip@0.2.0 luau".pkg_ref]
 ref_ty = "pesde"
 index_url = "https://github.com/pesde-pkg/index"
 
-[graph."0x5eal/unzip@0.1.4 luau".pkg_ref.dependencies]
+[graph."0x5eal/unzip@0.2.0 luau".pkg_ref.dependencies]
 asciitable = [{ name = "kimpure/asciitable", version = "^0.2.3", index = "https://github.com/pesde-pkg/index" }, "dev"]
 dirs = [{ name = "jiwonz/dirs", version = "^0.6.0", index = "https://github.com/pesde-pkg/index", target = "lune" }, "dev"]
 frktest = [{ name = "itsfrank/frktest", version = "^0.0.4", index = "https://github.com/pesde-pkg/index" }, "dev"]
