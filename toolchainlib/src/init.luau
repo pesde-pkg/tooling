@@ -96,12 +96,11 @@ local function stripLeadingVersion(version: string): string
 	return stripped
 end
 
--- Has to be explicitly casted to `pathfs.Path`
 local HOME_DIR = (
 	if process.env.PESDE_HOME
 		then pathfs.Path.from(process.env.PESDE_HOME)
 		else assert(dirs.homeDir(), "Couldn't get home dir :("):join(".pesde")
-) :: pathfs.Path
+)
 
 local LINK_INSTALL_DIR = HOME_DIR:join("bin")
 local TOOL_STORAGE_DIR = LINK_INSTALL_DIR:join(".tool_storage")
@@ -213,12 +212,10 @@ function installTool(tool: ToolId, installPath: pathfs.Path): nil
 		-- atomic on unix and windows, preventing a TOCTOU race condition
 
 		local lockFileContents = serde.encode("json", lockFile)
-		-- `toolDir` as well as `tmpLockFile.path` has to be typed as `any` in this case
-		-- due to the typesolver not being able to convert unions into `pathfs.Path`.
-		local tmpLockFile = dirs.createTempFile(toolDir :: any, "LOCK", "tmp")
-		fs.writeFile(tmpLockFile.path :: any, lockFileContents)
+		local tmpLockFile = dirs.createTempFile(toolDir, "LOCK", "tmp")
+		fs.writeFile(tmpLockFile.path, lockFileContents)
 
-		local ok, contents = pcall(fs.move, tmpLockFile.path :: any, installLockFile)
+		local ok, contents = pcall(fs.move, tmpLockFile.path, installLockFile)
 		if not ok then
 			local _
 			_, contents = pcall(fs.readFile, installLockFile)
