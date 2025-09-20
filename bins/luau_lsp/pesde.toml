@@ -1,5 +1,5 @@
 name = "pesde/luau_lsp"
-version = "1.53.3"
+version = "1.53.4"
 description = "Language Server Implementation for Luau"
 authors = [
 	"CompeyDev <hi@devcomp.xyz>",
