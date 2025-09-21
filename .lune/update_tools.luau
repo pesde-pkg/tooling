@@ -45,13 +45,11 @@ local function stripLeadingVersion(version: string): string
 end
 
 local function stripToolchainlibRev(version: string)
-  local stripped = string.gsub(version, "[%.|%-]?toolchainlib%.%d+", "")
- 
-  if string.sub(stripped, -1) == "+" then
-    return string.sub(stripped, 1, #stripped - 1)
-  end
+  version = version
+    :gsub("[%.|%-]?toolchainlib%.%d+", "")
+    :gsub("%+$", "")
 
-  return stripped
+    return version
 end
 
 local INFO_PREFIX = `{stdio.color("green")}{stdio.style("bold")}info{stdio.color("reset")}:`
