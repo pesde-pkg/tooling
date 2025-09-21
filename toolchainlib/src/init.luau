@@ -96,6 +96,16 @@ local function stripLeadingVersion(version: string): string
 	return stripped
 end
 
+local function stripToolchainlibRev(version: string)
+  local stripped = string.gsub(version, "[%.|%-]?toolchainlib%.%d+", "")
+ 
+  if string.sub(stripped, -1) == "+" then
+    return string.sub(stripped, 1, #stripped - 1)
+  end
+
+  return stripped
+end
+
 local HOME_DIR = (
 	if process.env.PESDE_HOME
 		then pathfs.Path.from(process.env.PESDE_HOME)
@@ -422,6 +432,9 @@ return setmetatable(
 				end
 				versionOrDefault = ver :: string
 			end
+
+      -- Strip out any optional toolchainlib revision from the build metadata part
+      versionOrDefault = stripToolchainlibRev(versionOrDefault)
 
 			local toolId = string.gsub(repo :: string, "/", "+")
 			local toolAlias = string.split(toolId, "+")[2]
