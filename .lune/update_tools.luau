@@ -44,6 +44,16 @@ local function stripLeadingVersion(version: string): string
 	return stripped
 end
 
+local function stripToolchainlibRev(version: string)
+  local stripped = string.gsub(version, "[%.|%-]?toolchainlib%.%d+", "")
+ 
+  if string.sub(stripped, -1) == "+" then
+    return string.sub(stripped, 1, #stripped - 1)
+  end
+
+  return stripped
+end
+
 local INFO_PREFIX = `{stdio.color("green")}{stdio.style("bold")}info{stdio.color("reset")}:`
 local ERROR_PREFIX = `{stdio.color("red")}{stdio.style("bold")}error{stdio.color("reset")}:`
 
@@ -147,7 +157,7 @@ local function fetchNewPackageVersions(packages: PackageMap): { [string]: { stri
 				local newVersions = {}
 				local versionIdx = math.huge
 				for idx, release in releases do
-					if stripLeadingVersion(release.tag_name) == package.manifest.version then
+					if stripToolchainLibRev(stripLeadingVersion(release.tag_name)) == package.manifest.version then
 						versionIdx = idx
 						continue
 					end
