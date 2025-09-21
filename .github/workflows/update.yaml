@@ -38,7 +38,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           lune -V
-          new_versions="$(lune run update_tools -- --json | jq -c 'to_entries | map({ package: .key, versions: .value })')"
+          new_versions="$(lune run update_tools --json | jq -c 'to_entries | map({ package: .key, versions: .value })')"
           echo "new_versions=$new_versions" >> "$GITHUB_OUTPUT"
 
   update-package:
@@ -81,7 +81,7 @@ jobs:
           versions="$(echo '${{ toJson(matrix.versions) }}' | jq -r '.[]')"
           while read -r version; do
             # Perform the update
-            lune run update_tools -- "${{ matrix.package }}" "$version"
+            lune run update_tools "${{ matrix.package }}" "$version"
             pesde install
 
             # Stage & commit changes
