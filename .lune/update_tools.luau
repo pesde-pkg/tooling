@@ -155,7 +155,7 @@ local function fetchNewPackageVersions(packages: PackageMap): { [string]: { stri
 				local newVersions = {}
 				local versionIdx = math.huge
 				for idx, release in releases do
-					if stripToolchainLibRev(stripLeadingVersion(release.tag_name)) == package.manifest.version then
+					if stripToolchainlibRev(stripLeadingVersion(release.tag_name)) == package.manifest.version then
 						versionIdx = idx
 						continue
 					end
