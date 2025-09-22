@@ -6,6 +6,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-09-22
+This release focuses on updating to newer verions of pesde and Lune, which incur breaking changes for **all** binaries. Future changes regarding
+breaking toolchainlib releases will be versioned as `+toolchainlib.<rev>` versions, where `<rev>` denotes an ordinal number signifying the count
+of the release. 
+
+Since the wrapper binary packages are versioned to correspond to their upstream counterparts, we cannot properly follow semver
+and breaking versions of toolchainlib may have newer runtime requirements that can cause breakage. As a result, it is always a good practice to
+commit your `pesde.lock` lockfiles in order to prevent an auto-update of a tool to a newer version without your knowledge. To migrate, update the
+engines requirement for your project by updating `pesde.toml` as such and run `pesde install` after:
+
+```toml
+[engines]
+lune = "^0.10.2"
+pesde = "^0.7.0"
+```
+
+It may also be necessary to update any scripts of your own that depend on Lune. Take a look at the [Lune CHANGELOG](https://github.com/lune-org/lune/blob/8e09fd4/CHANGELOG.md#0100---july-15th-2025) for a list of their breaking changes with v0.10.0.
+
+### Added
+- New internal scripts to autogenerate badges table on README for convenience
+- Contributing docs on README
+- Support for overriding arguments passed to tools by specifying an `args` argument
+- CI workflow for automatically updating and publishing new versions of tools ([#20](https://github.com/pesde-pkg/tooling/pull/20))
+- Support for Lune v0.10.x and the new Luau require-by-string semantics ([#28](https://github.com/pesde-pkg/tooling/pull/28))
+- Special case of stripping out build metadata in the form of `toolchainlib.rev` from version in package manifest for convenience wrapper
+### Changed
+- Updated dependencies
+- Bumped minimum Lune and pesde requirements to `^v0.10.2` and `^0.7.0` respectively
+- Update reference to `luau-lsp` on README to `luau_lsp` package ([#32](https://github.com/pesde-pkg/tooling/pull/32))
+
 ## [0.1.15] - 2025-05-13
 ### Added
 - Includes the following new tools:
@@ -203,3 +233,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [0.1.13]: https://pesde.dev/packages/pesde/toolchainlib/0.1.13/any
 [0.1.14]: https://pesde.dev/packages/pesde/toolchainlib/0.1.14/any
 [0.1.15]: https://pesde.dev/packages/pesde/toolchainlib/0.1.15/any
+[0.2.0]: https://pesde.dev/packages/pesde/toolchainlib/0.2.0/any
