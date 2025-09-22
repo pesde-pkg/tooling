@@ -14,7 +14,7 @@ of the release.
 Since the wrapper binary packages are versioned to correspond to their upstream counterparts, we cannot properly follow semver
 and breaking versions of toolchainlib may have newer runtime requirements that can cause breakage. As a result, it is always a good practice to
 commit your `pesde.lock` lockfiles in order to prevent an auto-update of a tool to a newer version without your knowledge. To migrate, update the
-engines requirement for your project by updating `pesde.toml` as such and run `pesde install` after:
+engines requirement for your project by updating `pesde.toml` as such and run `pesde update` after:
 
 ```toml
 [engines]
