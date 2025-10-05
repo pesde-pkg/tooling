@@ -1,25 +1,26 @@
-name = "pesde/luau_lsp"
-version = "1.53.5+toolchainlib.1"
+name = "vortex_interactive/luau_lsp"
+version = "1.54.0+toolchainlib.1"
 description = "Language Server Implementation for Luau"
 authors = [
 	"CompeyDev <hi@devcomp.xyz>",
 	"Johnny Morganz <johnnymorganz@outlook.com>",
 ]
-repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/luau_lsp"
+repository = "https://github.com/Vortex-Interactive/pesde-tooling/tree/main/bins/luau_lsp"
 includes = ["init.luau", "README.md", "pesde.toml"]
 
 [engines]
 lune = "^0.10.2"
-pesde = "^0.7.0"
+pesde = "^0.7.1"
 
 [target]
 environment = "lune"
 bin = "init.luau"
 
 [dependencies]
-result = { name = "lukadev_0/result", version = "^1.2.1" }
-option = { name = "lukadev_0/option", version = "^1.2.1" }
-toolchainlib = { workspace = "pesde/toolchainlib" }
+result = { name = "lukadev_0/result", version = "^1.2.1", index = "official" }
+option = { name = "lukadev_0/option", version = "^1.2.1", index = "official" }
+toolchainlib = { workspace = "vortex_interactive/toolchainlib" }
 
 [indices]
-default = "https://github.com/pesde-pkg/index"
+default = "https://github.com/Vortex-Interactive/pesde-index"
+official = "https://github.com/pesde-pkg/index"

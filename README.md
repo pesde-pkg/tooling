@@ -32,7 +32,7 @@ Common Luau tooling packaged for pesde, for use within fully pesde-managed proje
 
 To ensure proper functionality, please make sure you have the following dependencies installed:
 
-- **pesde**: Version `^0.7.0`
+- **pesde**: Version `^0.7.1`
 - **lune**: Version `^0.10.2`
 
 ## Usage
@@ -53,9 +53,10 @@ Refer to the above table for a list of support tooling packages.
 If a Luau tool you would like is not present here, please open an issue or submit a PR, following the format of one of the existing tools.
 
 ## Contributing
+
 Contributions are greatly appreciated! The codebase is separated into two parts - `bins/` which contains individual tools packaged as binaries & `toolchainlib/` which contains the core [resolution implementation](https://github.com/pesde-pkg/tooling/blob/6771ab11dd084418402a354431c14aa7dc846192/toolchainlib/src/init.luau#L1-L8) backing them. In general:
 
-- We utilize [pesde](https://pesde.dev) for package management. Run `pesde install` to install all dependencies. 
+- We utilize [pesde](https://pesde.dev) for package management. Run `pesde install` to install all dependencies.
 - Make sure any submitted code follows the styleguide; snake_case for directories / files, camelCase for variables, SCREAMING_SNAKE_CASE for constants, PascalCase for classes & types.
 - Attempt to use `Result` and `Option` types for any internal code when required, and handle their cases in the top-level entrypoint.
 - Format (`lune run fmt`) and typecheck (`lune run typecheck`) your code.

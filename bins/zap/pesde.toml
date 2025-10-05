@@ -1,22 +1,23 @@
-name = "pesde/zap"
-version = "0.6.25+toolchainlib.2"
+name = "vortex_interactive/zap"
+version = "0.6.27+toolchainlib.2"
 description = "A lightning fast networking solution for roblox."
 authors = ["CompeyDev <hi@devcomp.xyz>", "Redblox Organization"]
-repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/zap"
+repository = "https://github.com/Vortex-Interactive/pesde-tooling/tree/main/bins/zap"
 includes = ["init.luau", "README.md", "pesde.toml"]
 
 [engines]
 lune = "^0.10.2"
-pesde = "^0.7.0"
+pesde = "^0.7.1"
 
 [target]
 environment = "lune"
 bin = "init.luau"
 
 [dependencies]
-result = { name = "lukadev_0/result", version = "^1.2.1" }
-option = { name = "lukadev_0/option", version = "^1.2.1" }
-toolchainlib = { workspace = "pesde/toolchainlib" }
+result = { name = "lukadev_0/result", version = "^1.2.1", index = "official" }
+option = { name = "lukadev_0/option", version = "^1.2.1", index = "official" }
+toolchainlib = { workspace = "vortex_interactive/toolchainlib" }
 
 [indices]
-default = "https://github.com/pesde-pkg/index"
+default = "https://github.com/Vortex-Interactive/pesde-index"
+official = "https://github.com/pesde-pkg/index"
