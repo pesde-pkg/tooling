@@ -1,5 +1,5 @@
 name = "vortex_interactive/watchexec"
-version = "2.3.2+toolchainlib.2"
+version = "2.3.2+toolchainlib.1"
 description = "Executes commands in response to file modifications"
 authors = ["watchexec Organization"]
 repository = "https://github.com/Vortex-Interactive/pesde-tooling/tree/main/bins/watchexec"

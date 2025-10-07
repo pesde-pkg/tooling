@@ -1,5 +1,5 @@
 name = "vortex_interactive/stylua"
-version = "2.3.0+toolchainlib.3"
+version = "2.3.0+toolchainlib.1"
 description = "A Lua code formatter"
 authors = [
 	"CompeyDev <hi@devcomp.xyz>",

@@ -1,5 +1,5 @@
 name = "vortex_interactive/zap"
-version = "0.6.27+toolchainlib.3"
+version = "0.6.27+toolchainlib.1"
 description = "A lightning fast networking solution for roblox."
 authors = ["CompeyDev <hi@devcomp.xyz>", "Redblox Organization"]
 repository = "https://github.com/Vortex-Interactive/pesde-tooling/tree/main/bins/zap"
