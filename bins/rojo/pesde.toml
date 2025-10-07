@@ -1,12 +1,12 @@
 name = "vortex_interactive/rojo"
-version = "7.5.1+toolchainlib.1"
+version = "7.5.1+toolchainlib.2"
 description = "Rojo enables Roblox developers to use professional-grade software engineering tools"
 authors = ["CompeyDev <hi@devcomp.xyz>", "Lucien Greathouse <me@lpghatguy.com>"]
 repository = "https://github.com/Vortex-Interactive/pesde-tooling/tree/main/bins/rojo"
 includes = ["init.luau", "README.md", "pesde.toml"]
 
 [engines]
-lune = "^0.10.2"
+lune = "^0.10.3"
 pesde = "^0.7.1"
 
 [target]

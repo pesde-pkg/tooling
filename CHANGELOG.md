@@ -19,7 +19,7 @@ engines requirement for your project by updating `pesde.toml` as such and run `p
 
 ```toml
 [engines]
-lune = "^0.10.2"
+lune = "^0.10.3"
 pesde = "^0.7.1"
 ```
 

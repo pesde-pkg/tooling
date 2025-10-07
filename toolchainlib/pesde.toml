@@ -1,12 +1,12 @@
 name = "vortex_interactive/toolchainlib"
 description = "A Luau library for implementing toolchain management"
-version = "0.2.0"
+version = "0.2.1"
 license = "MIT"
 repository = "https://github.com/Vortex-Interactive/pesde-tooling/tree/main/toolchainlib"
 includes = ["src/**/*.luau", "pesde.toml", "LICENSE", "README.md"]
 
 [engines]
-lune = "^0.10.2"
+lune = "^0.10.3"
 pesde = "^0.7.1"
 
 [target]

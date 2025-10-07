@@ -6,7 +6,7 @@ repository = "https://github.com/Vortex-Interactive/pesde-tooling/tree/main/bins
 includes = ["init.luau", "README.md", "pesde.toml"]
 
 [engines]
-lune = "^0.10.2"
+lune = "^0.10.3"
 pesde = "^0.7.1"
 
 [target]

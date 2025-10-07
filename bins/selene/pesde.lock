@@ -2,7 +2,7 @@
 # It is not intended for manual editing.
 format = 2
 name = "vortex_interactive/selene"
-version = "0.29.0+toolchainlib.1"
+version = "0.29.0+toolchainlib.2"
 target = "lune"
 
 [graph."0x5eal/unzip@0.2.0 luau".pkg_ref]

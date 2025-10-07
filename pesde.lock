@@ -35,8 +35,34 @@ lune = "bins/stylua"
 [workspace."vortex_interactive/toolchainlib"]
 lune = "toolchainlib"
 
+[workspace."vortex_interactive/watchexec"]
+lune = "bins/watchexec"
+
 [workspace."vortex_interactive/zap"]
 lune = "bins/zap"
+
+[graph."0x5eal/unzip@0.2.0 luau".pkg_ref]
+ref_ty = "pesde"
+index_url = "https://github.com/pesde-pkg/index"
+
+[graph."0x5eal/unzip@0.2.0 luau".pkg_ref.dependencies]
+asciitable = [{ name = "kimpure/asciitable", version = "^0.2.3", index = "https://github.com/pesde-pkg/index" }, "dev"]
+dirs = [{ name = "jiwonz/dirs", version = "^0.6.0", index = "https://github.com/pesde-pkg/index", target = "lune" }, "dev"]
+frktest = [{ name = "itsfrank/frktest", version = "^0.0.4", index = "https://github.com/pesde-pkg/index" }, "dev"]
+luau-lsp = [{ name = "pesde/luau_lsp", version = "=1.53.2", index = "https://github.com/pesde-pkg/index", target = "lune" }, "dev"]
+stylua = [{ name = "pesde/stylua", version = "=2.1.0", index = "https://github.com/pesde-pkg/index", target = "lune" }, "dev"]
+
+[graph."jiwonz/dirs@0.6.0 lune".dependencies]
+greentea = ["jiwonz/greentea_luau@0.2.0 luau", "standard"]
+pathfs = ["jiwonz/pathfs@0.6.0 lune", "standard"]
+
+[graph."jiwonz/dirs@0.6.0 lune".pkg_ref]
+ref_ty = "pesde"
+index_url = "https://github.com/pesde-pkg/index"
+
+[graph."jiwonz/dirs@0.6.0 lune".pkg_ref.dependencies]
+greentea = [{ name = "jiwonz/greentea_luau", version = "^0.2.0", index = "https://github.com/pesde-pkg/index", target = "luau" }, "standard"]
+pathfs = [{ name = "jiwonz/pathfs", version = "^0.6.0", index = "https://github.com/pesde-pkg/index" }, "standard"]
 
 [graph."jiwonz/greentea_luau@0.2.0 luau".pkg_ref]
 ref_ty = "pesde"
@@ -92,3 +118,38 @@ direct = ["base64", { name = "synpixel/base64", version = "^3.0.1", index = "off
 [graph."synpixel/base64@3.0.1 lune".pkg_ref]
 ref_ty = "pesde"
 index_url = "https://github.com/pesde-pkg/index"
+
+[graph."vortex_interactive/toolchainlib@0.2.0 lune".dependencies]
+dirs = ["jiwonz/dirs@0.6.0 lune", "standard"]
+option = ["lukadev_0/option@1.2.1 lune", "peer"]
+pathfs = ["jiwonz/pathfs@0.6.0 lune", "standard"]
+result = ["lukadev_0/result@1.2.1 lune", "peer"]
+unzip = ["0x5eal/unzip@0.2.0 luau", "standard"]
+
+[graph."vortex_interactive/toolchainlib@0.2.0 lune".pkg_ref]
+ref_ty = "pesde"
+index_url = "https://github.com/Vortex-Interactive/pesde-index"
+
+[graph."vortex_interactive/toolchainlib@0.2.0 lune".pkg_ref.dependencies]
+dirs = [{ name = "jiwonz/dirs", version = "^0.6.0", index = "https://github.com/pesde-pkg/index" }, "standard"]
+option = [{ name = "lukadev_0/option", version = "^1.2.1", index = "https://github.com/pesde-pkg/index" }, "peer"]
+pathfs = [{ name = "jiwonz/pathfs", version = "^0.6.0", index = "https://github.com/pesde-pkg/index" }, "standard"]
+result = [{ name = "lukadev_0/result", version = "^1.2.1", index = "https://github.com/pesde-pkg/index" }, "peer"]
+unzip = [{ name = "0x5eal/unzip", version = "^0.2.0", index = "https://github.com/pesde-pkg/index", target = "luau" }, "standard"]
+
+[graph."vortex_interactive/watchexec@2.3.2+toolchainlib.1 lune"]
+direct = ["watchexec", { name = "vortex_interactive/watchexec", version = "^2.3.2", index = "default" }, "dev"]
+
+[graph."vortex_interactive/watchexec@2.3.2+toolchainlib.1 lune".dependencies]
+option = ["lukadev_0/option@1.2.1 lune", "standard"]
+result = ["lukadev_0/result@1.2.1 lune", "standard"]
+toolchainlib = ["vortex_interactive/toolchainlib@0.2.0 lune", "standard"]
+
+[graph."vortex_interactive/watchexec@2.3.2+toolchainlib.1 lune".pkg_ref]
+ref_ty = "pesde"
+index_url = "https://github.com/Vortex-Interactive/pesde-index"
+
+[graph."vortex_interactive/watchexec@2.3.2+toolchainlib.1 lune".pkg_ref.dependencies]
+option = [{ name = "lukadev_0/option", version = "^1.2.1", index = "https://github.com/pesde-pkg/index" }, "standard"]
+result = [{ name = "lukadev_0/result", version = "^1.2.1", index = "https://github.com/pesde-pkg/index" }, "standard"]
+toolchainlib = [{ name = "vortex_interactive/toolchainlib", version = "^0.2.0", index = "https://github.com/Vortex-Interactive/pesde-index", target = "lune" }, "standard"]

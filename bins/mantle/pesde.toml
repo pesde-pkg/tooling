@@ -1,12 +1,12 @@
 name = "vortex_interactive/mantle"
-version = "0.11.18+toolchainlib.1"
+version = "0.11.18+toolchainlib.2"
 description = "An infrastructure-as-code and deployment tool for Roblox."
 authors = ["CompeyDev <hi@devcomp.xyz>", "Blake Mealey <blakemealey@gmail.com>"]
 repository = "https://github.com/Vortex-Interactive/pesde-tooling/tree/main/bins/mantle"
 includes = ["init.luau", "README.md", "pesde.toml"]
 
 [engines]
-lune = "^0.10.2"
+lune = "^0.10.3"
 pesde = "^0.7.1"
 
 [target]
