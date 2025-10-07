@@ -1,5 +1,5 @@
 name = "vortex_interactive/darklua"
-version = "0.17.2+toolchainlib.2"
+version = "0.17.2+toolchainlib.3"
 description = "A command line tool that transforms Lua code"
 authors = [
 	"CompeyDev <hi@devcomp.xyz>",

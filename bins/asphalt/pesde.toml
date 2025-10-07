@@ -1,5 +1,5 @@
 name = "vortex_interactive/asphalt"
-version = "1.1.0+toolchainlib.2"
+version = "1.1.0+toolchainlib.3"
 description = "An assets-as-files tool for Roblox"
 authors = ["CompeyDev <hi@devcomp.xyz>", "Jack T <jack@jackt.space>"]
 repository = "https://github.com/Vortex-Interactive/pesde-tooling/tree/main/bins/asphalt"

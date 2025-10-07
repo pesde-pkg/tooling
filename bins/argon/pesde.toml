@@ -1,5 +1,5 @@
 name = "vortex_interactive/argon"
-version = "2.0.26+toolchainlib.2"
+version = "2.0.26+toolchainlib.3"
 description = "Argon - Full featured tool for Roblox development"
 authors = [
 	"AridAjd <aridthedev@gmail.com>",

@@ -1,5 +1,5 @@
 name = "vortex_interactive/blink"
-version = "0.18.4+toolchainlib.2"
+version = "0.18.4+toolchainlib.3"
 description = "An IDL compiler written in Luau for ROBLOX buffer networking"
 authors = ["CompeyDev <hi@devcomp.xyz>", "Axen <axen@frombloxware.com>"]
 repository = "https://github.com/Vortex-Interactive/pesde-tooling/tree/main/bins/blink"
