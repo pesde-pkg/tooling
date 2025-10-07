@@ -1,0 +1,23 @@
+name = "vortex_interactive/watchexec"
+version = "2.3.2+toolchainlib.1"
+description = "Executes commands in response to file modifications"
+authors = ["watchexec Organization"]
+repository = "https://github.com/Vortex-Interactive/pesde-tooling/tree/main/bins/watchexec"
+includes = ["init.luau", "README.md", "pesde.toml"]
+
+[engines]
+lune = "^0.10.3"
+pesde = "^0.7.1"
+
+[target]
+environment = "lune"
+bin = "init.luau"
+
+[dependencies]
+result = { name = "lukadev_0/result", version = "^1.2.1", index = "official" }
+option = { name = "lukadev_0/option", version = "^1.2.1", index = "official" }
+toolchainlib = { workspace = "vortex_interactive/toolchainlib" }
+
+[indices]
+default = "https://github.com/Vortex-Interactive/pesde-index"
+official = "https://github.com/pesde-pkg/index"
