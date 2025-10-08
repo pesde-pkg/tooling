@@ -34,7 +34,7 @@ Common Luau tooling packaged for pesde, for use within fully pesde-managed proje
 To ensure proper functionality, please make sure you have the following dependencies installed:
 
 - **pesde**: Version `^0.7.1`
-- **lune**: Version `^0.10.2`
+- **lune**: Version `^0.10.3`
 
 ## Usage
 
