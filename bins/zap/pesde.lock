@@ -2,7 +2,7 @@
 # It is not intended for manual editing.
 format = 2
 name = "pesde/zap"
-version = "0.6.25+toolchainlib.2"
+version = "0.6.26"
 target = "lune"
 
 [graph."0x5eal/unzip@0.2.0 luau".pkg_ref]
