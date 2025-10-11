@@ -60,7 +60,7 @@ Add the following to your `.pre-commit-config.yaml` file:
 
 ```yaml
 - repo: https://github.com/JohnnyMorganz/StyLua
-  rev: v2.2.0
+  rev: v2.3.0
   hooks:
     - id: stylua # or stylua-system / stylua-github
 ```
@@ -84,7 +84,7 @@ StyLua is available on the [Docker Hub](https://hub.docker.com/r/johnnymorganz/s
 If you are using Docker, the easiest way to install StyLua is:
 
 ```dockerfile
-COPY --from=JohnnyMorganz/StyLua:2.2.0 /stylua /usr/bin/stylua
+COPY --from=JohnnyMorganz/StyLua:2.3.0 /stylua /usr/bin/stylua
 ```
 
 ### Homebrew
@@ -110,7 +110,7 @@ uv tool install git+https://github.com/johnnymorganz/stylua
 - [Aftman](https://github.com/LPGhatguy/aftman)
 
 ```sh
-aftman add johnnymorganz/stylua@2.2.0
+aftman add johnnymorganz/stylua@2.3.0
 ```
 
 - A community maintained package repository. Please note, these packages are maintained by third-parties and we do not control their packaging manifests.
@@ -252,6 +252,8 @@ enabled = true
 StyLua can run as a language server, connecting with language clients that follow the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/).
 It will then respond to `textDocument/formatting` and `textDocument/rangeFormatting` requests.
 Formatting is only performed on files with a `lua` or `luau` language ID.
+
+If the initialization option `respect_editor_formatting_options` is set to `true`, the formatting handler will override the configurations `indent-width` and `indent-type` with values from [FormattingOptions](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#formattingOptions).
 
 You can start the language server by running:
 
