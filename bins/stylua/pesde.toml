@@ -1,5 +1,5 @@
 name = "pesde/stylua"
-version = "2.2.0+toolchainlib.1"
+version = "2.3.0"
 description = "A Lua code formatter"
 authors = [
 	"CompeyDev <hi@devcomp.xyz>",
