@@ -1,12 +1,12 @@
 name = "vortex_interactive/asphalt"
-version = "1.1.0+toolchainlib.1"
+version = "1.1.0+toolchainlib.2"
 description = "An assets-as-files tool for Roblox"
 authors = ["CompeyDev <hi@devcomp.xyz>", "Jack T <jack@jackt.space>"]
 repository = "https://github.com/Vortex-Interactive/pesde-tooling/tree/main/bins/asphalt"
 includes = ["init.luau", "README.md", "pesde.toml"]
 
 [engines]
-lune = "^0.10.3"
+lune = "^0.10.4"
 pesde = "^0.7.1"
 
 [target]

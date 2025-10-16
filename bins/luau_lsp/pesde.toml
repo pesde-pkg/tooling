@@ -1,5 +1,5 @@
 name = "vortex_interactive/luau_lsp"
-version = "1.54.0+toolchainlib.1"
+version = "1.54.0+toolchainlib.2"
 description = "Language Server Implementation for Luau"
 authors = [
 	"CompeyDev <hi@devcomp.xyz>",
@@ -9,7 +9,7 @@ repository = "https://github.com/Vortex-Interactive/pesde-tooling/tree/main/bins
 includes = ["init.luau", "README.md", "pesde.toml"]
 
 [engines]
-lune = "^0.10.3"
+lune = "^0.10.4"
 pesde = "^0.7.1"
 
 [target]

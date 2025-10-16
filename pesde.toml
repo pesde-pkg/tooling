@@ -5,7 +5,7 @@ private = true
 workspace_members = ["toolchainlib", "bins/*"]
 
 [engines]
-lune = "^0.10.3"
+lune = "^0.10.4"
 pesde = "^0.7.1"
 
 [target]

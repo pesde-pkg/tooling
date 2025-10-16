@@ -1,12 +1,12 @@
 name = "vortex_interactive/watchexec"
-version = "2.3.2+toolchainlib.1"
+version = "2.3.2+toolchainlib.2"
 description = "Executes commands in response to file modifications"
 authors = ["watchexec Organization"]
 repository = "https://github.com/Vortex-Interactive/pesde-tooling/tree/main/bins/watchexec"
 includes = ["init.luau", "README.md", "pesde.toml"]
 
 [engines]
-lune = "^0.10.3"
+lune = "^0.10.4"
 pesde = "^0.7.1"
 
 [target]
