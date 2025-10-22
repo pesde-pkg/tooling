@@ -1,5 +1,5 @@
 name = "vortex_interactive/rojo"
-version = "7.6.0+toolchainlib.2"
+version = "7.5.1+toolchainlib.2"
 description = "Rojo enables Roblox developers to use professional-grade software engineering tools"
 authors = ["CompeyDev <hi@devcomp.xyz>", "Lucien Greathouse <me@lpghatguy.com>"]
 repository = "https://github.com/Vortex-Interactive/pesde-tooling/tree/main/bins/rojo"
