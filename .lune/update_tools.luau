@@ -45,11 +45,9 @@ local function stripLeadingVersion(version: string): string
 end
 
 local function stripToolchainlibRev(version: string)
-  version = version
-    :gsub("[%.|%-]?toolchainlib%.%d+", "")
-    :gsub("%+$", "")
+	version = version:gsub("[%.|%-]?(toolchainlib|tcl)%.%d+", ""):gsub("%+$", "")
 
-    return version
+	return version
 end
 
 local INFO_PREFIX = `{stdio.color("green")}{stdio.style("bold")}info{stdio.color("reset")}:`
