@@ -1,5 +1,5 @@
-name = "vortex_interactive/darklua"
-version = "0.17.2+toolchainlib.2"
+name = "pesde/darklua"
+version = "0.17.2+tcl.1"
 description = "A command line tool that transforms Lua code"
 authors = [
 	"CompeyDev <hi@devcomp.xyz>",
@@ -19,7 +19,7 @@ bin = "init.luau"
 [dependencies]
 result = { name = "lukadev_0/result", version = "^1.2.1", index = "official" }
 option = { name = "lukadev_0/option", version = "^1.2.1", index = "official" }
-toolchainlib = { workspace = "vortex_interactive/toolchainlib" }
+toolchainlib = { workspace = "pesde/toolchainlib" }
 
 [indices]
 default = "https://github.com/Vortex-Interactive/pesde-index"

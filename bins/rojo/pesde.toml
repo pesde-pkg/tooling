@@ -1,5 +1,5 @@
-name = "vortex_interactive/rojo"
-version = "7.5.1+toolchainlib.2"
+name = "pesde/rojo"
+version = "7.6.0+tcl.1"
 description = "Rojo enables Roblox developers to use professional-grade software engineering tools"
 authors = ["CompeyDev <hi@devcomp.xyz>", "Lucien Greathouse <me@lpghatguy.com>"]
 repository = "https://github.com/Vortex-Interactive/pesde-tooling/tree/main/bins/rojo"
@@ -16,7 +16,7 @@ bin = "init.luau"
 [dependencies]
 result = { name = "lukadev_0/result", version = "^1.2.1", index = "official" }
 option = { name = "lukadev_0/option", version = "^1.2.1", index = "official" }
-toolchainlib = { workspace = "vortex_interactive/toolchainlib" }
+toolchainlib = { workspace = "pesde/toolchainlib" }
 
 [indices]
 default = "https://github.com/Vortex-Interactive/pesde-index"
