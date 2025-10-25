@@ -11,9 +11,6 @@ lune = "bins/argon"
 [workspace."pesde/asphalt"]
 lune = "bins/asphalt"
 
-[workspace."pesde/blink"]
-lune = "bins/blink"
-
 [workspace."pesde/darklua"]
 lune = "bins/darklua"
 
