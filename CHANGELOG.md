@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [0.2.1] - 2025-10-28
+### Added
+- Support for `.tar.xz` compressed artifacts in releases
+- Includes the following new tools:
+  - [`pesde/rojo@7.6.0`](https://pesde.dev/packages/pesde/blink/7.6.0/any)
+  - [`pesde/zap@0.6.27`](https://pesde.dev/packages/pesde/zap/0.6.27/any)
+  - [`pesde/stylua@2.3.0`](https://pesde.dev/packages/pesde/stylua/2.3.0/any)
+  - [`pesde/luau_lsp@1.54.0`](https://pesde.dev/packages/pesde/luau_lsp/1.54.0/any)
+  - [`pesde/luau_lsp@1.55.0`](https://pesde.dev/packages/pesde/luau_lsp/1.55.0/any)
+  - [`pesde/darklua@0.17.2`](https://pesde.dev/packages/pesde/darklua/0.17.2/any)
+  - [`pesde/asphalt@1.2.0`](https://pesde.dev/packages/pesde/asphalt/1.2.0/any)
+
+### Fixed
+- Some packages not being updated in CI due to `.toolchainlib.<rev>` build metadata not getting stripped properly
+- Newer `asphalt` releases not working due to `.tar.xz` archives, refer to previous change
+### Changed
+- Deprecated `blink` package in favor of [`1axen/blink`](https://pesde.dev/packages/1axen/blink)
+
 ## [0.2.0] - 2025-09-22
 This release focuses on updating to newer verions of pesde and Lune, which incur breaking changes for **all** binaries. Future changes regarding
 breaking toolchainlib releases will be versioned as `+toolchainlib.<rev>` versions, where `<rev>` denotes an ordinal number signifying the count
@@ -234,3 +252,5 @@ It may also be necessary to update any scripts of your own that depend on Lune. 
 [0.1.14]: https://pesde.dev/packages/pesde/toolchainlib/0.1.14/any
 [0.1.15]: https://pesde.dev/packages/pesde/toolchainlib/0.1.15/any
 [0.2.0]: https://pesde.dev/packages/pesde/toolchainlib/0.2.0/any
+[0.2.1]: https://pesde.dev/packages/pesde/toolchainlib/0.2.1/any
+
