@@ -33,6 +33,7 @@ To ensure proper functionality, please make sure you have the following dependen
 
 - **pesde**: Version `^0.7.0`
 - **lune**: Version `^0.10.2`
+- **tar**: Any version with `xz` support (only for some tools)
 
 ## Usage
 
