@@ -27,13 +27,15 @@ export type DependencySpecifier = ((
 	target: string?,
 }) | { wally: string, version: string, index: string? }
 
-export type PackageTarget = {
-	environment: "luau" | "lune" | "roblox" | "roblox_server",
-	lib: string,
-} | {
-	environment: "luau" | "lune",
-	bin: string,
-}
+export type PackageTarget =
+	{
+		environment: "luau" | "lune" | "roblox" | "roblox_server",
+		lib: string,
+	}
+	| {
+		environment: "luau" | "lune",
+		bin: string,
+	}
 
 export type PesdeManifest = {
 	name: string,

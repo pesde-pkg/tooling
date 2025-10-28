@@ -1,3 +1,7 @@
+local process = require("@lune/process")
+
+local dirs = require("../lune_packages/dirs")
+local pathfs = require("../lune_packages/pathfs")
 local unzip = require("../luau_packages/unzip")
 
 local Result = require("../lune_packages/result")
@@ -54,8 +58,9 @@ local extractBinary: {
 				local executablePlatform = ExecutableDescriptor.fromExecutable(contents)
 
 				if
-					executablePlatform:isOk()
-					and PlatformDescriptor.matches(targetPlatform, executablePlatform:unwrap())
+					executablePlatform:isOkAnd(function(platform)
+						return PlatformDescriptor.matches(targetPlatform, platform)
+					end)
 				then
 					return contents
 				end
@@ -97,7 +102,50 @@ local extractBinary: {
 			return Result.Ok(binaryContents)
 		end,
 
-		-- TODO: Other formats
+		TarXz = function(compressed, binaryName, targetPlatform)
+			local extractionDir = dirs.createTempDir(nil, "pesde-tooling")
+			local tarResult = process.exec(
+				"tar",
+				{ "-xJf", "-", "-C", extractionDir.path:toString(), "--strip-components=1" },
+				{
+					stdio = {
+						stdin = compressed,
+					},
+				}
+			)
+
+			if not tarResult.ok then
+				return Result.Err(
+					`ExtractBinaryError::Decompression(msg={tarResult.stderr},code={tarResult.code})` :: string
+				)
+			end
+
+			local ok, binaryContentsStr =
+				pcall(pathfs.fs.readFile, pathfs.Path.from(tostring(extractionDir)):join(binaryName))
+			if ok then
+				return Result.Ok(buffer.fromstring(binaryContentsStr))
+			end
+
+			for _, entry in extractionDir:readDir() do
+				local entryPath = extractionDir.path:join(entry)
+				if not pathfs.fs.isFile(entryPath) then
+					continue
+				end
+
+				local contents = buffer.fromstring(pathfs.fs.readFile(entryPath))
+				local executablePlatform = ExecutableDescriptor.fromExecutable(contents)
+
+				if
+					executablePlatform:isOkAnd(function(platform)
+						return PlatformDescriptor.matches(targetPlatform, platform)
+					end)
+				then
+					return Result.Ok(contents)
+				end
+			end
+
+			return Result.Err("ExtractBinaryError::BinaryNotFound" :: string)
+		end,
 	}
 
 return { extractBinary = extractBinary, detectFormat = detectFormat }
