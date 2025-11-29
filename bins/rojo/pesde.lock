@@ -2,7 +2,7 @@
 # It is not intended for manual editing.
 format = 2
 name = "pesde/rojo"
-version = "7.6.1"
+version = "7.7.0-rc.1"
 target = "lune"
 
 [graph."0x5eal/unzip@0.2.0 luau".pkg_ref]
