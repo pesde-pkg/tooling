@@ -2,7 +2,7 @@
 # It is not intended for manual editing.
 format = 2
 name = "pesde/luau_lsp"
-version = "1.56.2"
+version = "1.57.0"
 target = "lune"
 
 [graph."0x5eal/unzip@0.2.0 luau".pkg_ref]
