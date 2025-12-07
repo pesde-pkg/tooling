@@ -68,10 +68,9 @@ local function downloadAndExtractBinary(
 					return error(`Failed to download asset {asset.name}: HTTP Code {contentsResp.statusCode}`)
 				end
 
-				local extracted = compression.extractBinary
+				return compression.extractBinary
 					[format](buffer.fromstring(contentsResp.body), binaryName, targetPlatform)
-					:unwrap()
-				return Option.Some(extracted)
+					:mapOr(Option.None, Option.Some)
 			end) :: Option<buffer>
 end
 
