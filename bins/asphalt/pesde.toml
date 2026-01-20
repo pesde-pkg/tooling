@@ -1,5 +1,5 @@
 name = "pesde/asphalt"
-version = "2.0.0-rc.2"
+version = "2.0.0-rc.3"
 description = "An assets-as-files tool for Roblox"
 authors = ["CompeyDev <hi@devcomp.xyz>", "Jack T <jack@jackt.space>"]
 repository = "https://github.com/pesde-pkg/tooling/tree/main/bins/asphalt"

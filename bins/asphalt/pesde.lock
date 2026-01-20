@@ -2,7 +2,7 @@
 # It is not intended for manual editing.
 format = 2
 name = "pesde/asphalt"
-version = "2.0.0-rc.2"
+version = "2.0.0-rc.3"
 target = "lune"
 
 [graph."0x5eal/unzip@0.2.0 luau".pkg_ref]
