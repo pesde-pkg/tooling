@@ -27,6 +27,9 @@ jobs:
       - name: Authenticate with pesde token 
         run: pesde auth login --token '${{ secrets.PESDE_TOKEN }}'
 
+      - name: Install dependencies
+        run: pesde install --locked
+
       - name: Publish
         id: publish
         continue-on-error: true
