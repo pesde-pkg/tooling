@@ -18,12 +18,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup pesde
         uses: pesde-pkg/setup@v1 
         with:
           cache: true
+
       - name: Authenticate with pesde token 
-        run: pesde auth login --token ${{ secrets.PESDE_TOKEN }}
+        run: pesde auth login --token '${{ secrets.PESDE_TOKEN }}'
+
       - name: Publish
         id: publish
         continue-on-error: true
@@ -63,6 +66,7 @@ jobs:
           done <<< "$commits"
 
           echo "EOF" >> "$GITHUB_OUTPUT"
+
       - name: Report result
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
